@@ -1,5 +1,4 @@
-﻿# Example file showing a basic pygame "game loop"
-import pygame
+﻿import pygame
 
 import src.hud.button as button
 
@@ -11,6 +10,7 @@ clock = pygame.time.Clock()
 running = True
 
 test_button = button.Button(screen, lambda: print("Test"), (screen.get_width() / 2 - 100, screen.get_height() / 2 - 30), (200, 60), "assets/images/test_btn.png", scene_bg_color = pygame.Color("purple"))
+test_button_1 = button.Button(screen, lambda: print("New test button !"),(screen.get_width() / 2 - 100, screen.get_height() / 2 - 30), (200, 60),foreground_color = pygame.Color(48, 154, 219), background_color = pygame.Color(39, 128, 184),text = "Test button", font_color = pygame.Color("white"),scene_bg_color = pygame.Color("purple"))
 
 while running:
     for event in pygame.event.get():
@@ -23,7 +23,6 @@ while running:
     test_button.draw(screen)
     test_button.listen()
 
-    # RENDER YOUR GAME HERE
 
     pygame.display.flip()
 

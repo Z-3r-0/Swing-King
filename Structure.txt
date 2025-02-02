@@ -1,22 +1,27 @@
 golf_game/
 │
-├── main.py                # Entry point of the game, Pygame initialization, game loop
-├── assets/                # Contains images, sounds, and other static files
+├── main.py                          # Entry point of the game, Pygame initialization, game loop
+├── assets/                          # Contains images, sounds, and other static files
 │   ├── images/
 │   ├── sounds/
 │   └── fonts/
 │
 ├── src/
-│   ├── __init__.py        # Marks the folder as a Python package
-│   ├── game.py            # Main Game class that handles the game loop and logic
-│   ├── entities/          # Folder for entity classes (ball, clubs, etc.)
-│   │   ├── __init__.py    # Allows easy importing of classes from this folder
-│   │   ├── ball.py        # Class representing the ball
-│   │   ├── club.py        # Class representing the clubs
-│   │   ├── terrain.py     # Class representing the terrain (zones, obstacles)
-│   │   └── obstacle.py    # Class representing obstacles (trees, rocks, etc.)
-│   ├── physics.py         # Class for managing physics (wind, gravity, etc.)
-│   ├── utils.py           # Utility functions for calculations or input handling
+│   ├── __init__.py                  # Marks the folder as a Python package
+│   ├── game.py                      # Main Game class that handles the game loop and logic
+│   ├── hud/                         # Folder for menu classes (buttons, ...)
+│   │   ├── __init__.py              # See src/__init__.py
+│   │   └── button.py                # Class representing Button
+│   ├── entities/                    # Folder for entity classes (ball, clubs, ...)
+│   │   ├── __init__.py              # See src/__init__.py
+│   │   ├── ball.py                  # Class representing the ball
+│   │   ├── club.py                  # Class representing the clubs
+│   │   ├── terrain.py               # Class representing the terrain (zones, obstacles)
+│   │   └── obstacle.py              # Class representing obstacles (trees, rocks, etc.)
+│   ├── utils/                       # Utility functions for calculations, input handling, ...
+│   │   ├── __init__.py              # See src/__init__.py
+│   │   └── physics_utils.py         # Helper functions for specific calculations (e.g., trajectory formulas, collision detection).
+│   ├── physics.py                   # Class for managing physics (wind, gravity, etc.)
 │
 └── config/
     ├── settings.py        # General game settings (resolution, speed, levels, etc.)
