@@ -10,6 +10,7 @@ class Ball:
         self._velocity = pygame.math.Vector2(0, 0)
         self._acceleration = pygame.math.Vector2(0, 0)
         self._diameter = floor(diameter)
+        self._rayon = self._diameter*7/2
         self._color = color
         self._mass = mass
         self._is_moving = False
@@ -29,5 +30,5 @@ class Ball:
         :return:
         """
 
-        surface.blit(self._image, (self._position.x, self._position.y))
+        surface.blit(self._image, (self._position.x-self._rayon, self._position.y-self._rayon))
         pygame.display.update()
