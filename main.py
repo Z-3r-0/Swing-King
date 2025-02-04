@@ -2,25 +2,31 @@
 
 import pygame
 
-import src.hud.button as button
-import src.entities.ball as ball
+from src.hud.button import Button
+from src.entities import Ball
+from src.entities import Terrain
+from src.entities import Obstacle
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
-test_button = button.Button(screen, lambda: print("Test"), (screen.get_width() / 2 - 100, screen.get_height() / 2 - 30),
-                            (200, 60), "assets/images/hud/test_btn.png", scene_bg_color=pygame.Color("purple"))
-test_button_1 = button.Button(screen, lambda: print("New test button !"),
-                              (screen.get_width() / 2 - 100, screen.get_height() / 2 - 30), (200, 60),
-                              foreground_color=pygame.Color(48, 154, 219), background_color=pygame.Color(39, 128, 184),
-                              text="Test button", font_color=pygame.Color("white"),
-                              scene_bg_color=pygame.Color("purple"))
+background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
+background = pygame.transform.smoothscale(background, (screen.get_width(), screen.get_height()))
 
-test_ball = ball.Ball(screen, (100, 200), 4.27, 1, pygame.Color("white"), "assets/images/balls/golf_ball.png")
+test_ball = Ball((100, 200), 4.27, 1, pygame.Color("white"), "assets/images/balls/golf_ball.png")
 
-x = 0
+green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(500, 50), 0.02, 0.3)
+bunker = Terrain('bunker', pygame.Vector2(500, screen.get_height() - 50), pygame.Vector2(100, 50), 0.1, 0.1)
+fairway = Terrain('fairway', pygame.Vector2(600, screen.get_height() - 50), pygame.Vector2(300, 50), 0.01, 0.5)
+lake = Terrain('lake', pygame.Vector2(900, screen.get_height() - 50), pygame.Vector2(120, 30), 0.0, 0.0)
+
+rock = Obstacle(pygame.Vector2(450, screen.get_height() - 90), pygame.Vector2(40, 60), pygame.Color("white"), "assets/images/obstacles/rock.png")
+
+terrains = [green, fairway, bunker, lake]
+obstacles = [rock]
+
 
 while running:
     for event in pygame.event.get():
@@ -29,11 +35,16 @@ while running:
 
     dt = clock.tick(60) / 1000
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    # draw the background
+    screen.blit(background, (0, 0))
 
-    """test_button.draw(screen)
-    test_button.listen()"""
+    for terrain in terrains:
+        terrain.draw(screen)
+
+    for obstacle in obstacles:
+        obstacle.draw(screen)
+
+    test_ball.draw(screen)
 
     pygame.display.flip()
 
