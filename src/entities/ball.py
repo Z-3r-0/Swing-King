@@ -4,11 +4,11 @@ import pygame
 
 class Ball:
 
-    def __init__(self, screen, position: tuple, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
+    def __init__(self, screen, position: pygame.Vector2, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
         self._screen = screen
-        self._position = pygame.math.Vector2(position)
-        self._velocity = pygame.math.Vector2(0, 0)
-        self._acceleration = pygame.math.Vector2(0, 0)
+        self._position = position
+        self._velocity = pygame.Vector2(0, 0)
+        self._acceleration = pygame.Vector2(0, 0)
         self._diameter = floor(diameter)
         self._rayon = self._diameter*7/2
         self._color = color
