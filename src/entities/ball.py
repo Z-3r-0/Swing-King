@@ -4,8 +4,7 @@ import pygame
 
 class Ball:
 
-    def __init__(self, screen, position: pygame.Vector2, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
-        self._screen = screen
+    def __init__(self, position: pygame.Vector2, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
         self._position = position
         self._velocity = pygame.Vector2(0, 0)
         self._acceleration = pygame.Vector2(0, 0)
@@ -31,4 +30,4 @@ class Ball:
         :return:
         """
 
-        surface.blit(self._image, (self._position[0]-self._rayon, self._position[1]-self._rayon))
+        surface.blit(self._image, (self._position.x-self._rayon, self._position.y-self._rayon))
