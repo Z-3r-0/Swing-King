@@ -44,7 +44,7 @@ while running:
     for obstacle in obstacles:
         obstacle.draw(screen)
 
-    test_ball.draw(screen)
+    test_ball.draw_ball(screen)
 
     pygame.display.flip()
 
