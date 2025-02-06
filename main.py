@@ -1,14 +1,12 @@
 ﻿import time
 
 import pygame
-from pygame.examples.moveit import WIDTH
 
-from src.hud.button import Button
 from src.entities import *
 from src.utils.physics_utils import *
 
 pygame.init()
-WIDTH, HEIGHT, Terrain_Real_Length = 1000, 500, 3000
+WIDTH, HEIGHT, Terrain_Real_Length = 1000, 500, 10000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
@@ -19,10 +17,10 @@ background = pygame.transform.smoothscale(background, (screen.get_width(), scree
 # Initializing all elements of the game
 Golf_Ball = Ball(pygame.Vector2(100, 200), 4.2, 0.047, pygame.Color("white"), "assets/images/balls/golf_ball.png")
 
-green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(500, 50), 0.02, 0.3)
-bunker = Terrain('bunker', pygame.Vector2(500, screen.get_height() - 50), pygame.Vector2(100, 50), 0.1, 0.1)
-fairway = Terrain('fairway', pygame.Vector2(600, screen.get_height() - 50), pygame.Vector2(300, 50), 0.01, 0.5)
-lake = Terrain('lake', pygame.Vector2(900, screen.get_height() - 50), pygame.Vector2(120, 30), 0.0, 0.0)
+green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(1000, 50), 0.02, 0.3)
+bunker = Terrain('bunker', pygame.Vector2(1000, screen.get_height() - 50), pygame.Vector2(400, 50), 0.1, 0.1)
+fairway = Terrain('fairway', pygame.Vector2(1400, screen.get_height() - 50), pygame.Vector2(500, 50), 0.01, 0.5)
+lake = Terrain('lake', pygame.Vector2(1900, screen.get_height() - 50), pygame.Vector2(120, 30), 0.0, 0.0)
 
 rock = Obstacle(pygame.Vector2(450, screen.get_height() - 90), pygame.Vector2(40, 60), pygame.Color("white"), "assets/images/obstacles/rock.png")
 
@@ -31,7 +29,7 @@ obstacles = [rock]
 
 
 # initializing the camera, which will represent what we can see at the screen
-# By moving to the left or right elements depending of the position of the ball
+# By moving to the left or right elements depending on the position of the ball
 # (It is not a real camera)
 camera = pygame.Rect(0, 0, WIDTH, HEIGHT)
 
@@ -55,10 +53,10 @@ while running:
         # Updating the position x of the ball in function of the time since the start of the timer
         Current_Time = time.time() - Time_Start
 
-        posx = calculate_traj_x(Current_Time, 100, 30, Golf_Ball._mass) #*10 is arbitrary, else it doesn't move alot
+        posx = calculate_traj_x(Current_Time, 250, 30, Golf_Ball._mass) #*10 is arbitrary, else it doesn't move alot
 
         # Updating the position y of the ball in function of the PosX
-        posy = calculate_trajectory(posx, 100, 30)
+        posy = calculate_trajectory(posx, 250, 30)
 
         # Update the position of the camera depending on the position of the ball and the edge of the map
         camera.x = int(posx) - WIDTH // 2
