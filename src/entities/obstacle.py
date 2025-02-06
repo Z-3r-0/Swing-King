@@ -17,6 +17,7 @@ class Obstacle:
         self.color = color
         self.image_path = image_path
         self.rect = pygame.Rect(self.position, self.size)
+        self.position_constant = position # Constant of the position at the start
 
         if image_path:
             self._image = pygame.image.load(image_path).convert_alpha()

@@ -19,7 +19,7 @@ class Terrain:
         self.size = size
         self.friction = friction
         self.bounce_factor = bounce_factor
-
+        self.position_constant = position # Constant of position at the start
     def apply_effects(self, ball):
         """
         Applies terrain-specific effects to the ball (e.g., friction, bounce).
@@ -36,7 +36,7 @@ class Terrain:
 
         :return: True if another object is in contact with the terrain, False otherwise.
         """
-
+        # TODO: Check if we need to change this value with the position constant
         x, y = self.position
         width, height = self.size
 
