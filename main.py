@@ -5,6 +5,8 @@ import pygame
 from src.entities import *
 from src.utils.physics_utils import *
 
+import src.utils.level_loader as level_loader
+
 pygame.init()
 WIDTH, HEIGHT, Terrain_Real_Length = 1000, 500, 10000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -17,10 +19,10 @@ background = pygame.transform.smoothscale(background, (screen.get_width(), scree
 # Initializing all elements of the game
 Golf_Ball = Ball(pygame.Vector2(100, 200), 4.2, 0.047, pygame.Color("white"), "assets/images/balls/golf_ball.png")
 
-green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(1000, 92), 5, 0.02, 0.3)
-bunker = Terrain('bunker', pygame.Vector2(995, screen.get_height() - 92), pygame.Vector2(400, 92), 0, 0.1, 0.1)
-fairway = Terrain('fairway', pygame.Vector2(1391, screen.get_height() - 70), pygame.Vector2(500, 100), -5, 0.01, 0.5)
-lake = Terrain('lake', pygame.Vector2(1890, screen.get_height() - 47), pygame.Vector2(300, 50), 0, 0.0, 0.0)
+green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(1000, 92), 5)
+bunker = Terrain('bunker', pygame.Vector2(995, screen.get_height() - 92), pygame.Vector2(400, 92), 0)
+fairway = Terrain('fairway', pygame.Vector2(1391, screen.get_height() - 70), pygame.Vector2(500, 100), -5)
+lake = Terrain('lake', pygame.Vector2(1890, screen.get_height() - 47), pygame.Vector2(300, 50), 0)
 
 rock = Obstacle(pygame.Vector2(450, screen.get_height() - 90), pygame.Vector2(40, 60), pygame.Color("white"),
                 "assets/images/obstacles/rock.png")
@@ -35,6 +37,10 @@ camera = pygame.Rect(0, 0, WIDTH, HEIGHT)
 
 # Initializing time for the start of the launch of the ball
 Time_Start = time.time()
+
+# Load test level (level1.json) data
+lvl = level_loader.load_json_level("data/levels/level1.json")
+lvl = level_loader.json_to_list(lvl, screen)
 
 while running:
     for event in pygame.event.get():
@@ -62,18 +68,17 @@ while running:
         Golf_Ball._position = pygame.math.Vector2(posx - camera.x, HEIGHT - posy)
 
     # Hence we also move all objects to the left (or right) depending on where the ball is going
-    for terrain in terrains:
-        terrain.position = pygame.Vector2(terrain.position_constant[0] - camera.x, terrain.position_constant[1])
+    for terrain in lvl:
+        terrain.position = pygame.Vector2(terrain.start_position[0] - camera.x, terrain.start_position[1])
         terrain.draw(screen)
 
     for obstacle in obstacles:
         obstacle.position = pygame.Vector2(obstacle.position_constant[0] - camera.x, obstacle.position_constant[1])
         obstacle.draw(screen)
 
-    # Displaying the golf ball on the screen
+
     Golf_Ball.draw_ball(screen)
 
-    #Update whole frame
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60

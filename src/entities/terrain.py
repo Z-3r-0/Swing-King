@@ -2,26 +2,34 @@
 
 
 class Terrain:
-    def __init__(self, terrain_type: str, position: pygame.Vector2, size: pygame.Vector2, rotation: float,
-                 friction: float,
-                 bounce_factor: float):
+    def __init__(self, terrain_type: str, position: pygame.Vector2, size: pygame.Vector2, rotation: float):
         """
         Initializes the terrain zone.
 
         :param terrain_type: Type of the terrain (e.g., 'green', 'fairway', 'bunker', 'lake').
         :param position: (x, y) position of the top-left corner of the terrain area.
         :param size: (width, height) of the terrain zone.
-        :param friction: Friction coefficient affecting the ball's speed.
-        :param bounce_factor: Determines how much the ball bounces (0 = no bounce, 1 = full bounce).
         """
 
         self.terrain_type = terrain_type
         self.position = position
         self.size = size
         self.rotation = rotation
-        self.friction = friction
-        self.bounce_factor = bounce_factor
-        self.position_constant = position  # Constant of position at the start
+        self.start_position = position  # Constant of position at the start
+
+        self.friction = {  # Purely random value, put here temporarily just for implementing purposes
+            'green': 0.1,
+            'fairway': 0.1,
+            'bunker': 0.1,
+            'lake': 0.1
+        }
+
+        self.bounce_factor = {  # Same
+            'green': 0.1,
+            'fairway': 0.1,
+            'bunker': 0.1,
+            'lake': 0.1
+        }
 
     def apply_effects(self, ball):
         """
@@ -52,7 +60,6 @@ class Terrain:
         Draws the terrain zone on the specified surface with rotation.
         :param surface: The main display surface to draw the terrain on.
         """
-
 
         colors = {
             'green': (34, 139, 34),
