@@ -51,21 +51,21 @@ while running:
     screen.blit(background, (0, 0))
 
     # We update the ball while it is above the ground
-    if Golf_Ball._position[1] <= HEIGHT:
+    if Golf_Ball.position[1] <= HEIGHT:
         # Updating the position x of the ball in function of the time since the start of the timer
         Current_Time = time.time() - Time_Start
 
-        posx = calculate_traj_x(Current_Time, 250, 30, Golf_Ball._mass)  #*10 is arbitrary, else it doesn't move alot
+        pos_x = calculate_traj_x(Current_Time, 250, 30, Golf_Ball.mass)  # *10 is arbitrary, else it doesn't move alot
 
         # Updating the position y of the ball in function of the PosX
-        posy = calculate_trajectory(posx, 250, 30)
+        posy = calculate_trajectory(pos_x, 250, 30)
 
         # Update the position of the camera depending on the position of the ball and the edge of the map
-        camera.x = int(posx) - WIDTH // 2
+        camera.x = int(pos_x) - WIDTH // 2
         camera.x = max(0, min(camera.x, Terrain_Real_Length - WIDTH))
 
         # Update the position of the ball minus the position of the camera, to always center the ball
-        Golf_Ball._position = pygame.math.Vector2(posx - camera.x, HEIGHT - posy)
+        Golf_Ball.position = pygame.math.Vector2(pos_x - camera.x, HEIGHT - posy)
 
     # Hence we also move all objects to the left (or right) depending on where the ball is going
     for terrain in lvl:
@@ -75,7 +75,6 @@ while running:
     for obstacle in obstacles:
         obstacle.position = pygame.Vector2(obstacle.position_constant[0] - camera.x, obstacle.position_constant[1])
         obstacle.draw(screen)
-
 
     Golf_Ball.draw_ball(screen)
 
