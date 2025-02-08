@@ -3,6 +3,7 @@
 import pygame
 
 from src.entities import *
+from src.hud import Button
 from src.utils.physics_utils import *
 
 pygame.init()
@@ -10,6 +11,8 @@ WIDTH, HEIGHT, Terrain_Real_Length = 1000, 500, 10000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
+
+test_btn = Button(screen, lambda: print("Button clicked"), pygame.Vector2(100, 100), pygame.Vector2(100, 100), "assets/images/hud/test_btn.png")
 
 background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
 background = pygame.transform.smoothscale(background, (screen.get_width(), screen.get_height()))
@@ -46,6 +49,9 @@ while running:
     # draw the background
     screen.blit(background, (0, 0))
 
+    # draw the button
+    test_btn.draw(screen)
+    test_btn.listen()
 
     # We update the ball while it is above the ground
     if Golf_Ball._position[1] <= HEIGHT:
