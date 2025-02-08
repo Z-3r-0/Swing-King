@@ -1,0 +1,92 @@
+﻿{
+  "zones": [
+    {
+      "id": "0",
+      "position": {"x":  0, "y":  50},
+      "size": {"width":  500, "height":  50},
+      "rotation": 0,
+      "type": "fairway",
+      "altitude": 0
+    },
+    {
+      "id": "1",
+      "position": {"x": 499, "y": 68},
+      "size": {"width": 1000, "height": 85},
+      "rotation": 1.9,
+      "type": "fairway",
+      "altitude": 10
+    },
+    {
+      "id": "2",
+      "position": {"x": 1498, "y": 83},
+      "size": {"width": 400, "height": 84},
+      "rotation": 0,
+      "type": "fairway",
+      "altitude": 10
+    },
+    {
+      "id": "3",
+      "position": {"x": 1898, "y": 83},
+      "size": {"width": 600, "height": 84},
+      "rotation": 0,
+      "type": "bunker",
+      "altitude": 10
+    },
+    {
+      "id": "5",
+      "position": {"x": 2498, "y": 83},
+      "size": {"width": 500, "height": 84},
+      "rotation": 0,
+      "type": "fairway",
+      "altitude": 10
+    },
+    {
+      "id": "4",
+      "position": {"x": 2978, "y": 67},
+      "size": {"width": 100, "height": 80},
+      "rotation": -25,
+      "type": "green",
+      "altitude": 3
+    },
+    {
+      "id": "6",
+      "position": {"x": 3070, "y": 50},
+      "size": {"width": 400, "height": 80},
+      "rotation": 0,
+      "type": "green",
+      "altitude": 3
+    },
+    {
+      "id": "7",
+      "position": {"x": 3470, "y": 50},
+      "size": {"width": 600, "height": 80},
+      "rotation": 0,
+      "type": "lake",
+      "altitude": 3
+    },
+    {
+      "id": "8",
+      "position": {"x": 4070, "y": 50},
+      "size": {"width": 800, "height": 80},
+      "rotation": 0,
+      "type": "fairway",
+      "altitude": 3
+    },
+    {
+      "id": "9",
+      "position": {"x": 4870, "y": 50},
+      "size": {"width": 600, "height": 80},
+      "rotation": 0,
+      "type": "green",
+      "altitude": 3
+    },
+    {
+      "id": "10",
+      "position": {"x": 5470, "y": 50},
+      "size": {"width": 300, "height": 80},
+      "rotation": 0,
+      "type": "fairway",
+      "altitude": 3
+    }
+  ]
+}
