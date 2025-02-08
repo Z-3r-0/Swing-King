@@ -2,25 +2,85 @@
 
 
 class Terrain:
-    def __init__(self, screen, size: tuple, color: pygame.Color, image_path: str = None):
-        self._screen = screen
-        self._size = size
-        self._color = color
-        self._image_path = image_path
+    def __init__(self, terrain_type: str, position: pygame.Vector2, size: pygame.Vector2, rotation: float):
+        """
+        Initializes the terrain zone.
 
-        if self._image_path:
-            self._image = pygame.image.load(self._image_path).convert()
-            self._image = pygame.transform.scale(self._image, self._size)
-        else:
-            self._image = None
+        :param terrain_type: Type of the terrain (e.g., 'green', 'fairway', 'bunker', 'lake').
+        :param position: (x, y) position of the top-left corner of the terrain area.
+        :param size: (width, height) of the terrain zone.
+        """
 
-    def draw(self):
-        if self._image:
-            self._screen.blit(self._image, (0, 0))
-        else:
-            self._screen.fill(self._color)
+        self.terrain_type = terrain_type
+        self.position = position
+        self.size = size
+        self.rotation = rotation
+        self.start_position = position  # Constant of position at the start
 
-        pygame.display.update()
+        self.friction = {  # Purely random value, put here temporarily just for implementing purposes
+            'green': 0.1,
+            'fairway': 0.1,
+            'bunker': 0.1,
+            'lake': 0.1
+        }
 
+        self.bounce_factor = {  # Same
+            'green': 0.1,
+            'fairway': 0.1,
+            'bunker': 0.1,
+            'lake': 0.1
+        }
 
+    def apply_effects(self, ball):
+        """
+        Applies terrain-specific effects to the ball (e.g., friction, bounce).
 
+        :param ball: (Ball): The ball object interacting with the terrain.
+        """
+        print("TODO - Implement apply_effects function")
+
+    def check_collision(self, other):
+        """
+        Checks if the ball is currently colliding with the terrain zone.
+
+        :param other: The other object to check for collision.
+
+        :return: True if another object is in contact with the terrain, False otherwise.
+        """
+        # TODO: Check if we need to change this value with the position constant
+        x, y = self.position
+        width, height = self.size
+
+        if (x <= other.position.x <= x + width) and (y <= other.position.y <= y + height):
+            return True
+        return False
+
+    def draw(self, surface):
+        """
+        Draws the terrain zone on the specified surface with rotation.
+        :param surface: The main display surface to draw the terrain on.
+        """
+
+        colors = {
+            'green': (34, 139, 34),
+            'fairway': (60, 179, 113),
+            'bunker': (194, 178, 128),
+            'lake': (30, 144, 255)
+        }
+        color = colors.get(self.terrain_type, (255, 255, 255))
+
+        # Create a temporary surface with per-pixel alpha (transparency)
+        temp_surface = pygame.Surface((int(self.size.x), int(self.size.y)), pygame.SRCALPHA)
+
+        # Fill the temporary surface with the desired color.
+        temp_surface.fill(color)
+
+        rotated_surface = pygame.transform.rotate(temp_surface, self.rotation)
+
+        # To ensure the terrain rotates around its center, get the rect of the rotated surface
+        # and set its center to the center of the original terrain rectangle.
+        original_center = (self.position.x + self.size.x / 2, self.position.y + self.size.y / 2)
+        rotated_rect = rotated_surface.get_rect(center=original_center)
+
+        # Final blit
+        surface.blit(rotated_surface, rotated_rect.topleft)
