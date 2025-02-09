@@ -19,15 +19,9 @@ background = pygame.transform.smoothscale(background, (screen.get_width(), scree
 # Initializing all elements of the game
 Golf_Ball = Ball(pygame.Vector2(100, 200), 4.2, 0.047, pygame.Color("white"), "assets/images/balls/golf_ball.png")
 
-green = Terrain('green', pygame.Vector2(0, screen.get_height() - 50), pygame.Vector2(1000, 92), 5)
-bunker = Terrain('bunker', pygame.Vector2(995, screen.get_height() - 92), pygame.Vector2(400, 92), 0)
-fairway = Terrain('fairway', pygame.Vector2(1391, screen.get_height() - 70), pygame.Vector2(500, 100), -5)
-lake = Terrain('lake', pygame.Vector2(1890, screen.get_height() - 47), pygame.Vector2(300, 50), 0)
-
 rock = Obstacle(pygame.Vector2(450, screen.get_height() - 90), pygame.Vector2(40, 60), pygame.Color("white"),
                 "assets/images/obstacles/rock.png")
 
-terrains = [green, fairway, bunker, lake]
 obstacles = [rock]
 
 # initializing the camera, which will represent what we can see at the screen
