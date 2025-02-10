@@ -14,7 +14,7 @@ play_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").conve
 options_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").convert()
 credits_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1CREDITS.png").convert()
 
-# Define game states
+
 MAIN_MENU = "main_menu"
 PLAY_SCREEN = "play_screen"
 OPTIONS_SCREEN = "options_screen"
@@ -37,7 +37,6 @@ def go_to_menu():
     global current_screen
     current_screen = MAIN_MENU
 
-running = True
 
 def exit_function():
     pygame.quit()
@@ -69,100 +68,17 @@ EXIT = Button(screen, lambda: exit_function(), (532,640), (270,80), "../assets/i
               "../assets/images/buttons/exit/EXIT_CLICKED.png")
 BACK = Button(screen, lambda: go_to_menu(), (532,640), (270,80), "../assets/images/buttons/back/BACK.png", "../assets/images/buttons/back/BACK_HOVERED.png","../assets/images/buttons/back/BACK_CLICKED.png")
 
-
-'''''''''
-#GAMELOOP1
-while running :
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-        # Check which screen is active and render it
-    if current_screen == MAIN_MENU:
-        screen.blit(background, (0, 0))
-
-        # Draw and listen for buttons
-        PLAY.listen(go_to_play)
-        OPTIONS.listen(go_to_options)
-        CREDITS.listen(go_to_credits)
-        EXIT.listen(exit_function)
-
-        PLAY.draw(screen)
-        OPTIONS.draw(screen)
-        CREDITS.draw(screen)
-        EXIT.draw(screen)
-
-    elif current_screen == PLAY_SCREEN:
-        screen.blit(play_bg, (0, 0))
-        BACK.listen(go_to_menu)
-        BACK.draw(screen)
-
-    elif current_screen == OPTIONS_SCREEN:
-        screen.blit(options_bg, (0, 0))
-        BACK.listen(go_to_menu)
-        BACK.draw(screen)
-
-    elif current_screen == CREDITS_SCREEN:
-        screen.blit(credits_bg, (0, 0))
-        BACK.listen(go_to_menu)
-        BACK.draw(screen)
-
-    pygame.display.update()
-    clock.tick(60)
-'''''''''
-
-
-'''''''''
-#Lu
-def game():
-    while running :
-        screen.blit(background, (0, 0))
-
-
-        PLAY.listen()
-        OPTIONS.listen()
-        CREDITS.listen()
-        EXIT.listen()
-
-        PLAY.draw(screen)
-        OPTIONS.draw(screen)
-        CREDITS.draw(screen)
-        EXIT.draw(screen)
-
-
-        #for event in pygame.event.get():
-        #    if event.type == pygame.MOUSEBUTTONDOWN:
-        #        CREDITS.click(credits_page())
-
-        pygame.display.update()
-
-
-        # let the user quit the game
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-
-
-
-        pygame.display.update()
-        clock.tick(60)
-
-
-game()
-'''''''''
-
 running = True
+
 while running:
-    screen.fill((0, 0, 0))  # Efface l'écran avant de redessiner
+    screen.fill((0, 0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-        # Passer l'événement aux boutons
+
         if current_screen == MAIN_MENU:
             PLAY.listen(event)
             OPTIONS.listen(event)
@@ -171,7 +87,7 @@ while running:
         elif current_screen in {PLAY_SCREEN, OPTIONS_SCREEN, CREDITS_SCREEN}:
             BACK.listen(event)
 
-    # Afficher les bons écrans
+    # affichage des différetnes scènes
     if current_screen == MAIN_MENU:
         screen.blit(background, (0, 0))
         PLAY.hover()
