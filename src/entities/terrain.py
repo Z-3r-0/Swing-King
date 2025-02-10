@@ -9,6 +9,7 @@ class Terrain:
         :param terrain_type: Type of the terrain (e.g., 'green', 'fairway', 'bunker', 'lake').
         :param position: (x, y) position of the top-left corner of the terrain area.
         :param size: (width, height) of the terrain zone.
+        :param rotation: Rotation angle of the terrain zone.
         """
 
         self.terrain_type = terrain_type
@@ -16,6 +17,7 @@ class Terrain:
         self.size = size
         self.rotation = rotation
         self.start_position = position  # Constant of position at the start
+        self.rect = pygame.Rect(self.position, self.size)
 
         self.friction = {  # Purely random value, put here temporarily just for implementing purposes
             'green': 0.1,
@@ -39,21 +41,6 @@ class Terrain:
         """
         print("TODO - Implement apply_effects function")
 
-    def check_collision(self, other):
-        """
-        Checks if the ball is currently colliding with the terrain zone.
-
-        :param other: The other object to check for collision.
-
-        :return: True if another object is in contact with the terrain, False otherwise.
-        """
-        # TODO: Check if we need to change this value with the position constant
-        x, y = self.position
-        width, height = self.size
-
-        if (x <= other.position.x <= x + width) and (y <= other.position.y <= y + height):
-            return True
-        return False
 
     def draw(self, surface):
         """
