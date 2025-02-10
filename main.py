@@ -5,7 +5,6 @@ from src.utils import *
 
 import src.utils.settings_loader as settings
 
-
 import src.utils.level_loader as level_loader
 
 pygame.init()
@@ -36,13 +35,17 @@ Time = 0
 
 # define shot variables
 Shot_Angle = 25
-Shot_Strength = 120
+Shot_Strength = 250
 
 
 # Load test level (level1.json) data
 lvl = level_loader.load_json_level("data/levels/level1.json")
 lvl = level_loader.json_to_list(lvl, screen)
+
+
 ball_rect = pygame.Rect(Golf_Ball.position.x - Golf_Ball.rayon, Golf_Ball.position.y - Golf_Ball.rayon, Golf_Ball.position.x + Golf_Ball.rayon, Golf_Ball.position.y + Golf_Ball.rayon)
+
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -74,9 +77,8 @@ while running:
 
     # Hence we also move all objects to the left (or right) depending on where the ball is going
     for terrain in lvl:
-        terrain.position_update(terrain.start_position, camera.position)
+        terrain.position_update(camera.position)
         terrain.draw(screen)
-        pygame.draw.polygon(screen, (255, 0, 0),terrain.polygon, 2)
 
         # Check if the ball is colliding with the terrain
         # if not Golf_Ball.is_colliding and Time > 1/6:
