@@ -6,7 +6,7 @@ pygame.init()
 #
 #
 class Button:
-    def __init__(self, screen, func, position: pygame.Vector2, size: pygame.Vector2, image_path: str,hovered_image_path: str):
+    def __init__(self, screen, func, position: pygame.Vector2, size: pygame.Vector2, image_path: str,hovered_image_path: str,clicked_image_path):
         """
         Initializes a Button instance with the given parameters.
         :param screen: pygame screen
@@ -16,24 +16,38 @@ class Button:
         :param image_path: path to image
         """
         self.screen = screen
-        self._func = func
+        self.func = func
         self.position = position
         self.size = size
+
         self.imagePath = image_path
-        self.hovered_image = pygame.image.load(hovered_image_path).convert_alpha
+
+
+
         self.rect = pygame.Rect(self.position, self.size)
-        self.rendered_image = image_path
+
 
         self.image = pygame.image.load(image_path).convert_alpha()
+        self.hovered_image = pygame.image.load(hovered_image_path).convert_alpha()
+        self.clicked_image = pygame.image.load(clicked_image_path).convert_alpha()
+
+
         self.image = pygame.transform.smoothscale(self.image, self.size)
+        self.hovered_image = pygame.transform.smoothscale(self.hovered_image, self.size)
+        self.clicked_image = pygame.transform.smoothscale(self.clicked_image, self.size)
+
+        self.rendered_image = self.image.copy()
 
         self.rect = pygame.Rect(self.position, self.size)
-
         self.clicked = False
         self.enabled = True
 
     def hover(self):
-        self.image = self.hovered_image
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            self.rendered_image = self.hovered_image.copy()
+        else :
+            self.rendered_image = self.image.copy()
 
 
     def get_position(self):
@@ -86,18 +100,10 @@ class Button:
         """
         Listens for mouse clicks on the button and triggers the button's function if clicked.
         """
-        if self.enabled and pygame.mouse.get_pressed()[0] and self.is_clicked():
-            self.click(self._func)
+        self.hover()
+        self.click(self.func)
 
-    def is_clicked(self):
-        """
-        Checks if the button is currently clicked.
-        """
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            self.clicked = True
-            return True
-        return False
+
 
     def draw(self, surface):
         """
@@ -107,32 +113,19 @@ class Button:
 
         surface.blit(self.rendered_image, self.position)
 
-    def click_effect(self):
-        """
-        Applies a visual effect when the button is clicked.
-        """
 
-        # Clear the area around the button with the scene background color
-        s = pygame.Surface(self.size)
-        s.set_alpha(128)
-        s.fill((255, 255, 255))
-        self.screen.blit(s, self.position)
-
-        # Draw the offset image if clicked
-        offset = 4 if self.clicked else 0
-
-        self.screen.blit(self.image, (self.position[0], self.position[1] + offset))
-        pygame.display.update()
 
     def click(self, func):
         """
         Triggers the button's click effect and executes the provided function.
         :param func: function to be called
         """
-        if self.clicked:
-            self.click_effect()
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos) and pygame.mouse.get_pressed()[0]:
+            self.rendered_image = self.clicked_image.copy()
             func()
-            self.clicked = False
+        else :
+            self.hover()
 
     def set_enabled(self, enabled: bool):
         """
@@ -213,14 +206,24 @@ green3 = Button(517,465,'test3',greenbutton,greenbuttonhovered,0.8)
 
 """""""""
 
-PLAY = Button(screen,lambda: print("Button clicked"),(532,370),(270,80), "../assets/images/buttons/PLAY.png")
-OPTIONS = Button(screen,lambda: print("Button clicked"),(532,460),(270,80), "../assets/images/buttons/OPTIONS.png")
-CREDITS = Button(screen,lambda: print("Button clicked"),(532,550),(270,80), "../assets/images/buttons/CREDITS.png")
-EXIT = Button(screen,lambda: print("Button clicked"),(532,640),(270,80), "../assets/images/buttons/EXIT.png")
+PLAY = Button(screen, lambda: print("Button clicked"), (532,370), (270,80), "../assets/images/buttons/play/PLAY.png", "../assets/images/buttons/play/PLAY_HOVERED.png","../assets/images/buttons/play/PLAY_CLICKED.png")
+OPTIONS = Button(screen, lambda: print("Button clicked"), (532,460), (270,80),
+                 "../assets/images/buttons/options/OPTIONS.png", "../assets/images/buttons/options/OPTIONS_HOVERED.png",
+                 "../assets/images/buttons/options/OPTIONS_CLICKED.png")
+CREDITS = Button(screen, lambda: print("Button clicked"), (532,550), (270,80),
+                 "../assets/images/buttons/credits/CREDITS.png", "../assets/images/buttons/credits/CREDITS_HOVERED.png",
+                 "../assets/images/buttons/credits/CREDITS_CLICKED.png")
+EXIT = Button(screen, lambda: print("Button clicked"), (532,640), (270,80), "../assets/images/buttons/exit/EXIT.png",
+              "../assets/images/buttons/exit/EXIT_HOVERED.png",
+              "../assets/images/buttons/exit/EXIT_CLICKED.png")
 
 while True :
     screen.blit(background, (0, 0))
 
+    PLAY.hover()
+    OPTIONS.hover()
+    CREDITS.hover()
+    EXIT.hover()
     PLAY.draw(screen)
     OPTIONS.draw(screen)
     CREDITS.draw(screen)
@@ -228,9 +231,8 @@ while True :
 
     #if pygame.mouse.get_pos() ==
 
-
-    #if green1.draw() == True:
-    #    print('PLAY')
+    if PLAY.draw(screen) == True:
+        print('PLAY')
     #if green2.draw() == True:
     #    print('Credits')
 
