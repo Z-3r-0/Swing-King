@@ -1,5 +1,5 @@
 ﻿import pygame
-
+import time
 
 class Button:
     def __init__(self, screen, func, position: pygame.Vector2, size: pygame.Vector2, image_path: str,hovered_image_path: str,clicked_image_path):
@@ -37,6 +37,7 @@ class Button:
         self.rect = pygame.Rect(self.position, self.size)
         self.clicked = False
         self.enabled = True
+        self.debounce = False
 
     def hover(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -60,7 +61,7 @@ class Button:
 
         surface.blit(self.rendered_image, self.position)
 
-    def click(self, func):
+    def click3(self, func):
         """
         Triggers the button's click effect and executes the provided function.
         :param func: function to be called
@@ -71,3 +72,21 @@ class Button:
             func()
         else :
             self.hover()
+
+    def click(self, func):
+
+        if not self.enabled:
+            return
+
+        mouse_pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            if pygame.mouse.get_pressed()[0]:
+                if not self.debounce:
+                    self.rendered_image = self.clicked_image.copy()
+                    func()
+
+                    self.debounce = True
+            else:
+                self.debounce = False  # Reset debounce when the mouse button is released
+        else:
+            self.hover()  # Revert to hover state if not clicked
