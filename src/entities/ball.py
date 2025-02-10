@@ -7,19 +7,22 @@ class Ball:
     def __init__(self, position: pygame.Vector2, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
         self.position = position
         self.old_position = position
+        self.start_position = position
         self.velocity = pygame.Vector2(0, 0)
         self.acceleration = pygame.Vector2(0, 0)
-        self.diameter = floor(diameter)
-        self.rayon = self.diameter * 7 / 2
+        self.scale_value = 7
+        self.diameter = floor(diameter) * self.scale_value
+        self.rayon = self.diameter * self.scale_value / 2
         self.color = color
         self.mass = mass
         self.is_moving = False
+        self.is_colliding = False
         self.image_path = image_path
 
         if self.image_path:
             self.image = pygame.image.load(image_path).convert_alpha()
             self.image = pygame.transform.smoothscale(self.image, (
-                self.diameter * 7, self.diameter * 7))  # Arbitrary 7 scale value
+                self.diameter, self.diameter))  # Arbitrary 7 scale value
 
     def draw_ball(self, surface):
         """
@@ -52,3 +55,13 @@ class Ball:
 
         self.old_position = self.position + pygame.Vector2(camera_x, 0)
         self.position = new_position
+
+    def check_collision(self, element: pygame.Rect):
+        """
+        Checks if the ball is currently colliding with the element.
+        :param element: The element to check for collision.
+        :return: True if the ball is in contact with the element, False otherwise.
+        """
+        if element.colliderect(pygame.Rect(self.position.x - self.rayon, self.position.y - self.rayon,self.rayon,self.rayon)):
+            return True
+        return False
