@@ -3,7 +3,7 @@
 class Button:
     def __init__(self, screen, func, position, size, image_path, hovered_image_path, clicked_image_path):
         self.screen = screen
-        self.func = func  # Fonction à exécuter lors du clic
+        self.func = func  # Function to execute on click
         self.position = position
         self.size = size
 
@@ -19,8 +19,8 @@ class Button:
         self.rendered_image = self.image.copy()
         self.rect = pygame.Rect(self.position, self.size)
 
-        self.clicked = False  # Empêche les clics multiples
-
+        self.clicked = False  # Prevents multiple clicks
+ 
     def hover(self):
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
@@ -36,8 +36,8 @@ class Button:
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if self.clicked and self.rect.collidepoint(event.pos):
-                self.func()  # Exécute la fonction
-            self.clicked = False  # Réinitialisation du clic
+                self.func()
+            self.clicked = False  # Click reset
 
     def draw(self):
         self.screen.blit(self.rendered_image, self.position)
