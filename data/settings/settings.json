@@ -1,0 +1,17 @@
+{
+  "graphics": {
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "fullscreen": true,
+    "fps_limit": 60
+  },
+  "audio": {
+    "master_volume": 80,
+    "music_volume": 60,
+    "sfx_volume": 70,
+    "voice_volume": 75,
+    "mute": false
+  }
+}
