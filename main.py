@@ -1,9 +1,9 @@
-﻿import time
-
-import pygame
+﻿import pygame
 
 from src.entities import *
 from src.utils import *
+
+import src.utils.settings_loader as settings
 
 
 import src.utils.level_loader as level_loader
@@ -13,10 +13,11 @@ WIDTH, HEIGHT, Terrain_Max_Length, Terrain_Max_Height = 1000, 600, 10000, 2000
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
-FPS = 120
 
 background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
 background = pygame.transform.smoothscale(background, (screen.get_width(), screen.get_height()))
+
+FPS = settings.load_json_settings("data/settings/settings.json")["graphics"]["fps_limit"]
 
 # Initializing all elements of the game
 Golf_Ball = Ball(pygame.Vector2(100, 200), 4.2, 0.047, pygame.Color("white"), "assets/images/balls/golf_ball.png")
@@ -77,7 +78,7 @@ while running:
 
     pygame.display.flip()
 
-    clock.tick(FPS)  # limits FPS to 60
-    Time += 1 / 60
+    clock.tick(FPS)  # limits FPS to settings
+    Time += 1 / FPS
 
 pygame.quit()
