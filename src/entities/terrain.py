@@ -12,23 +12,11 @@ class Terrain:
         """
 
         self.terrain_type = terrain_type
-        self.vertices = []
-
-        screen_height = 600  # Adjust this based on your actual screen height
+        self.vertices = vertices
 
         # We need at least 2 points to form a closed shape
         if len(vertices) < 2:
             raise ValueError("Terrain must have at least two vertices.")
-
-        # Create the extended polygon in the correct order
-        lower_vertices = [(x, screen_height + 100) for x, y in vertices]  # New vertices below the screen
-
-        for i in range(len(vertices) - 1):
-            # Order is: A → A' → B' → B
-            self.vertices.append(vertices[i])       # A
-            self.vertices.append(lower_vertices[i]) # A'
-            self.vertices.append(lower_vertices[i+1]) # B'
-            self.vertices.append(vertices[i+1])     # B
 
         self.original_vertices = self.vertices.copy()
         self.start_position = self.vertices[0]

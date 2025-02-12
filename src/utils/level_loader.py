@@ -44,6 +44,8 @@ def json_to_list(data: list, screen: pygame.Surface) -> list:
         for vertice in positions:
             vertices.append((vertice["x"], screen.get_height() - vertice["y"]))
 
+            print(f"Vertice : {(vertice["x"], screen.get_height() - vertice["y"])}")
+
         terrain_type = block["type"]
 
         new_terrain = Terrain(terrain_type, vertices)

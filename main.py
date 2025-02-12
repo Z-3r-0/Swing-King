@@ -8,15 +8,14 @@ import src.utils.settings_loader as settings
 import src.utils.level_loader as level_loader
 
 pygame.init()
-WIDTH, HEIGHT, Terrain_Max_Length, Terrain_Max_Height = 1000, 600, 10000, 2000
+WIDTH, HEIGHT, Terrain_Max_Length, Terrain_Max_Height = 1920, 1080, 10000, 2000
+FPS = settings.load_json_settings("data/settings/settings.json")["graphics"]["fps_limit"]
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 running = True
 
 background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
 background = pygame.transform.smoothscale(background, (screen.get_width(), screen.get_height()))
-
-FPS = settings.load_json_settings("data/settings/settings.json")["graphics"]["fps_limit"]
 
 # Initializing all elements of the game
 Golf_Ball = Ball(pygame.Vector2(0, 50), 4.2, 0.047, pygame.Color("white"), "assets/images/balls/golf_ball.png")
@@ -80,11 +79,13 @@ while running:
         terrain.position_update(camera.position)
         terrain.draw(screen)
 
-        # Check if the ball is colliding with the terrain
-        # if not Golf_Ball.is_colliding and Time > 1/6:
-        #     Golf_Ball.is_colliding = Golf_Ball.check_collision(terrain.rect)
-        #     if Golf_Ball.is_colliding:
-        #         print(f"Collision detected: {terrain}")
+    # pygame.draw.polygon(screen, (255, 255, 255), lvl[0].vertices)
+
+    # Check if the ball is colliding with the terrain
+    # if not Golf_Ball.is_colliding and Time > 1/6:
+    #     Golf_Ball.is_colliding = Golf_Ball.check_collision(terrain.rect)
+    #     if Golf_Ball.is_colliding:
+    #         print(f"Collision detected: {terrain}")
 
     for obstacle in obstacles:
         obstacle.position = pygame.Vector2(obstacle.position_constant.x - camera.position.x, obstacle.position_constant.y)
