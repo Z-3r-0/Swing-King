@@ -13,7 +13,7 @@ def load_json_settings(file_path: str) -> dict:
 
 
 def save_json_settings(file_path: str, data: dict):
-    """
+    """²
     Save a dictionary as a json file
     :param file_path: The file path of the json file
     :param data: The dictionary to save as a json file

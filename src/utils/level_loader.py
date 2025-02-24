@@ -1,5 +1,4 @@
 ﻿import json
-
 import pygame
 
 from src.entities import Terrain
@@ -36,14 +35,20 @@ def json_to_list(data: list, screen: pygame.Surface) -> list:
     terrain_ids = {}
     terrain_list = []
 
+
     for block in data:
+        vertices = []
         # Recreate a Terrain instance
-        position = pygame.Vector2(block["position"]['x'], screen.get_height() - block["position"]['y'])
-        size = pygame.Vector2(block["size"]["width"], block["size"]["height"])
-        rotation = block["rotation"]
+        positions = block["vertices"]
+
+        for vertice in positions:
+            vertices.append((vertice["x"], screen.get_height() - vertice["y"]))
+
+            print(f"Vertice : {(vertice["x"], screen.get_height() - vertice["y"])}")
+
         terrain_type = block["type"]
 
-        new_terrain = Terrain(terrain_type, position, size, rotation)
+        new_terrain = Terrain(terrain_type, vertices)
 
         terrain_ids[block["id"]] = new_terrain
 

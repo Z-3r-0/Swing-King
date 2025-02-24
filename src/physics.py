@@ -1,2 +1,2 @@
 ﻿class Physics:
-    pass
+    pass #ts
