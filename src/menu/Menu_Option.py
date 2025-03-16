@@ -53,12 +53,11 @@ class BarreVolume:
 
 # Classe pour les boutons
 class Bouton:
-    def __init__(self, x, y, largeur, hauteur, texte, image,hovered_image,cliked_image):
+    def __init__(self, x, y, largeur, hauteur, image,hovered_image,cliked_image):
         self.x_ratio = x / LARGEUR
         self.y_ratio = y / HAUTEUR
         self.largeur_ratio = largeur / LARGEUR
         self.hauteur_ratio = hauteur / HAUTEUR
-        self.texte = texte
         self.image = pygame.image.load(image)
         self.hovered_image = pygame.image.load(hovered_image)
 
@@ -75,18 +74,13 @@ class Bouton:
             int(self.hauteur_ratio * HAUTEUR)
         )
 
-    def afficher(self, ecran):
-
-        texte_surface = police.render(self.texte, True, BLANC)
-        texte_rect = texte_surface.get_rect(center=self.rect.center)
-        ecran.blit(texte_surface, texte_rect)
-
     def est_clique(self, pos):
         return self.rect.collidepoint(pos)
 
 # Classe pour le menu déroulant
 class MenuDeroulant:
-    def __init__(self, x, y, largeur, hauteur, options):
+    def __init__(self, x, y, largeur, hauteur, options, image,hovered_image):
+        self.hovered_image = pygame.image.load(hovered_image)
         self.x_ratio = x / LARGEUR
         self.y_ratio = y / HAUTEUR
         self.largeur_ratio = largeur / LARGEUR
@@ -94,6 +88,16 @@ class MenuDeroulant:
         self.options = options
         self.selection = options[resolution_index]
         self.ouvert = False
+        self.image = pygame.image.load(image)
+        self.options = [pygame.image.load(image) for image in options]
+
+    def draw(self, ecran):
+        mouse_pos = pygame.mouse.get_pos()
+        current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
+        ecran.blit(current_image, self.rect)
+        if self.ouvert:
+            for i, option in enumerate(self.options):
+                ecran.blit(option, (self.x_ratio, self.y_ratio + (i+1) * self.hauteur_ratio))
 
     def redimensionner(self):
         self.rect = pygame.Rect(
@@ -116,6 +120,7 @@ class MenuDeroulant:
                 texte_surface = police.render(option, True, BLANC)
                 texte_rect = texte_surface.get_rect(center=rect_option.center)
                 ecran.blit(texte_surface, texte_rect)
+
 
     def gerer_clic(self, pos):
         global resolution_index, LARGEUR, HAUTEUR, ECRAN
@@ -141,11 +146,16 @@ barres_volume = {
     "Voice": BarreVolume(200, 280, 400, 20)
 }
 
-bouton_fullscreen = Bouton(100, 200, 200, 50, "Fullscreen",
+bouton_fullscreen = Bouton(300, 300, 300, 100,
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
-menu_resolution = MenuDeroulant(200, 420, 200, 50, ["800x600", "1280x720", "1920x1080"])
+menu_resolution = MenuDeroulant(200, 420, 200, 50, [
+    "../../assets/images/buttons/Option Menu/Resolution/800X600.png",
+    "../../assets/images/buttons/Option Menu/Resolution/1280X720.png",
+    "../../assets/images/buttons/Option Menu/Resolution/1920X1080.png"],
+"../../assets/images/buttons/Option Menu/Resolution/800X600.png",
+"../../assets/images/buttons/Option Menu/Resolution/800X600_Hovered.png")
 
 plein_ecran = False
 
@@ -187,7 +197,7 @@ while running:
         barre.afficher(ECRAN, nom)
 
     bouton_fullscreen.draw(ECRAN)
-    menu_resolution.afficher(ECRAN)
+    menu_resolution.draw(ECRAN)
 
     pygame.display.flip()
 
