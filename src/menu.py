@@ -4,6 +4,7 @@ from pygame import mouse
 
 pygame.init()
 
+
 from hud import Button
 
 pygame.display.set_caption('SwingKing main menu')

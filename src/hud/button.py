@@ -1,5 +1,4 @@
 ﻿import pygame
-
 class Button:
     def __init__(self, screen, func, position, size, image_path, hovered_image_path, clicked_image_path):
         self.screen = screen
