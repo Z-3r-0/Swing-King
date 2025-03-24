@@ -175,7 +175,7 @@ bouton_fullscreen = Bouton(200, 340, 150, 50,
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen(2).png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
-menu_resolution = MenuDeroulant(300, 420, 200, 50, [
+menu_resolution = MenuDeroulant(200, 400, 150, 50, [
     "../../assets/images/buttons/Option Menu/Resolution/800X600.png",
     "../../assets/images/buttons/Option Menu/Resolution/1280X720.png",
     "../../assets/images/buttons/Option Menu/Resolution/1920X1080.png"],

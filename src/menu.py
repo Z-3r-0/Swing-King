@@ -2,6 +2,7 @@ import sys
 import pygame
 from pygame import mouse
 from pygame import mixer
+from menu import *
 
 pygame.init()
 
