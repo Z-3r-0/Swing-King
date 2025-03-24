@@ -61,18 +61,21 @@ class Bouton:
         self.image = pygame.image.load(image)
         self.hovered_image = pygame.image.load(hovered_image)
 
-    def draw(self, screen):
-        mouse_pos = pygame.mouse.get_pos()
-        current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
-        screen.blit(current_image, self.rect)
 
     def redimensionner(self):
         self.rect = pygame.Rect(
-            int(self.x_ratio * LARGEUR),
-            int(self.y_ratio * HAUTEUR),
-            int(self.largeur_ratio * LARGEUR),
-            int(self.hauteur_ratio * HAUTEUR)
+            self.x_ratio * LARGEUR,
+            self.y_ratio * HAUTEUR,
+            self.largeur_ratio * LARGEUR,
+            self.hauteur_ratio * HAUTEUR
         )
+        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+        self.hovered_image = pygame.transform.scale(self.hovered_image, (self.rect.width, self.rect.height))
+
+    def draw(self, screen):
+        mouse_pos = pygame.mouse.get_pos()
+        current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
+        screen.blit(current_image, self.rect.topleft)
 
     def est_clique(self, pos):
         return self.rect.collidepoint(pos)
@@ -94,10 +97,10 @@ class MenuDeroulant:
     def draw(self, ecran):
         mouse_pos = pygame.mouse.get_pos()
         current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
-        ecran.blit(current_image, self.rect)
+        ecran.blit(current_image, (self.x_ratio,self.y_ratio))
         if self.ouvert:
             for i, option in enumerate(self.options):
-                ecran.blit(option, (self.x_ratio, self.y_ratio + (i+1) * self.hauteur_ratio))
+                ecran.blit(option, (self.x_ratio, self.y_ratio + ((i+1) * self.hauteur_ratio)))
 
     def redimensionner(self):
         self.rect = pygame.Rect(
@@ -157,6 +160,7 @@ menu_resolution = MenuDeroulant(200, 420, 200, 50, [
 "../../assets/images/buttons/Option Menu/Resolution/800X600.png",
 "../../assets/images/buttons/Option Menu/Resolution/800X600_Hovered.png")
 
+background=pygame.image.load("../../assets/images/backgrounds/background.jpg")
 plein_ecran = False
 
 def redimensionner_elements():
@@ -170,7 +174,7 @@ redimensionner_elements()
 # Boucle principale
 running = True
 while running:
-    ECRAN.fill(NOIR)
+    ECRAN.blit(background, (0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
