@@ -1,6 +1,7 @@
 import sys
 import pygame
 from pygame import mouse
+from pygame import mixer
 
 pygame.init()
 
@@ -14,6 +15,13 @@ background = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").co
 play_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").convert()
 options_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").convert()
 credits_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1CREDITS.png").convert()
+
+mixer.music.load("../assets/audio/music/SwingKing.mp3")
+mixer.music.set_volume(0.5)
+
+def play_music():
+    mixer.music.play()
+    
 
 
 MAIN_MENU = "main_menu"
@@ -76,7 +84,7 @@ BACK = Button(screen, lambda: go_to_menu(), (532,640), (270,80), "../assets/imag
               "../assets/images/buttons/Main Menu/back/BACK_CLICKED.png")
 
 running = True
-
+play_music()
 while running:
     screen.fill((0, 0, 0))
 
