@@ -5,7 +5,7 @@ pygame.init()
 
 # Résolutions possibles
 RESOLUTIONS = [(800, 600), (1280, 720), (1920, 1080)]
-resolution_index = 1  # Par défaut : 1280x720
+resolution_index = 2  # Par défaut : 1280x720
 LARGEUR, HAUTEUR = RESOLUTIONS[resolution_index]
 
 # Création de la fenêtre (commence en mode fenêtré)
@@ -63,13 +63,8 @@ class Bouton:
 
 
     def redimensionner(self):
-        self.rect = pygame.Rect(
-            self.x_ratio * LARGEUR,
-            self.y_ratio * HAUTEUR,
-            self.largeur_ratio * LARGEUR,
-            self.hauteur_ratio * HAUTEUR
-        )
-        self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
+        self.image = pygame.transform.scale(self.image, (self.largeur_ratio*LARGEUR, self.hauteur_ratio*HAUTEUR))
+        self.rect = self.image.get_rect(topleft=(self.x_ratio * LARGEUR, self.y_ratio * HAUTEUR))
         self.hovered_image = pygame.transform.scale(self.hovered_image, (self.rect.width, self.rect.height))
 
     def draw(self, screen):
@@ -93,6 +88,7 @@ class MenuDeroulant:
         self.ouvert = False
         self.image = pygame.image.load(image)
         self.options = [pygame.image.load(image) for image in options]
+        self.redimensionner()
 
     def draw(self, ecran):
         mouse_pos = pygame.mouse.get_pos()
@@ -149,7 +145,7 @@ barres_volume = {
     "Voice": BarreVolume(200, 280, 400, 20)
 }
 
-bouton_fullscreen = Bouton(300, 300, 300, 100,
+bouton_fullscreen = Bouton(200, 300, 200, 50,
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
