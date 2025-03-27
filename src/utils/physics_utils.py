@@ -1,7 +1,7 @@
 import math
 
 
-def calculate_trajectory(x: float, speed: float, angle: int, initial_pos_y: float):
+def calculate_traj_y(x: float, speed: float, angle: float, initial_pos_y: float):
     """
     Calculates the vertical position (y) of the ball based on the horizontal distance (x).
 
@@ -21,7 +21,7 @@ def calculate_trajectory(x: float, speed: float, angle: int, initial_pos_y: floa
     y = (-4.9 * (x ** 2)) / (speed ** 2 * cos_alpha ** 2) + tan_alpha * x + initial_pos_y
     return y
 
-def calculate_traj_x(t: float, speed: float, angle: int, mass: float, initial_pos_x: float):
+def calculate_traj_x(t: float, speed: float, angle: float, mass: float, initial_pos_x: float):
     """
     Calculates the horizontal position (x) of the ball based on the time (t).
 
