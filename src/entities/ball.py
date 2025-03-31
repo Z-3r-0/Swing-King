@@ -12,7 +12,7 @@ class Ball:
         self.acceleration = pygame.Vector2(0, 0)
         self.scale_value = 7
         self.diameter = floor(diameter) # * self.scale_value
-        self.rayon = self.diameter / 2 # * self.scale_value / 2
+        self.radius = self.diameter / 2 # * self.scale_value / 2
         self.color = color
         self.mass = mass
         self.is_moving = False
@@ -37,7 +37,7 @@ class Ball:
         :return:
         """
 
-        surface.blit(self.image, (self.position.x - self.rayon * self.scale_value, self.position.y - self.rayon * self.scale_value))
+        surface.blit(self.image, (self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value))
 
     def get_speed(self,pos_camera_x: float = 0, fps: float = (1/60)):
         """
@@ -66,6 +66,6 @@ class Ball:
         :param element: The element to check for collision.
         :return: True if the ball is in contact with the element, False otherwise.
         """
-        if element.colliderect(pygame.Rect(self.position.x - self.rayon * self.scale_value, self.position.y - self.rayon * self.scale_value,self.rayon * self.scale_value,self.rayon * self.scale_value)):
+        if element.colliderect(pygame.Rect(self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value, self.radius * self.scale_value, self.radius * self.scale_value)):
             return True
         return False
