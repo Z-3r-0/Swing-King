@@ -32,7 +32,7 @@ background = pygame.transform.smoothscale(background, (WIDTH, HEIGHT))
 
 # Initialization of game objects
 Golf_Ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
-                 "assets/images/balls/golf_ball.png")
+                 "assets/images/balls/golf_ball2.png")
 
 # Initialization of obstacles
 rock = Obstacle(pygame.Vector2(450, HEIGHT - 90), pygame.Vector2(40, 60), pygame.Color("white"),
