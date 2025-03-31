@@ -32,7 +32,7 @@ background = pygame.transform.smoothscale(background, (WIDTH, HEIGHT))
 
 # Initialization of game objects
 Golf_Ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
-                 "assets/images/balls/golf_ball.png")
+                 "assets/images/balls/golf_ball2.png")
 
 # Loading the level
 terrain_data, obstacles_data = level_loader.load_json_level("data/levels/level2.json")

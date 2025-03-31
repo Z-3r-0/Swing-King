@@ -172,15 +172,15 @@ barres_volume = {
 }
 
 bouton_fullscreen = Bouton(200, 340, 150, 50,
-                           "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen(2).png",
+                           "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
                            "../../assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
 menu_resolution = MenuDeroulant(200, 400, 150, 50, [
-    "../../assets/images/buttons/Option Menu/Resolution/800X600.png",
-    "../../assets/images/buttons/Option Menu/Resolution/1280X720.png",
-    "../../assets/images/buttons/Option Menu/Resolution/1920X1080.png"],
-                                "../../assets/images/buttons/Option Menu/Resolution/800X600.png",
-                                "../../assets/images/buttons/Option Menu/Resolution/800X600_Hovered.png")
+    "../../assets/images/buttons/Option Menu/Resolution/800x600.png",
+    "../../assets/images/buttons/Option Menu/Resolution/1280x720.png",
+    "../../assets/images/buttons/Option Menu/Resolution/1920x1080.png"],
+                                "../../assets/images/buttons/Option Menu/Resolution/800x600.png",
+                                "../../assets/images/buttons/Option Menu/Resolution/800x600_Hovered.png")
 
 background = pygame.image.load("../../assets/images/backgrounds/background.jpg")
 plein_ecran = False
