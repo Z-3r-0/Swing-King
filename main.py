@@ -34,14 +34,12 @@ background = pygame.transform.smoothscale(background, (WIDTH, HEIGHT))
 Golf_Ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                  "assets/images/balls/golf_ball.png")
 
-# Initialization of obstacles
-rock = Obstacle(pygame.Vector2(450, HEIGHT - 90), pygame.Vector2(40, 60), pygame.Color("white"),
-                "assets/images/obstacles/rock.png")
-obstacles = [rock]
-
 # Loading the level
-dungeon_level = level_loader.load_json_level("data/levels/level1.json")
-lvl = level_loader.json_to_list(dungeon_level, screen)
+terrain_data, obstacles_data = level_loader.load_json_level("data/levels/level2.json")
+terrain_polys = level_loader.json_to_list(terrain_data, screen, 0)
+obstacles = level_loader.json_to_list(obstacles_data, screen, 1)
+
+print(terrain_polys)
 
 # Variables for drag-and-release (possible only once)
 dragging = False
@@ -59,13 +57,6 @@ def drag_and_release(start_pos, end_pos):
     angle = math.degrees(math.atan2(-dy, dx))  # Natural direction from the center
     force = distance * 3.0  # Greatly increased force to propel the ball further
     return force, angle
-
-
-def check_collision(ball, obstacles):
-    for obstacle in obstacles:
-        if obstacle.rect.collidepoint(ball.position.x, ball.position.y):
-            return True
-    return False
 
 
 def draw_predicted_trajectory(start_pos, force, angle):
@@ -127,15 +118,11 @@ while running:
         # Apply a slight friction to the entire velocity
         Golf_Ball.velocity *= 0.98
 
-        if check_collision(Golf_Ball, obstacles) or Golf_Ball.velocity.length() < 0.1:
-            ball_in_motion = False
-            Golf_Ball.velocity = pygame.Vector2(0, 0)
-
     # Update the camera
     camera.calculate_position(Golf_Ball.position, SCENE_WIDTH, SCENE_HEIGHT)
 
     # Draw elements
-    for terrain in lvl:
+    for terrain in terrain_polys:
         terrain.draw(screen)
     for obstacle in obstacles:
         obstacle.draw(screen)
