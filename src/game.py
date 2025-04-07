@@ -59,7 +59,7 @@ class Game:
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
 
-        self.golfer_animation = Animation("assets/images/flag", pygame.Vector2(500, 500))
+        self.golfer_animation = Animation("assets/images/golfer", pygame.Vector2(500, 500))
         self.golfer_animation_sprite = pygame.sprite.Group()
         self.golfer_animation_sprite.add(self.golfer_animation)
 

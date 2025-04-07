@@ -4,7 +4,7 @@ import pygame
 
 class Animation(pygame.sprite.Sprite):
 
-    def __init__(self, source_dir: str, position: pygame.Vector2):
+    def __init__(self, source_dir: str, position: pygame.Vector2, animation_speed: float = 0.1):
         super().__init__()  # Call the parent class (Sprite) constructor
 
         self.sprites = []
@@ -21,7 +21,7 @@ class Animation(pygame.sprite.Sprite):
         self.position = position
         self.rect.topleft = (int(position.x), int(position.y))
 
-        self.animation_speed = 0.1
+        self.animation_speed = animation_speed
 
     def update(self):
         self.current_sprite += self.animation_speed
