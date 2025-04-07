@@ -28,11 +28,10 @@ class Ball:
             self.image = pygame.transform.smoothscale(self.image, (
                 self.diameter * self.scale_value, self.diameter * self.scale_value))  # Arbitrary self.scale_value * 7 scale value
 
-    def draw_ball(self, surface):
+    def draw(self, surface):
         """
         Draws the ball on the specified surface.
 
-        Named draw_ball instead of draw because draw is a basic function of pygame, so to not intefere we needed to change it
         :param surface: The surface to draw the ball on.
         :return:
         """
