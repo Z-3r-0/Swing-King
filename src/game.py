@@ -11,8 +11,8 @@ BALL_RADIUS = 50
 
 class Game:
 
-    def __init__(self, screen):
-        self.screen = screen
+    def __init__(self, resolution:pygame.Vector2):
+        self.screen = pygame.display.set_mode(resolution)
         self.dt = 0
         self.dragging = False
         self.drag_done = False
@@ -23,8 +23,8 @@ class Game:
         self.force = 0
         self.angle = 0
 
-        self.width = screen.get_width()
-        self.height = screen.get_height()
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
 
         self.level_path = "data/levels/level2.json"
 
@@ -39,8 +39,8 @@ class Game:
                  "assets/images/balls/golf_ball2.png")
 
         # Load terrain and obstacles
-        self.terrain_polys = level_loader.json_to_list(self.terrain_data, screen, 0)
-        self.obstacles = level_loader.json_to_list(self.obstacles_data, screen, 1)
+        self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
+        self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
 
         # Initialize camera
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height)
@@ -52,6 +52,8 @@ class Game:
         # Set up the clock
         self.clock = pygame.time.Clock()
         self.fps = self.settings["graphics"]["fps_limit"]
+
+        self.dt = 1 / self.fps
 
         # Set up the dot parameters
         self.dot_spacing = 10
@@ -103,6 +105,12 @@ class Game:
                     self.drag_done = True
 
         if self.ball_in_motion:
+
+            if self.ball.velocity.length() < 0.1:
+                self.ball.velocity = pygame.Vector2(0, 0)
+                self.ball_in_motion = False
+                self.drag_done = False
+
             # Update the position with the initial movement
             self.ball.position += self.ball.velocity * self.dt
 
@@ -119,3 +127,12 @@ class Game:
         if self.dragging:
             current_mouse = pygame.mouse.get_pos()
             self.force, self.angle = drag_and_release(self.ball.position, current_mouse)
+
+    def run(self):
+
+        while True:
+            self.handle_events()
+            self.draw()
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)
