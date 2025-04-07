@@ -1,6 +1,7 @@
 ﻿from src.entities import Ball, Camera
 import src.utils.settings_loader as settings
 from src.utils import *
+from .animation import Animation
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
@@ -58,6 +59,9 @@ class Game:
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
 
+        self.golfer_animation = Animation("assets/images/flag", pygame.Vector2(500, 500))
+        self.golfer_animation_sprite = pygame.sprite.Group()
+        self.golfer_animation_sprite.add(self.golfer_animation)
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))
@@ -69,6 +73,10 @@ class Game:
             obs.draw(self.screen)
 
         self.ball.draw(self.screen)
+
+        self.golfer_animation_sprite.draw(self.screen)
+        self.golfer_animation_sprite.update()
+
 
         # Draw the trajectory
         if self.dragging:

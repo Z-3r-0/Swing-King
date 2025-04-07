@@ -1,7 +1,6 @@
 ﻿from src.utils import *
 import src.game as game
 
-
 pygame.init()
 
 # Window parameters
