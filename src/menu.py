@@ -1,6 +1,5 @@
 import sys
 import pygame
-from pygame import mouse
 from pygame import mixer
 from menu import *
 
@@ -16,6 +15,8 @@ background = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").co
 play_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").convert()
 options_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1.png").convert()
 credits_bg = pygame.image.load("../assets/images/backgrounds/SwingKing1CREDITS.png").convert()
+
+credits = pygame.image.load("../assets/images/backgrounds/SwingKing1CREDITS.png").convert()
 
 mixer.music.load("../assets/audio/music/SwingKing.mp3")
 mixer.music.set_volume(0.5)
@@ -51,7 +52,6 @@ def go_to_menu():
 def exit_function():
     pygame.quit()
     sys.exit()
-credits = pygame.image.load("../assets/images/backgrounds/SwingKing1CREDITS.png").convert()
 
 def credits_page() :
     while True :
@@ -103,7 +103,7 @@ while running:
         elif current_screen in {PLAY_SCREEN, OPTIONS_SCREEN, CREDITS_SCREEN}:
             BACK.listen(event)
 
-    # affichage des différetnes scènes
+    # Display of the different scenes
     if current_screen == MAIN_MENU:
         screen.blit(background, (0, 0))
         PLAY.hover()

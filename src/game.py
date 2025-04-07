@@ -1,13 +1,11 @@
-﻿from collections import namedtuple
-
-from src.entities import Ball, Camera
+﻿from src.entities import Ball, Camera
 import src.utils.settings_loader as settings
 from src.utils import *
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
-BALL_RADIUS = 50
+BALL_RADIUS = 50.0
 
 class Game:
 
@@ -36,7 +34,7 @@ class Game:
 
         # Initialize game objects
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
-                 "assets/images/balls/golf_ball2.png")
+                 "assets/images/balls/golf_ball.png")
 
         # Load terrain and obstacles
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
