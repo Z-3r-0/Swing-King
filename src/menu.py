@@ -86,6 +86,7 @@ BACK = Button(screen, lambda: go_to_menu(), (532,640), (270,80), "../assets/imag
 
 running = True
 play_music()
+
 while running:
     screen.fill((0, 0, 0))
 
@@ -93,7 +94,6 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
 
         if current_screen == MAIN_MENU:
             PLAY.listen(event)
