@@ -2,16 +2,18 @@
 import src.utils.settings_loader as settings
 from src.utils import *
 from .animation import Animation
+from .scene import Scene
+from .scenetype import SceneType
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
 BALL_RADIUS = 50.0
 
-class Game:
+class Game(Scene):
 
-    def __init__(self, resolution:pygame.Vector2):
-        self.screen = pygame.display.set_mode(resolution)
+    def __init__(self, screen):
+        super().__init__(SceneType.GAME, "Golf Game", screen)
         self.dt = 0
         self.dragging = False
         self.drag_done = False
@@ -135,7 +137,6 @@ class Game:
             self.force, self.angle = drag_and_release(self.ball.position, current_mouse)
 
     def run(self):
-
         while True:
             self.handle_events()
             self.draw()
