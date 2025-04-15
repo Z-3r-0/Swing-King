@@ -1,4 +1,5 @@
 import pygame
+import json
 
 # Initialisation de pygame
 pygame.init()
@@ -49,10 +50,16 @@ class BarreVolume:
         texte_surface = police.render(f"{texte}: {self.valeur}%", True, BLANC)
         ecran.blit(texte_surface, (self.rect.x, self.rect.y - 30))
 
-    def ajuster(self, pos_x):
+    def ajuster(self, pos_x,name):
+
         if self.rect.x <= pos_x <= self.rect.x + self.rect.width:
             self.valeur = int(((pos_x - self.rect.x) / self.rect.width) * 100)
-
+        with open('../../data/settings/settings.json', 'r') as file:
+            data=json.load(file)
+        data["audio"][name]=self.valeur
+        with open('../../data/settings/settings.json', 'w') as file:
+            json.dump(data, file,indent=4)
+        file.close()
 
 # Classe pour les boutons
 class Bouton:
@@ -110,6 +117,7 @@ class MenuDeroulant:
         self.options = [pygame.transform.scale(pygame.image.load(path), (self.rect.width, self.rect.height))
                         for path in self.option_paths]
 
+
     def draw(self, ecran):
         mouse_pos = pygame.mouse.get_pos()
         current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
@@ -159,16 +167,23 @@ class MenuDeroulant:
                     ECRAN = pygame.display.set_mode((LARGEUR, HAUTEUR),
                                                     pygame.FULLSCREEN if plein_ecran else pygame.RESIZABLE)
                     redimensionner_elements()
+                    with open('../../data/settings/settings.json', 'r') as file:
+                        data = json.load(file)
+                    data["graphics"]["resolution"]["width"] = RESOLUTIONS[i][0]
+                    data["graphics"]["resolution"]["height"] = RESOLUTIONS[i][1]
+                    with open('../../data/settings/settings.json', 'w') as file:
+                        json.dump(data, file, indent=4)
+                    file.close()
                     self.ouvert = False
                     print(f"Nouvelle résolution : {LARGEUR}x{HAUTEUR}")
 
 
 # Création des éléments
-barres_volume = {
+barres_button = {
     "Master": BarreVolume(200, 100, 400, 20),
     "Music": BarreVolume(200, 160, 400, 20),
     "SFX": BarreVolume(200, 220, 400, 20),
-    "Voice": BarreVolume(200, 280, 400, 20)
+    "Voice": BarreVolume(200, 280, 400, 20),
 }
 
 bouton_fullscreen = Bouton(200, 340, 150, 50,
@@ -182,6 +197,7 @@ menu_resolution = MenuDeroulant(200, 400, 150, 50, [
                                 "../../assets/images/buttons/Option Menu/Resolution/800x600.png",
                                 "../../assets/images/buttons/Option Menu/Resolution/800x600_Hovered.png")
 
+
 background = pygame.image.load("../../assets/images/backgrounds/background.jpg")
 plein_ecran = False
 
@@ -193,7 +209,7 @@ def redimensionner_elements():
                                         (LARGEUR, HAUTEUR))
 
     # Redimensionner les autres éléments
-    for barre in barres_volume.values():
+    for barre in barres_button.values():
         barre.redimensionner()
     bouton_fullscreen.redimensionner()
     menu_resolution.redimensionner()
@@ -211,9 +227,9 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            for barre in barres_volume.values():
-                if barre.rect.collidepoint(event.pos):
-                    barre.ajuster(event.pos[0])
+            for barre in barres_button.keys():
+                if barres_button[barre].rect.collidepoint(event.pos):
+                    barres_button[barre].ajuster(event.pos[0],barre)
 
             if bouton_fullscreen.est_clique(event.pos):
                 plein_ecran = not plein_ecran
@@ -224,11 +240,11 @@ while running:
             menu_resolution.gerer_clic(event.pos)
 
         if event.type == pygame.MOUSEMOTION and pygame.mouse.get_pressed()[0]:
-            for barre in barres_volume.values():
-                if barre.rect.collidepoint(event.pos):
-                    barre.ajuster(event.pos[0])
+            for barre in barres_button.keys():
+                if barres_button[barre].rect.collidepoint(event.pos):
+                    barres_button[barre].ajuster(event.pos[0],barre)
 
-    for nom, barre in barres_volume.items():
+    for nom, barre in barres_button.items():
         barre.afficher(ECRAN, nom)
 
     bouton_fullscreen.draw(ECRAN)
