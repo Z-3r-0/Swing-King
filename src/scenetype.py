@@ -9,4 +9,4 @@ class SceneType(Enum):
     OPTIONS_MENU = 3
     LEVEL_SELECTOR = 4
     LEVEL_CREATOR = 5
-    SHOP = 6
+    CREDITS = 6

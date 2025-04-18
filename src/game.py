@@ -1,5 +1,4 @@
 ﻿from src.entities import Ball, Camera
-import src.utils.settings_loader as settings
 from src.utils import *
 from .animation import Animation
 from .scene import Scene
@@ -10,10 +9,11 @@ SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
 BALL_RADIUS = 50.0
 
-class Game(Scene):
+# TODO - INSERT IN THE CLASS LATER
 
+class Game(Scene):
     def __init__(self, screen):
-        super().__init__(SceneType.GAME, "Golf Game", screen)
+        super().__init__(SceneType.GAME, "Game", screen)
         self.dt = 0
         self.dragging = False
         self.drag_done = False
@@ -28,9 +28,6 @@ class Game(Scene):
         self.height = self.screen.get_height()
 
         self.level_path = "data/levels/level2.json"
-
-        # Load game settings
-        self.settings = settings.load_json_settings("data/settings/settings.json")
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
@@ -52,7 +49,6 @@ class Game(Scene):
 
         # Set up the clock
         self.clock = pygame.time.Clock()
-        self.fps = self.settings["graphics"]["fps_limit"]
 
         self.dt = 1 / self.fps
 
