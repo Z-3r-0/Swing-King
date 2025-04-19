@@ -1,17 +1,17 @@
 {
     "graphics": {
         "resolution": {
-            "width": 800,
-            "height": 600
+            "width": 1920,
+            "height": 1080
         },
         "fullscreen": true,
         "fps_limit": 60
     },
     "audio": {
-        "Master": 99,
-        "Music": 55,
-        "SFX": 67,
-        "Voice": 47,
+        "Master": 13,
+        "Music": 42,
+        "SFX": 17,
+        "Voice": 78,
         "mute": false
     }
 }

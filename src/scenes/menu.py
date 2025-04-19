@@ -5,9 +5,6 @@ from src.hud.button import *
 
 pygame.init()
 
-pygame.display.set_caption('SwingKing main menu')
-# screen = pygame.display.set_mode((1300, 755))
-
 from src.hud import Button
 from src.scene import Scene
 from src.scenetype import SceneType

@@ -1,8 +1,8 @@
 ﻿from src.entities import Ball, Camera
 from src.utils import *
-from .animation import Animation
-from .scene import Scene
-from .scenetype import SceneType
+from src.animation import Animation
+from src.scene import Scene
+from src.scenetype import SceneType
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER

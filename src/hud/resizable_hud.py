@@ -24,21 +24,23 @@ class ResizableHUD:
         
         self.image = image
         self.hovered_image = hovered_image
-        
-        self.police = pygame.font.Font(None, 36)
+
+        self.police = pygame.font.SysFont("Arial", 20)
         
         if image:
             self.image = pygame.image.load(image).convert_alpha()
         if hovered_image:
             self.hovered_image = pygame.image.load(hovered_image).convert_alpha()
             
+        self.resize()
     
     def resize(self):
-        self.rect.x = int(self.position_ratio.x * self.resolution.x)
-        self.rect.y = int(self.position_ratio.y * self.resolution.y)
-
-        self.rect.width = int(self.size_ratio.x * self.size.x)
-        self.rect.height = int(self.size_ratio.y * self.size.y)
+        self.rect = pygame.Rect(
+            int(self.position_ratio.x * self.resolution.x),
+            int(self.position_ratio.y * self.resolution.y),
+            int(self.size_ratio.x * self.resolution.x),
+            int(self.size_ratio.y * self.resolution.y)
+        )
 
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height)) if self.image else None
         self.hovered_image = pygame.transform.scale(self.hovered_image, (self.rect.width, self.rect.height)) if self.hovered_image else None

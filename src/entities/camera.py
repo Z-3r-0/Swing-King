@@ -17,8 +17,8 @@ class Camera:
             displayed_element_position = element_position - camera.position.x
 
         :param element_position: position of the element we want to center
-        :param width: width of the display window
-        :param height: height of the display window
+        :param width: width of the draw window
+        :param height: height of the draw window
         :param level_max_length: full length of the level (default: no limit) (used to limit the camera position)
         :param level_max_height: full height of the level (default: no limit) (used to limit the camera position)
         :return:

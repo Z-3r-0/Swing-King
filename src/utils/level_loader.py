@@ -55,7 +55,7 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
                 terrain_ids[block["id"]] = new_terrain
 
-                # To get the final list in the order we want to draw the zones (not to display one over another in a weird way)
+                # To get the final list in the order we want to draw the zones (not to draw one over another in a weird way)
                 # The order is based off the id of each zone in the json file
                 sorted_terrain_dict = dict(sorted(terrain_ids.items()))
 

@@ -1,7 +1,6 @@
-﻿import pygame
-from src.utils import *
+﻿from src.utils import *
 from src.scenetype import SceneType
-import src.game as game_module
+import src.scenes.game as game_module
 import src.menu as menu_module
 from src.events import scene_events
 

@@ -9,18 +9,18 @@ from src.hud.resizable_hud import ResizableHUD
 
 class Dropdown(ResizableHUD):
     def __init__(self, screen, position: Vector2, size: Vector2, options, image, hovered_image):
-        
+
+        self.option_paths = options
         super().__init__(screen, position, size, image, hovered_image)
 
         self.resolutions = [(800, 600), (1280, 720), (1920, 1080)]
         self.resolution_index = 1  # Par défaut : 1280x720
 
         self.is_fullscreen = False
-
-        self.option_paths = options
+        
         self.selection = options[self.resolution_index]
         self.open = False
-        
+
         self.options = [pygame.image.load(path).convert_alpha() for path in options]
         self.resize()
 
@@ -32,6 +32,7 @@ class Dropdown(ResizableHUD):
 
 
     def draw(self):
+        
         mouse_pos = pygame.mouse.get_pos()
         current_image = self.hovered_image if self.rect.collidepoint(mouse_pos) else self.image
         self.screen.blit(current_image, self.rect.topleft)
@@ -81,14 +82,13 @@ class Dropdown(ResizableHUD):
                     
                     # resize_elements() TODO - SEND EVENT TO RESIZE
                     
-                    with open('../../data/settings/settings.json', 'r') as file:
+                    with open('data/settings/settings.json', 'r') as file:
                         data = json.load(file)
                         
                     data["graphics"]["resolution"]["width"] = self.resolutions[i][0]
                     data["graphics"]["resolution"]["height"] = self.resolutions[i][1]
                     
-                    with open('../../data/settings/settings.json', 'w') as file:
+                    with open('data/settings/settings.json', 'w') as file:
                         json.dump(data, file, indent=4)
                     file.close()
                     self.open = False
-                    print(f"Nouvelle résolution : {LARGEUR}x{HAUTEUR}")
