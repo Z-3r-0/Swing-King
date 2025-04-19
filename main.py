@@ -15,14 +15,14 @@ game = game_module.Game(screen, None)
 main_menu = menu_module.Menu(screen)
 option_menu = option_module.OptionMenu(screen, None)
 
-scene = SceneType.OPTIONS_MENU
+scene = SceneType.MAIN_MENU
 
 from_scene = None
 
 clock = pygame.time.Clock()
 
 while True:
-    for event in pygame.event.get():
+    for event in pygame.event.get(): 
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()

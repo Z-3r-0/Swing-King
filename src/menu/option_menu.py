@@ -59,7 +59,8 @@ class OptionMenu(Scene):
         
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.running = False
+                    pygame.quit()
+                    exit()
         
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for barre in self.volumes_sliders.keys():
