@@ -1,2 +1,2 @@
 ﻿from .animation import Animation
-from .game import Game
+from src.scenes.game import Game

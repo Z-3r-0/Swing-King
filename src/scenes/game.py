@@ -1,8 +1,8 @@
 ﻿from src.entities import Ball, Camera
 from src.utils import *
-from .animation import Animation
-from .scene import Scene
-from .scenetype import SceneType
+from src.animation import Animation
+from src.scene import Scene
+from src.scenetype import SceneType
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
@@ -12,8 +12,8 @@ BALL_RADIUS = 50.0
 # TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
-    def __init__(self, screen):
-        super().__init__(SceneType.GAME, "Game", screen)
+    def __init__(self, screen, scene_from: SceneType = None):
+        super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
         self.drag_done = False
