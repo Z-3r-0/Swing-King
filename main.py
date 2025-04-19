@@ -3,7 +3,7 @@ from src.utils import *
 from src.scenetype import SceneType
 import src.game as game_module
 import src.menu as menu_module
-from src.events import events
+from src.events import scene_events
 
 # Window parameters
 WIDTH, HEIGHT = 1920, 1080  # TODO - Replace by screen resolution later
@@ -22,8 +22,8 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        elif event.type in events.values():
-            for scene_type, evt_id in events.items():
+        elif event.type in scene_events.values():
+            for scene_type, evt_id in scene_events.items():
                 if event.type == evt_id:
                     scene = scene_type
                     print(f"Changing scene to {scene.name}")
