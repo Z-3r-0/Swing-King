@@ -14,7 +14,7 @@ class Dropdown(ResizableHUD):
         super().__init__(screen, position, size, image, hovered_image)
 
         self.resolutions = [(800, 600), (1280, 720), (1920, 1080)]
-        self.resolution_index = 1  # Par défaut : 1280x720
+        self.resolution_index = 1  # Default : 1280x720
 
         self.is_fullscreen = False
         
@@ -76,11 +76,8 @@ class Dropdown(ResizableHUD):
                 if rect_option.collidepoint(pos):
                     self.resolution_index = i
                     self.selection = self.option_paths[i]
-                    LARGEUR, HAUTEUR = self.resolutions[i]
-                    ECRAN = pygame.display.set_mode((LARGEUR, HAUTEUR),
-                                                    pygame.FULLSCREEN if self.is_fullscreen else pygame.NOFRAME)
-                    
-                    # resize_elements() TODO - SEND EVENT TO RESIZE
+                    width, height = self.resolutions[i]
+                    self.screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN if self.is_fullscreen else pygame.NOFRAME)
                     
                     with open('data/settings/settings.json', 'r') as file:
                         data = json.load(file)

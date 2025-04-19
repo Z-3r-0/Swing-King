@@ -12,7 +12,7 @@ class OptionMenu(Scene):
     
     def __init__(self, screen, scene_from: SceneType = None):
         
-        super().__init__(screen, SceneType.OPTIONS_MENU, "Options Menu", scene_from)
+        super().__init__(screen, SceneType.OPTIONS_MENU, "Options menu", scene_from)
 
         self.volumes_sliders = {
             "Master": Slider(screen, Vector2(200, 100), Vector2(400, 20)),
@@ -22,21 +22,21 @@ class OptionMenu(Scene):
         }
 
         self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(200, 340), Vector2(270, 80),
-                                "assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png",
-                                "assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
-                                "assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
+                                "assets/images/buttons/menus/option/fullscreen/fullscreen.png",
+                                "assets/images/buttons/menus/option/fullscreen/Fullscreen_Hovered.png",
+                                "assets/images/buttons/menus/option/fullscreen/fullscreen.png")
 
         self.menu_resolution = Dropdown(screen, Vector2(200, 430), Vector2(270, 80), [
-            "assets/images/buttons/Option Menu/Resolution/800x600.png",
-            "assets/images/buttons/Option Menu/Resolution/1280x720.png",
-            "assets/images/buttons/Option Menu/Resolution/1920x1080.png"],
-                                   "assets/images/buttons/Option Menu/Resolution/800x600.png",
-                                   "assets/images/buttons/Option Menu/Resolution/800x600_Hovered.png")
+            "assets/images/buttons/menus/option/resolution/800x600.png",
+            "assets/images/buttons/menus/option/resolution/1280x720.png",
+            "assets/images/buttons/menus/option/resolution/1920x1080.png"],
+                                   "assets/images/buttons/menus/option/resolution/800x600.png",
+                                   "assets/images/buttons/menus/option/resolution/800x600_Hovered.png")
 
         self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(480, 360), Vector2(200, 50),
-                      "assets/images/buttons/Main Menu/back/BACK.png",
-                      "assets/images/buttons/Main Menu/back/BACK_HOVERED.png",
-                      "assets/images/buttons/Main Menu/back/BACK_CLICKED.png")
+                      "assets/images/buttons/menus/main/back/back.png",
+                      "assets/images/buttons/menus/main/back/back_hovered.png",
+                      "assets/images/buttons/menus/main/back/back_clicked.png")
         
         self.buttons = [self.fullscreen_btn, self.back_btn]
         

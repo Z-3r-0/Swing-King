@@ -12,33 +12,33 @@ class Menu(Scene):
     def __init__(self, screen):  # Doesn't make sense to be able to go back to a scene from main menu
         super().__init__(screen, SceneType.MAIN_MENU, "Main menu", None)
 
-        self.background = pygame.image.load("assets/images/backgrounds/SwingKing1.png").convert()
-        self.play_bg = pygame.image.load("assets/images/backgrounds/SwingKing1.png").convert()
-        self.options_bg = pygame.image.load("assets/images/backgrounds/SwingKing1.png").convert()
-        self.credits_bg = pygame.image.load("assets/images/backgrounds/SwingKing1CREDITS.png").convert()
+        self.background = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
+        self.play_bg = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
+        self.options_bg = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
+        self.credits_bg = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
-        self.credits = pygame.image.load("assets/images/backgrounds/SwingKing1CREDITS.png").convert()
+        self.credits = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
         self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.GAME), Vector2(825, 520), Vector2(270, 80),
-                      "assets/images/buttons/Main Menu/play/PLAY.png",
-                      "assets/images/buttons/Main Menu/play/PLAY_HOVERED.png",
-                      "assets/images/buttons/Main Menu/play/PLAY_CLICKED.png")
+                      "assets/images/buttons/menus/main/play/play.png",
+                      "assets/images/buttons/menus/main/play/play_hovered.png",
+                      "assets/images/buttons/menus/main/play/play_clicked.png")
         self.OPTIONS = Button(screen, lambda: self.switch_scene(SceneType.OPTIONS_MENU), Vector2(825, 610), Vector2(270, 80),
-                         "assets/images/buttons/Main Menu/options/OPTIONS.png",
-                         "assets/images/buttons/Main Menu/options/OPTIONS_HOVERED.png",
-                         "assets/images/buttons/Main Menu/options/OPTIONS_CLICKED.png")
+                         "assets/images/buttons/menus/main/options/options.png",
+                         "assets/images/buttons/menus/main/options/options_hovered.png",
+                         "assets/images/buttons/menus/main/options/options_clicked.png")
         self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(825, 700), Vector2(270, 80),
-                         "assets/images/buttons/Main Menu/credits/CREDITS.png",
-                         "assets/images/buttons/Main Menu/credits/CREDITS_HOVERED.png",
-                         "assets/images/buttons/Main Menu/credits/CREDITS_CLICKED.png")
+                         "assets/images/buttons/menus/main/credits/credits.png",
+                         "assets/images/buttons/menus/main/credits/credits_hovered.png",
+                         "assets/images/buttons/menus/main/credits/credits_clicked.png")
         self.EXIT = Button(screen, lambda: pygame.quit(), Vector2(825, 790), Vector2(270, 80),
-                      "assets/images/buttons/Main Menu/exit/EXIT.png",
-                      "assets/images/buttons/Main Menu/exit/EXIT_HOVERED.png",
-                      "assets/images/buttons/Main Menu/exit/EXIT_CLICKED.png")
+                      "assets/images/buttons/menus/main/exit/exit.png",
+                      "assets/images/buttons/menus/main/exit/exit_hovered.png",
+                      "assets/images/buttons/menus/main/exit/exit_clicked.png")
         # self.BACK = Button(screen, lambda: self.switch_scene(), (825, 640), (270, 80),
-        #               "assets/images/buttons/Main Menu/back/BACK.png",
-        #               "assets/images/buttons/Main Menu/back/BACK_HOVERED.png",
-        #               "assets/images/buttons/Main Menu/back/BACK_CLICKED.png")
+        #               "assets/images/buttons/menus/main/back/back.png",
+        #               "assets/images/buttons/menus/main/back/back_hovered.png",
+        #               "assets/images/buttons/menus/main/back/back_clicked.png")
 
         self.buttons = [self.PLAY, self.OPTIONS, self.CREDITS, self.EXIT]
 
