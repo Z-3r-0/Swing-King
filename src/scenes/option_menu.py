@@ -21,22 +21,28 @@ class OptionMenu(Scene):
             "Voice": Slider(screen, Vector2(200, 280), Vector2(400, 20)),
         }
 
-        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(200, 340), Vector2(150, 50),
+        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(200, 340), Vector2(270, 80),
                                 "assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png",
                                 "assets/images/buttons/Option Menu/Fullscreen/Fullscreen_Hovered.png",
                                 "assets/images/buttons/Option Menu/Fullscreen/Fullscreen.png")
 
-        self.menu_resolution = Dropdown(screen, Vector2(200, 400), Vector2(150, 50), [
+        self.menu_resolution = Dropdown(screen, Vector2(200, 430), Vector2(270, 80), [
             "assets/images/buttons/Option Menu/Resolution/800x600.png",
             "assets/images/buttons/Option Menu/Resolution/1280x720.png",
             "assets/images/buttons/Option Menu/Resolution/1920x1080.png"],
                                    "assets/images/buttons/Option Menu/Resolution/800x600.png",
                                    "assets/images/buttons/Option Menu/Resolution/800x600_Hovered.png")
+
+        self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(480, 360), Vector2(200, 50),
+                      "assets/images/buttons/Main Menu/back/BACK.png",
+                      "assets/images/buttons/Main Menu/back/BACK_HOVERED.png",
+                      "assets/images/buttons/Main Menu/back/BACK_CLICKED.png")
+        
+        self.buttons = [self.fullscreen_btn, self.back_btn]
         
         self.background = pygame.image.load("assets/images/backgrounds/background.jpg")
         
         self.resize_elements()
-
 
     def resize_elements(self):
         self.background = pygame.transform.scale(self.background, self.screen.get_size())
@@ -68,8 +74,9 @@ class OptionMenu(Scene):
                             self.volumes_sliders[barre].save(event.pos[0], barre)
 
                     self.menu_resolution.handle_click(event.pos)
-
-                    self.fullscreen_btn.listen(event)
+                    
+                    for button in self.buttons:
+                        button.listen(event)
 
                 if event.type == pygame.MOUSEMOTION and pygame.mouse.get_pressed()[0]:
                     for barre in self.volumes_sliders.keys():
@@ -78,10 +85,11 @@ class OptionMenu(Scene):
 
             for nom, barre in self.volumes_sliders.items():
                 barre.draw(nom)
+            
+            for button in self.buttons:
+                button.hover()
+                button.draw()
 
-            self.fullscreen_btn.hover()
-
-            self.fullscreen_btn.draw()
             self.menu_resolution.draw()
         
             pygame.display.flip()

@@ -2,6 +2,7 @@ import abc
 
 import pygame
 
+from src.events import scene_events
 from src.scenetype import SceneType
 import src.utils.settings_loader as settings
 
@@ -30,6 +31,7 @@ class Scene:
 
     def resize_hud(self):
         pass
-    
-    def switch_to_scene(self, scene: SceneType):
-        pass
+
+    def switch_scene(self, scene: SceneType):
+        self.running = False
+        pygame.event.post(pygame.event.Event(scene_events[scene]))
