@@ -12,8 +12,8 @@ BALL_RADIUS = 50.0
 # TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
-    def __init__(self, screen):
-        super().__init__(SceneType.GAME, "Game", screen)
+    def __init__(self, screen, scene_from: SceneType = None):
+        super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
         self.drag_done = False

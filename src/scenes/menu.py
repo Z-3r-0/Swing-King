@@ -1,5 +1,5 @@
 import pygame
-from pygame import mouse
+from pygame import mouse, Vector2
 from pygame import mixer
 from src.hud.button import *
 
@@ -12,7 +12,7 @@ from src.events import scene_events
 
 class Menu(Scene):
 
-    def __init__(self, screen):
+    def __init__(self, screen):  # Doesn't make sense to be able to go back to a scene from main menu
         super().__init__(screen, SceneType.MAIN_MENU, "Main menu", None)
 
         self.background = pygame.image.load("assets/images/backgrounds/SwingKing1.png").convert()
@@ -22,19 +22,19 @@ class Menu(Scene):
 
         self.credits = pygame.image.load("assets/images/backgrounds/SwingKing1CREDITS.png").convert()
 
-        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.GAME), (532, 370), (270, 80),
+        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.GAME), Vector2(532, 370), Vector2(270, 80),
                       "assets/images/buttons/Main Menu/play/PLAY.png",
                       "assets/images/buttons/Main Menu/play/PLAY_HOVERED.png",
                       "assets/images/buttons/Main Menu/play/PLAY_CLICKED.png")
-        self.OPTIONS = Button(screen, lambda: self.switch_scene(SceneType.OPTIONS_MENU), (532, 460), (270, 80),
+        self.OPTIONS = Button(screen, lambda: self.switch_scene(SceneType.OPTIONS_MENU), Vector2(532, 460), Vector2(270, 80),
                          "assets/images/buttons/Main Menu/options/OPTIONS.png",
                          "assets/images/buttons/Main Menu/options/OPTIONS_HOVERED.png",
                          "assets/images/buttons/Main Menu/options/OPTIONS_CLICKED.png")
-        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), (532, 550), (270, 80),
+        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(532, 550), Vector2(270, 80),
                          "assets/images/buttons/Main Menu/credits/CREDITS.png",
                          "assets/images/buttons/Main Menu/credits/CREDITS_HOVERED.png",
                          "assets/images/buttons/Main Menu/credits/CREDITS_CLICKED.png")
-        self.EXIT = Button(screen, lambda: pygame.quit(), (532, 640), (270, 80),
+        self.EXIT = Button(screen, lambda: pygame.quit(), Vector2(532, 640), Vector2(270, 80),
                       "assets/images/buttons/Main Menu/exit/EXIT.png",
                       "assets/images/buttons/Main Menu/exit/EXIT_HOVERED.png",
                       "assets/images/buttons/Main Menu/exit/EXIT_CLICKED.png")
