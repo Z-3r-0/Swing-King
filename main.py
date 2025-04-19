@@ -2,13 +2,13 @@
 from src.scenetype import SceneType
 import src.scenes.game as game_module
 import src.scenes.menu as menu_module
-import src.menu.option_menu as option_module
+import src.scenes.option_menu as option_module
 from src.events import scene_events
+
+pygame.init()
 
 # Window parameters
 WIDTH, HEIGHT = 1920, 1080  # TODO - Replace by screen resolution later
-
-pygame.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 game = game_module.Game(screen, None)
@@ -16,7 +16,6 @@ main_menu = menu_module.Menu(screen)
 option_menu = option_module.OptionMenu(screen, None)
 
 scene = SceneType.MAIN_MENU
-
 from_scene = None
 
 clock = pygame.time.Clock()

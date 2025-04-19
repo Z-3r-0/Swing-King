@@ -70,4 +70,4 @@ class Menu(Scene):
                 button.draw()
 
             pygame.display.flip()
-            pygame.time.Clock().tick(60)
+            pygame.time.Clock().tick(self.fps)

@@ -13,7 +13,7 @@ class OptionMenu(Scene):
     def __init__(self, screen, scene_from: SceneType = None):
         
         super().__init__(screen, SceneType.OPTIONS_MENU, "Options Menu", scene_from)
-        
+
         self.volumes_sliders = {
             "Master": Slider(screen, Vector2(200, 100), Vector2(400, 20)),
             "Music": Slider(screen, Vector2(200, 160), Vector2(400, 20)),
@@ -56,26 +56,26 @@ class OptionMenu(Scene):
         
         while self.running:
             self.screen.blit(self.background, (0, 0))
-        
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
-        
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     for barre in self.volumes_sliders.keys():
                         if self.volumes_sliders[barre].rect.collidepoint(event.pos):
                             self.volumes_sliders[barre].save(event.pos[0], barre)
-        
+
                     self.menu_resolution.handle_click(event.pos)
 
                     self.fullscreen_btn.listen(event)
-        
+
                 if event.type == pygame.MOUSEMOTION and pygame.mouse.get_pressed()[0]:
                     for barre in self.volumes_sliders.keys():
                         if self.volumes_sliders[barre].rect.collidepoint(event.pos):
                             self.volumes_sliders[barre].save(event.pos[0], barre)
-        
+
             for nom, barre in self.volumes_sliders.items():
                 barre.draw(nom)
 

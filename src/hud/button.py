@@ -39,10 +39,9 @@ class Button(ResizableHUD):
             if self.rect.collidepoint(event.pos):
                 self.rendered_image = self.clicked_image.copy()
                 self.clicked = True
+                self.func()
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            if self.clicked and self.rect.collidepoint(event.pos):
-                self.func()
             self.clicked = False  # Click reset
 
     def draw(self):
