@@ -1,18 +1,19 @@
-﻿from collections import namedtuple
-
-from src.entities import Ball, Camera
-import src.utils.settings_loader as settings
+﻿from src.entities import Ball, Camera
 from src.utils import *
+from src.animation import Animation
+from src.scene import Scene
+from src.scenetype import SceneType
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
-BALL_RADIUS = 50
+BALL_RADIUS = 50.0
 
-class Game:
+# TODO - INSERT IN THE CLASS LATER
 
-    def __init__(self, screen):
-        self.screen = screen
+class Game(Scene):
+    def __init__(self, screen, scene_from: SceneType = None):
+        super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
         self.drag_done = False
@@ -23,24 +24,21 @@ class Game:
         self.force = 0
         self.angle = 0
 
-        self.width = screen.get_width()
-        self.height = screen.get_height()
+        self.width = self.screen.get_width()
+        self.height = self.screen.get_height()
 
         self.level_path = "data/levels/level2.json"
-
-        # Load game settings
-        self.settings = settings.load_json_settings("data/settings/settings.json")
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
         # Initialize game objects
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
-                 "assets/images/balls/golf_ball2.png")
+                 "assets/images/balls/golf_ball.png")
 
         # Load terrain and obstacles
-        self.terrain_polys = level_loader.json_to_list(self.terrain_data, screen, 0)
-        self.obstacles = level_loader.json_to_list(self.obstacles_data, screen, 1)
+        self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
+        self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
 
         # Initialize camera
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height)
@@ -51,13 +49,17 @@ class Game:
 
         # Set up the clock
         self.clock = pygame.time.Clock()
-        self.fps = self.settings["graphics"]["fps_limit"]
+
+        self.dt = 1 / self.fps
 
         # Set up the dot parameters
         self.dot_spacing = 10
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
 
+        self.golfer_animation = Animation("assets/images/golfer", pygame.Vector2(500, 500))
+        self.golfer_animation_sprite = pygame.sprite.Group()
+        self.golfer_animation_sprite.add(self.golfer_animation)
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))
@@ -69,6 +71,10 @@ class Game:
             obs.draw(self.screen)
 
         self.ball.draw(self.screen)
+
+        self.golfer_animation_sprite.draw(self.screen)
+        self.golfer_animation_sprite.update()
+
 
         # Draw the trajectory
         if self.dragging:
@@ -103,6 +109,12 @@ class Game:
                     self.drag_done = True
 
         if self.ball_in_motion:
+
+            if self.ball.velocity.length() < 0.1:
+                self.ball.velocity = pygame.Vector2(0, 0)
+                self.ball_in_motion = False
+                self.drag_done = False
+
             # Update the position with the initial movement
             self.ball.position += self.ball.velocity * self.dt
 
@@ -119,3 +131,11 @@ class Game:
         if self.dragging:
             current_mouse = pygame.mouse.get_pos()
             self.force, self.angle = drag_and_release(self.ball.position, current_mouse)
+
+    def run(self):
+        while True:
+            self.handle_events()
+            self.draw()
+
+            pygame.display.flip()
+            self.clock.tick(self.fps)

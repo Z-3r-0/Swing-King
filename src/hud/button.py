@@ -1,12 +1,19 @@
 ﻿import pygame
-class Button:
+
+from src.hud.resizable_hud import ResizableHUD
+
+
+class Button(ResizableHUD):
     def __init__(self, screen, func, position, size, image_path, hovered_image_path, clicked_image_path):
+        
+        super().__init__(screen, position, size, image_path, hovered_image_path)
+        
         self.screen = screen
         self.func = func  # Function to execute on click
         self.position = position
         self.size = size
 
-        # Charger les images
+        # Load images
         self.image = pygame.image.load(image_path).convert_alpha()
         self.hovered_image = pygame.image.load(hovered_image_path).convert_alpha()
         self.clicked_image = pygame.image.load(clicked_image_path).convert_alpha()
@@ -19,7 +26,7 @@ class Button:
         self.rect = pygame.Rect(self.position, self.size)
 
         self.clicked = False  # Prevents multiple clicks
- 
+
     def hover(self):
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
@@ -32,11 +39,16 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 self.rendered_image = self.clicked_image.copy()
                 self.clicked = True
+                self.func()
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            if self.clicked and self.rect.collidepoint(event.pos):
-                self.func()
             self.clicked = False  # Click reset
 
     def draw(self):
         self.screen.blit(self.rendered_image, self.position)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+        
+    def resize(self):
+        super().resize()

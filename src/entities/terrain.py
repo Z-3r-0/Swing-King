@@ -47,7 +47,7 @@ class Terrain:
     def draw(self, surface):
         """
         Draws the terrain zone on the specified surface with rotation.
-        :param surface: The main display surface to draw the terrain on.
+        :param surface: The main draw surface to draw the terrain on.
         """
         colors = {
             'green': (34, 139, 34),
