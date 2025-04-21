@@ -65,7 +65,7 @@ class Menu(Scene):
                 button.draw()
 
             pygame.display.flip()
-            pygame.time.Clock().tick(self.fps)
+            self.clock.tick(self.fps)
             
     def resize_elements(self):
         
