@@ -33,10 +33,3 @@ class Camera:
             self.position.y = max(0, int(element_position.y) - self.height // 2)
         else:
             self.position.y = max(0, min(int(element_position.y) - self.height // 2, level_max_height - self.height))
-
-    def update(self, target_x, target_y):
-        self.camera.x = target_x - self.width // 2
-        self.camera.y = target_y - self.height // 2
-
-    def apply(self, rect):
-        return rect.move(-self.camera.x, -self.camera.y)
