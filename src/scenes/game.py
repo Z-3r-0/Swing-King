@@ -47,9 +47,6 @@ class Game(Scene):
         self.background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
         self.background = pygame.transform.smoothscale(self.background, (self.width, self.height))
 
-        # Set up the clock
-        self.clock = pygame.time.Clock()
-
         self.dt = 1 / self.fps
 
         # Set up the dot parameters
