@@ -27,7 +27,7 @@ class Game(Scene):
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.level_path = "data/levels/level2.json"
+        self.level_path = "data/levels/level5.json"
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
@@ -65,10 +65,10 @@ class Game(Scene):
         self.screen.blit(self.background, (0, 0))
 
         for poly in self.terrain_polys:
-            poly.draw(self.screen)
+            poly.draw_polygon(self.screen)
 
         for obs in self.obstacles:
-            obs.draw(self.screen)
+            obs.draw_polygon(self.screen)
 
         self.ball.draw(self.screen)
 
