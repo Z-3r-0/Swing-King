@@ -8,19 +8,18 @@ class Terrain:
         Initializes the terrain zone.
 
         :param terrain_type: Type of the terrain (e.g., 'green', 'fairway', 'bunker', 'lake').
-        :param vertices: List of vertices that define the terrain zone.
+        :param vertices: List of points that define the terrain zone.
         """
 
         self.terrain_type = terrain_type
-        self.vertices = vertices
+        self.points = vertices
 
         # We need at least 2 points to form a closed shape
         if len(vertices) < 2:
-            raise ValueError("Terrain must have at least two vertices.")
+            raise ValueError("Terrain must have at least two points.")
 
-        self.original_vertices = self.vertices.copy()
-        self.start_position = self.vertices[0]
-        self.rect = pygame.Rect(self.start_position[0], self.start_position[1], 0, 0)
+        self.original_points = self.points.copy()
+        self.rect = pygame.Rect(self.points[0][0], self.points[0][1], 0, 0)
 
         self.friction = {
             'green': 0.1,
@@ -44,33 +43,34 @@ class Terrain:
         """
         print("TODO - Implement apply_effects function")
 
-    def draw(self, surface):
+    def draw_polygon(self, screen: pygame.Surface):
         """
         Draws the terrain zone on the specified surface with rotation.
         :param surface: The main draw surface to draw the terrain on.
         """
+
         colors = {
-            'green': (34, 139, 34),
-            'fairway': (60, 179, 113),
-            'bunker': (194, 178, 128),
-            'lake': (30, 144, 255)
+        'green': (62, 179, 62),  # @Lucas ici pour la couleur des terrains
+        'fairway': (62, 133, 54),
+        'bunker': (255, 197, 106),
+        'lake': (46, 118, 201),
+        'rocks': (156, 151, 144),
+        'dirt': (130, 99, 54),
+        'darkgreen': (49, 110, 46),
+        'darkrocks': (128, 128, 128),
+        'darkdirt': (87, 59, 19)
         }
-
         color = colors.get(self.terrain_type, (255, 255, 255))
-        pygame.draw.polygon(surface, color, self.vertices)
+        if len(self.points) > 2:
+            pygame.draw.polygon(screen, color, self.points)
 
-    def position_update(self, camera_pos: pygame.Vector2):
+    def shift_poly(self, shift: pygame.Vector2):
         """
-        Updates the terrain's position based on the camera's movement.
+            Shifts the polygon by the shift_poly vector, such as (0, -10)
+            DO NOT GIVE COORDINATES OF CAMERA
         """
+        self.points = [(point[0] - shift.x, point[1] - shift.y) for point in self.points]
 
-        # Compute the offset due to camera movement
-        offset_x = -camera_pos.x
-        offset_y = -camera_pos.y
-
-        # Apply the offset to all vertices
-        self.vertices = [(x + offset_x, y + offset_y) for (x, y) in self.original_vertices]
-
-        # Update the rect's position based on the first vertex
-        self.rect.topleft = self.vertices[0]
-
+    def update(self, screen: pygame.Surface, camera_movement: pygame.Vector2):
+        self.shift_poly(camera_movement)
+        self.draw_polygon(screen)
