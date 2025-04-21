@@ -20,6 +20,8 @@ class Scene:
         self.running = False
         
         self.scene_from = scene_from
+        
+        self.clock = pygame.time.Clock()
 
     @abc.abstractmethod
     def run(self):
