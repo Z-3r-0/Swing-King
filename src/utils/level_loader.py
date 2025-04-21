@@ -69,8 +69,10 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
                 position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
                 size = block["size"]
+                angle = block["angle"]
                 is_colliding = block["is_colliding"]
-                new_obstacle = Obstacle(position, f"assets/images/obstacles/{block['type']}.png", size, is_colliding, 150)
+                characteristic = block["characteristic"]
+                new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
 
                 obstacles_ids[block["id"]] = new_obstacle
 
