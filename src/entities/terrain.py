@@ -19,22 +19,60 @@ class Terrain:
             raise ValueError("Terrain must have at least two points.")
 
         self.original_points = self.points.copy()
-        self.rect = pygame.Rect(self.points[0][0], self.points[0][1], 0, 0)
 
-        self.friction = {
-            'green': 0.1,
-            'fairway': 0.1,
+        # Calculate the rect (bounding box) of the polygon
+        # Find min/max x and y coordinates
+        min_x = min(point[0] for point in self.points)
+        min_y = min(point[1] for point in self.points)
+        max_x = max(point[0] for point in self.points)
+        max_y = max(point[1] for point in self.points)
+
+        # Calculate width and height
+        width = max_x - min_x
+        height = max_y - min_y
+
+        # Create and return the Rect
+        self.rect = pygame.Rect(min_x, min_y, width, height)
+
+        # Surface de collision des polygones
+        self.surface_collision = pygame.Surface((width, height), pygame.SRCALPHA)
+        # Convert points relative to the surface
+        shifted_points = [(p[0] - min_x, p[1] - min_y) for p in self.points]
+        pygame.draw.polygon(self.surface_collision, (255, 255, 255), shifted_points)
+        self.mask = pygame.mask.from_surface(self.surface_collision)
+
+        # Dessiner le polygone sur la surface de collision
+        shifted_points = [(point[0] - min_x, point[1] - min_y) for point in self.points]
+        pygame.draw.polygon(self.surface_collision, (255, 255, 255), shifted_points)
+
+        # Générer le masque à partir de la surface de collision
+        self.mask = pygame.mask.from_surface(self.surface_collision)
+        friction_factor = {
+            'green': 0.01,
+            'fairway': 1,
             'bunker': 0.1,
-            'lake': 0.1
+            'lake': 0.1,
+            'rocks': 0.1,
+            'dirt': 0.1,
+            'darkgreen': 0.1,
+            'darkrocks': 0.1,
+            'darkdirt': 0.1
         }
-
-        self.bounce_factor = {
-            'green': 0.1,
-            'fairway': 0.1,
+        self.friction = friction_factor[self.terrain_type]
+        bounce = {
+            'green': 0.9,
+            'fairway': 0.7,
             'bunker': 0.1,
-            'lake': 0.1
+            'lake': 0.1,
+            'rocks': 0.1,
+            'dirt': 0.1,
+            'darkgreen': 0.1,
+            'darkrocks': 0.1,
+            'darkdirt': 0.1
         }
-
+        self.bounce_factor = bounce[self.terrain_type]
+        print("Poly bounce factor:", self.bounce_factor)
+        print("Poly friction factor:", self.friction)
     def apply_effects(self, ball):
         """
         Applies terrain-specific effects to the ball (e.g., friction, bounce).
@@ -63,6 +101,7 @@ class Terrain:
         color = colors.get(self.terrain_type, (255, 255, 255))
         if len(self.points) > 2:
             pygame.draw.polygon(screen, color, self.points)
+            pygame.draw.rect(screen, (0, 255, 0), self.rect, 2)
 
     def shift_poly(self, shift: pygame.Vector2):
         """
