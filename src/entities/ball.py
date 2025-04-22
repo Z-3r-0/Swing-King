@@ -46,7 +46,6 @@ class Ball:
         """
 
         surface.blit(self.image, (self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value))
-        pygame.draw.rect(surface, (255, 0, 0),self.rect, 1)
     def get_speed(self,pos_camera_x: float = 0, fps: float = (1/60)):
         """
         Returns the speed of the ball.
