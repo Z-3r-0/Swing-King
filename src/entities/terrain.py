@@ -71,8 +71,6 @@ class Terrain:
             'darkdirt': 0.1
         }
         self.bounce_factor = bounce[self.terrain_type]
-        print("Poly bounce factor:", self.bounce_factor)
-        print("Poly friction factor:", self.friction)
     def apply_effects(self, ball):
         """
         Applies terrain-specific effects to the ball (e.g., friction, bounce).
