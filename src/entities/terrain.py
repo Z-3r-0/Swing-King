@@ -48,8 +48,8 @@ class Terrain:
         # Générer le masque à partir de la surface de collision
         self.mask = pygame.mask.from_surface(self.surface_collision)
         friction_factor = {
-            'green': 0.01,
-            'fairway': 1,
+            'green': 0.5,
+            'fairway': 0.2,
             'bunker': 0.1,
             'lake': 0.1,
             'rocks': 0.1,
@@ -60,8 +60,8 @@ class Terrain:
         }
         self.friction = friction_factor[self.terrain_type]
         bounce = {
-            'green': 0.9,
-            'fairway': 0.7,
+            'green': 0.5,
+            'fairway': 0.5,
             'bunker': 0.1,
             'lake': 0.1,
             'rocks': 0.1,
@@ -101,7 +101,6 @@ class Terrain:
         color = colors.get(self.terrain_type, (255, 255, 255))
         if len(self.points) > 2:
             pygame.draw.polygon(screen, color, self.points)
-            pygame.draw.rect(screen, (0, 255, 0), self.rect, 2)
 
     def shift_poly(self, shift: pygame.Vector2):
         """
