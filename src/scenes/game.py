@@ -39,11 +39,13 @@ class Game(Scene):
 
         # Load terrain and obstacles
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
-        print(self.terrain_polys)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
         self.potential_collision_indices = []
         self.potential_collision_polygons = []
 
+        self.prev_collision_terrain = None
+        self.collision_toggle_count = 0
+        self.max_toggle_toggles = 4 # maximum alternations allowed before stopping
         # Initialize camera
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, SCENE_WIDTH, SCENE_HEIGHT)
 
@@ -90,20 +92,25 @@ class Game(Scene):
             draw_predicted_trajectory(self.ball.position, self.force, self.angle, GRAVITY, self.fps, self.screen)
 
     def handle_events(self):
+        """
+        Handle input, ball movement, gravity, collisions with bounce/slide,
+        hole detection, flat-surface slide, and prevent infinite toggling.
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if (not self.drag_done
-                        and pygame.Vector2(event.pos).distance_to(self.ball.position) <= BALL_RADIUS):
+                click_dist = pygame.Vector2(event.pos).distance_to(self.ball.position)
+                if not self.drag_done and click_dist <= BALL_RADIUS:
                     self.dragging = True
 
             if event.type == pygame.MOUSEBUTTONUP and self.dragging:
                 if not self.drag_done:
                     self.force, self.angle = drag_and_release(
-                        self.ball.position, pygame.mouse.get_pos()
+                        self.ball.position,
+                        pygame.mouse.get_pos()
                     )
                     self.ball.velocity = pygame.Vector2(
                         -self.force * math.cos(math.radians(self.angle)),
@@ -114,74 +121,95 @@ class Game(Scene):
                     self.drag_done = True
 
         if self.ball_in_motion:
-            # 1) Mouvement + gravité + friction globale
+            # 1) Movement + gravity + damping
             self.ball.shift_position(self.ball.velocity * self.dt)
             self.ball.velocity.y += GRAVITY * self.dt
             self.ball.velocity *= 0.98
 
-            # 2) Collecte des collisions potentielles
-            collisions = []
-            for poly in self.terrain_polys:
-                off = (self.ball.rect.left - poly.rect.left,
-                       self.ball.rect.top - poly.rect.top)
-                pt = poly.mask.overlap(self.ball.mask, off)
-                if not pt:
+            # 2) Gather collisions
+            collisions = []  # [(terrain, normal, depth)]
+            for terrain in self.terrain_polys:
+                mask_off = (
+                    self.ball.rect.left - terrain.rect.left,
+                    self.ball.rect.top - terrain.rect.top
+                )
+                overlap = terrain.mask.overlap(self.ball.mask, mask_off)
+                if not overlap:
                     continue
-
-                px, py = poly.rect.left + pt[0], poly.rect.top + pt[1]
-                ball_r = self.ball.radius * self.ball.scale_value
+                gx = terrain.rect.left + overlap[0]
+                gy = terrain.rect.top + overlap[1]
+                rad_px = self.ball.radius * self.ball.scale_value
                 normal, depth = physics.get_collision_normal_and_depth(
-                    poly.points, (px, py), self.ball.position, ball_r
+                    terrain.points, (gx, gy), self.ball.position, rad_px
                 )
                 if normal and depth > 0:
-                    collisions.append((poly, normal, depth))
+                    collisions.append((terrain, normal, depth))
 
-            # 3) Si on touche plusieurs faces, c'est probablement un trou → on arrête net
+            # 3) Hole detection: simultaneous faces
             if len(collisions) >= 2:
                 self.ball.velocity = pygame.Vector2(0, 0)
                 self.ball_in_motion = False
                 self.drag_done = False
                 return
 
-            # 4) S'il y a exactement une collision, on gère le rebond/glissement
+            # 4) Single collision: bounce/slide
             if len(collisions) == 1:
-                poly, normal, depth = collisions[0]
-
-                # 4a) Recalage précis
+                terrain, normal, depth = collisions[0]
+                # 4a) resolve penetration
                 self.ball.shift_position(normal * depth)
-
-                # 4b) Décomposition de la vélocité
-                v = self.ball.velocity
-                t = pygame.Vector2(-normal.y, normal.x)
-                v_n, v_t = v.dot(normal), v.dot(t)
-
-                # 4c) Récupération des coefficients (vous avez dit que vous avez modifié)
-                rest = poly.bounce_factor
-                fric = poly.friction
-
-                # 4d) Calcul du nouveau vecteur vitesse
-                v_n_after = -v_n * rest
-                v_t_after = v_t * (1 - fric)
-
-                # 4e) Micro‑rebond minimal pour laisser un léger slide
-                MICRO_BOUNCE = 2.0
-                if abs(v_n_after) < MICRO_BOUNCE:
-                    self.ball.velocity = v_t_after * t
+                # 4b) decompose velocity
+                vel = self.ball.velocity
+                tangent = pygame.Vector2(-normal.y, normal.x)
+                vn = vel.dot(normal)
+                vt = vel.dot(tangent)
+                # 4c) get coefficients
+                rest = terrain.bounce_factor
+                fric = terrain.friction
+                # 4d) slide on flat surfaces
+                if abs(normal.x) < 0.2 and normal.y < 0:
+                    new_vn = 0
                 else:
-                    self.ball.velocity = v_n_after * normal + v_t_after * t
+                    new_vn = -vn * rest
+                new_vt = vt * (1 - fric)
+                # 4e) micro-bounce
+                MICRO = 2.0
+                if abs(new_vn) < MICRO:
+                    self.ball.velocity = new_vt * tangent
+                else:
+                    self.ball.velocity = new_vn * normal + new_vt * tangent
+                # 4f) toggle detection
+                current_terrain_id = id(terrain)
 
-                # 4f) Arrêt si très lent après rebond
-                STOP_THRESHOLD = 5.0
-                if self.ball.velocity.length() < STOP_THRESHOLD:
+                # Increment count when switching between different terrain faces
+                if self.prev_collision_terrain is not None and current_terrain_id != self.prev_collision_terrain:
+                    self.collision_toggle_count += 1
+
+                # Update the last terrain collided
+                self.prev_collision_terrain = current_terrain_id
+
+                # If too many alternations, stop the ball
+                if self.collision_toggle_count >= self.max_toggle_toggles:
                     self.ball.velocity = pygame.Vector2(0, 0)
                     self.ball_in_motion = False
                     self.drag_done = False
                     return
 
-        # 5) Affichage de la ligne de tir pendant le drag
+                # 4g) stop if slow stop if slow
+                STOP_S = 5.0
+                if self.ball.velocity.length() < STOP_S:
+                    self.ball.velocity = pygame.Vector2(0, 0)
+                    self.ball_in_motion = False
+                    self.drag_done = False
+                    return
+            else:
+                # reset toggle counter if no collision
+                self.prev_collision_terrain = None
+                self.collision_toggle_count = 0
+
+        # 5) draw aim line
         if self.dragging:
-            current_mouse = pygame.mouse.get_pos()
-            self.force, self.angle = drag_and_release(self.ball.position, current_mouse)
+            mpos = pygame.mouse.get_pos()
+            self.force, self.angle = drag_and_release(self.ball.position, mpos)
 
     def run(self):
         while True:
