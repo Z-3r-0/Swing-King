@@ -12,7 +12,7 @@ BALL_RADIUS = 50.0
 # TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
-    def __init__(self, screen, scene_from: SceneType = None):
+    def __init__(self, screen, scene_from: SceneType = None, level: int = None):
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
@@ -27,8 +27,10 @@ class Game(Scene):
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.level_path = "data/levels/level2.json"
+        self.level_path = f"data/levels/level{level}.json" if level else "data/levels/level.json"
 
+        print(level_loader.load_json_level(self.level_path))
+        
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
