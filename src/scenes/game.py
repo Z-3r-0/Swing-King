@@ -1,9 +1,9 @@
-﻿from src.entities import Ball, Camera
+﻿from src.entities import Ball, Camera, Flag
 from src.utils import *
 import math
 from src.animation import Animation
 from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene_type import SceneType
 from src import physics
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
@@ -29,7 +29,7 @@ class Game(Scene):
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.level_path = "data/levels/test_level.json"
+        self.level_path = "data/levels/level6.json"
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
@@ -96,7 +96,9 @@ class Game(Scene):
             poly.draw_polygon(self.screen)
 
         for obs in self.obstacles:
-            obs.draw_obstacle(self.screen)
+            if not (isinstance(obs, Flag)) and obs.characteristic == "start":  # Not to draw the red ball
+                continue
+            obs.draw(self.screen)
 
         self.ball.draw(self.screen)
 

@@ -3,7 +3,7 @@ from pygame import mixer
 from src.hud.button import *
 
 from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene_type import SceneType
 
 from src.hud import Button
 

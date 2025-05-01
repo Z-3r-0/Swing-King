@@ -74,7 +74,7 @@ class Obstacle:
         for point in self.rotated_points:
             pygame.draw.circle(screen, (255, 0, 0), point + self.position, 2)
 
-    def draw_obstacle(self, screen: pygame.Surface, color: tuple[int, int, int, int] = (255, 255, 255, 0)):
+    def draw(self, screen: pygame.Surface, color: tuple[int, int, int, int] = (255, 255, 255, 0)):
         """Draw the obstacle on the screen"""
         screen.blit(self.rotated_image, self.position)  # Display the image at the position
 
@@ -114,7 +114,7 @@ class Obstacle:
     def update_obstacle(self, screen: pygame.Surface, camera_movement: pygame.Vector2):
         """Update the position of the obstacle based on camera movement and draw it"""
         self.shift_obstacle(camera_movement)
-        self.draw_obstacle(screen)
+        self.draw(screen)
 
     def contains_point(self, point: pygame.Vector2) -> bool:
         """Check if a point is inside the obstacle"""

@@ -1,7 +1,8 @@
 ﻿import json
 import pygame
+from pygame import Vector2
 
-from src.entities import Terrain, Obstacle
+from src.entities import Terrain, Obstacle, Flag
 
 
 def load_json_level(file_path):
@@ -66,6 +67,15 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
         case 1: # Case for obstacles
             for block in data:
+
+                if block["characteristic"] == "end":
+                    position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - 110)  # 110 is the size of the flag sprite
+                    angle = block["angle"]
+                    
+                    new_obstacle = Flag(position, angle)
+                    obstacles_ids[block["id"]] = new_obstacle
+                    
+                    continue
 
                 position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
                 size = block["size"]
