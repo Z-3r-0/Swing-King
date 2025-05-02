@@ -14,7 +14,7 @@ BALL_RADIUS = 50.0
 # TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
-    def __init__(self, screen, scene_from: SceneType = None):
+    def __init__(self, screen, scene_from: SceneType = None, level: int = None):
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
@@ -29,7 +29,9 @@ class Game(Scene):
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.level_path = "data/levels/test_level.json"
+        self.level_path = f"data/levels/level{level}.json" if level else "data/levels/level.json"
+
+        print(level_loader.load_json_level(self.level_path))
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
@@ -70,7 +72,7 @@ class Game(Scene):
 
 
         # Initialize camera
-        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, SCENE_WIDTH, SCENE_HEIGHT)
+        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height)
 
         # Load background
         self.background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
@@ -317,5 +319,6 @@ class Game(Scene):
         while True:
             self.handle_events()
             self.draw()
+
             pygame.display.flip()
             self.clock.tick(self.fps)

@@ -34,6 +34,10 @@ class Scene:
     def resize_hud(self):
         pass
 
-    def switch_scene(self, scene: SceneType):
+    def switch_scene(self, scene: SceneType, args: list = None):
         self.running = False
-        pygame.event.post(pygame.event.Event(scene_events[scene]))
+        
+        if args:
+            pygame.event.post(pygame.event.Event(scene_events[scene], {"args": args}))
+        else:
+            pygame.event.post(pygame.event.Event(scene_events[scene]))
