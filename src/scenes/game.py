@@ -1,4 +1,6 @@
-﻿from src.entities import Ball, Camera, Flag
+﻿from PIL.ImageChops import offset
+
+from src.entities import Ball, Camera, Flag
 from src.utils import *
 import math
 from src.animation import Animation
@@ -8,7 +10,6 @@ from src import physics
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - REPLACE WITH LEVEL DATA LATER
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
-BALL_RADIUS = 50.0
 
 # TODO - INSERT IN THE CLASS LATER
 
@@ -81,7 +82,12 @@ class Game(Scene):
         self.dot_spacing = 10
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
-
+        
+        self.flag = None
+        for obstacle in self.obstacles:
+            if isinstance(obstacle, Flag):
+                self.flag = obstacle
+                break
 
         # Animation du golfer
         # self.golfer_animation = Animation("assets/images/golfer", pygame.Vector2(500, 500))
@@ -100,7 +106,6 @@ class Game(Scene):
             obs.draw(self.screen)
 
         self.ball.draw(self.screen)
-
 
 
         # Toujours l'anim du golfeur
@@ -312,6 +317,9 @@ class Game(Scene):
             mpos = pygame.mouse.get_pos()
             # Recalcule force/angle pour la prédiction pendant le drag
             self.force, self.angle = drag_and_release(self.drag_start_pos, mpos)
+            
+        if self.check_flag_collision():
+            print("Finished level")
 
 
     def run(self):
@@ -320,3 +328,37 @@ class Game(Scene):
             self.draw()
             pygame.display.flip()
             self.clock.tick(self.fps)
+
+    def check_flag_collision(self):
+        """
+        Checks if the ball reached the base of the flag (hole)
+        """
+        
+        if not self.flag or not self.ball_in_motion:
+            return False
+    
+        ball_mask = self.ball.mask
+    
+        flag_surface = self.flag.animation.image
+        flag_mask = pygame.mask.from_surface(flag_surface)
+    
+        # Create a mask for the base of the flag only (1/4 bottom of the flag)
+        base_height = flag_surface.get_height() // 4
+        base_rect = pygame.Rect(0, flag_surface.get_height() - base_height,
+                                flag_surface.get_width(), base_height)
+    
+        base_mask = pygame.mask.Mask((flag_surface.get_width(), flag_surface.get_height()))
+        for x in range(base_rect.width):
+            for y in range(base_rect.height):
+                if flag_mask.get_at((x, base_rect.y + y)):
+                    base_mask.set_at((x, base_rect.y + y), 1)
+    
+        offset = (
+            int(self.ball.rect.left - self.flag.animation.rect.left),
+            int(self.ball.rect.top - self.flag.animation.rect.top)
+        )
+    
+        # Check if masks overlap with the offset
+        overlap = base_mask.overlap(ball_mask, offset)
+    
+        return overlap is not None

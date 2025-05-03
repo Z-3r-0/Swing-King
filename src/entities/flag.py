@@ -19,8 +19,6 @@ class Flag:
         self.animation = Animation('assets/images/flag', self.position)
         self.animation_sprite = pygame.sprite.Group()
         self.animation_sprite.add(self.animation)
-        
-        self.hole = Interactable()
     
     def draw(self, screen):
         self.animation.update()
