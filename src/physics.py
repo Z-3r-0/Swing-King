@@ -1,167 +1,158 @@
 ﻿import pygame
-
-def distance_point_to_segment_vector(point_p: pygame.Vector2, seg_a: pygame.Vector2, seg_b: pygame.Vector2) -> float:
-    """
-    Return the distance from point_p to the line segment defined by seg_a and seg_b, using pygame.Vector2.
-    """
-    # Vector representing the line segment
-    segment_vec = seg_b - seg_a
-    # Vector from the segment start to the point
-    point_vec = point_p - seg_a
-
-    segment_len_sq = segment_vec.magnitude_squared()
-
-    # If the segment is essentially a point
-    if segment_len_sq < 1e-10: # Use a small epsilon for float comparison
-        return point_vec.length()
-
-    # Calculate the projection factor 't' of the point onto the infinite line
-    # t = dot_product(AP, AB) / length_squared(AB)
-    t = point_vec.dot(segment_vec) / segment_len_sq
-
-    # Clamp t to the range [0, 1] to restrict to the segment
-    t = max(0.0, min(1.0, t))
-
-    # Calculate the closest point on the segment
-    closest_point_on_segment = seg_a + t * segment_vec
-
-    # Return the distance between the original point and the closest point on the segment
-    return point_p.distance_to(closest_point_on_segment)
-
-
-def get_collision_edge_angle_vector(polygon_points, collision_point):
-    """
-    Given a list of polygon points (tuples) and a collision point (tuple),
-    determine the angle (in degrees) of the polygon edge closest to the collision point.
-    Uses pygame.Vector2 internally.
-
-    Returns a tuple (angle_degrees, edge_tuples) where edge_tuples is ((x1, y1), (x2, y2)).
-    """
-    if not collision_point:
-        return None, None
-
-    # Convert inputs to vectors
-    collision_vec = pygame.Vector2(collision_point)
-    polygon_vecs = [pygame.Vector2(p) for p in polygon_points]
-
-    min_dist = float('inf')
-    best_edge_vecs = None # Store the best edge as vectors
-    num_points = len(polygon_vecs)
-
-    # Loop through each edge of the polygon using vectors
-    for i in range(num_points):
-        pt1_vec = polygon_vecs[i]
-        pt2_vec = polygon_vecs[(i + 1) % num_points] # wrap-around for last segment
-
-        # Use the vectorized distance function
-        dist = distance_point_to_segment_vector(collision_vec, pt1_vec, pt2_vec)
-
-        if dist < min_dist:
-            min_dist = dist
-            best_edge_vecs = (pt1_vec, pt2_vec)
-
-    if best_edge_vecs is None:
-        return None, None
-
-    # Compute the angle of the best edge relative to the horizontal axis
-    edge_vector = best_edge_vecs[1] - best_edge_vecs[0]
-
-    # Handle zero-length edge vector case (shouldn't happen with valid polygons)
-    if edge_vector.length_squared() < 1e-10:
-         angle_deg = 0.0 # Or handle as an error/None
-    else:
-        # angle_to gives angle relative to the positive x-axis in degrees [-180, 180]
-        angle_deg = pygame.Vector2(1, 0).angle_to(edge_vector)
-        # Optional: Normalize to [0, 360) if preferred
-        # angle_deg = (angle_deg + 360) % 360
-
-    # Convert the best edge vectors back to tuples for the return value,
-    # maintaining the original expected output format.
-    best_edge_tuples = (best_edge_vecs[0].xy, best_edge_vecs[1].xy)
-
-    return angle_deg, best_edge_tuples
-
-def get_closest_edge_normal(polygon_points, collision_point_global):
-    """
-    Retourne la normale du segment du polygone le plus proche du point de collision.
-    :param polygon_points: liste des points du polygone [(x1,y1), (x2,y2), ...]
-    :param collision_point_global: point d'impact (x, y)
-    :return: normale (pygame.Vector2)
-    """
-    closest_distance = float('inf')
-    closest_normal = None
-
-    for i in range(len(polygon_points)):
-        p1 = pygame.Vector2(polygon_points[i])
-        p2 = pygame.Vector2(polygon_points[(i + 1) % len(polygon_points)])
-        # Projection du point sur le segment
-        edge = p2 - p1
-        edge_length_squared = edge.length_squared()
-        if edge_length_squared == 0:
-            continue
-
-        t = max(0, min(1, (pygame.Vector2(collision_point_global) - p1).dot(edge) / edge_length_squared))
-        projection = p1 + t * edge
-        dist = (pygame.Vector2(collision_point_global) - projection).length()
-
-        if dist < closest_distance:
-            closest_distance = dist
-            normal = edge.rotate(90).normalize()  # Perpendiculaire
-            closest_normal = normal
-
-    return closest_normal
-
-import pygame
 import math
 
-def get_collision_normal_and_depth(polygon_points, collision_point, ball_center, ball_pixel_radius):
+# Import necessary classes from entities
+from src.entities.terrain import Terrain
+from src.entities.obstacle import Obstacle
+# Import utility functions
+from src.utils.physics_utils import get_polygon_collision_normal_depth
+
+# --- Constants ---
+GRAVITY = 980.0  # Gravitational acceleration in pixels/s²
+DEFAULT_DAMPING = 0.99 # Velocity multiplier per frame to simulate air/rolling resistance
+STOP_SPEED_THRESHOLD = 8.0 # Speed (pixels/s) below which the ball stops
+MIN_BOUNCE_VELOCITY = 15.0 # Minimum velocity component normal to surface after bounce
+COLLISION_PUSH_FACTOR = 1.01 # Slightly > 1 to push ball out of collision
+MAX_COLLISION_ITERATIONS = 3 # Max times to re-check collisions within one sub-step
+
+# --- Core Physics Update Function ---
+
+def update_ball_physics(ball, terrain_polys, obstacles, dt):
     """
-    :param polygon_points: liste de (x,y) en pixels du polygone
-    :param collision_point: point d'impact issu de mask.overlap(), en pixels globaux
-    :param ball_center: pygame.Vector2 du centre de la balle en pixels
-    :param ball_pixel_radius: rayon de la balle en pixels (radius * scale_value)
-    :return: (normal: Vector2 unitaire pointant vers l'extérieur, depth: float en pixels)
+    Updates the ball's position, velocity, and handles collisions for one fixed sub-step (dt).
+
+    Args:
+        ball: The Ball object.
+        terrain_polys: List of Terrain objects.
+        obstacles: List of Obstacle objects.
+        dt: Fixed time delta for the sub-step (in seconds).
+
+    Returns:
+        bool: True if the ball is still considered moving after this sub-step, False otherwise.
     """
-    # 1) Trouver l'arête la plus proche
-    closest_dist = float('inf')
-    best_edge = None
-    best_proj = None
+    if not ball.is_moving:
+        return False
 
-    for i in range(len(polygon_points)):
-        p1 = pygame.Vector2(polygon_points[i])
-        p2 = pygame.Vector2(polygon_points[(i+1) % len(polygon_points)])
-        edge = p2 - p1
-        seg_len2 = edge.length_squared()
-        if seg_len2 == 0:
-            continue
+    # 1. Apply Forces (Gravity and Damping)
+    ball.velocity.y += GRAVITY * dt
+    # Apply damping based on the fixed dt. If dt is very small, damping effect per step is also small.
+    ball.velocity *= (DEFAULT_DAMPING ** (dt * 60)) # Frame-rate independent damping approximation
 
-        # projection du centre de la balle sur l'arête
-        t = (ball_center - p1).dot(edge) / seg_len2
-        t = max(0.0, min(1.0, t))
-        proj = p1 + t * edge
+    # 2. Update Position based on current velocity
+    ball.position += ball.velocity * dt
+    ball.rect.center = ball.position # Keep rect updated
 
-        dist = (ball_center - proj).length()
-        if dist < closest_dist:
-            closest_dist = dist
-            best_edge = edge
-            best_proj = proj
+    # 3. Iterative Collision Detection and Resolution Loop
+    collidable_objects = terrain_polys + [obs for obs in obstacles if obs.is_colliding]
+    for _ in range(MAX_COLLISION_ITERATIONS): # Loop a few times to resolve stacked collisions
+        max_depth = -1.0
+        best_collision = None # (collided_object, normal, depth)
+        collision_found_this_iteration = False
 
-    if best_edge is None:
-        return None, 0
+        for obj in collidable_objects:
+            # Broad phase (AABB check)
+            if isinstance(obj, Terrain):
+                obj_rect = obj.rect
+            elif isinstance(obj, Obstacle):
+                 obj_rect = obj.get_rotated_rect()
+            else:
+                 continue
 
-    # 2) calcul de la normale perpendiculaire
-    # on prend (-dy, dx) pour avoir un perpendicular
-    normal = pygame.Vector2(-best_edge.y, best_edge.x)
-    normal_len = normal.length()
-    if normal_len == 0:
-        return None, 0
-    normal = normal / normal_len
+            if not ball.rect.colliderect(obj_rect):
+                continue
 
-    # 3) orientation : on veut que normal pointe vers la balle
-    if normal.dot(ball_center - best_proj) < 0:
-        normal = -normal
+            # Narrow phase
+            if isinstance(obj, Terrain):
+                poly_points = obj.points
+            else: # Obstacle
+                poly_points = [(p + obj.position) for p in obj.rotated_points]
+                if not poly_points: continue
 
-    # 4) profondeur de pénétration
-    depth = ball_pixel_radius - closest_dist
+            normal, depth = pygame.Vector2(0,0), 0
+            try:
+                normal, depth = get_polygon_collision_normal_depth(
+                    poly_points, ball.position, ball.scaled_radius
+                )
+            except Exception as e:
+                 print(f"Error during collision check with {type(obj)}: {e}")
+                 continue
 
-    return normal, depth
+            if normal and depth > 1e-4: # Found a penetration
+                collision_found_this_iteration = True
+                # Track the collision with the maximum depth in this iteration
+                if depth > max_depth:
+                    max_depth = depth
+                    best_collision = (obj, normal, depth)
+
+        # --- Process the deepest collision found in this iteration ---
+        if best_collision:
+            collided_object, normal, depth = best_collision
+
+            # 3a. Resolve Penetration
+            # Push slightly more than depth to ensure clearance
+            push_distance = depth * COLLISION_PUSH_FACTOR
+            ball.position += normal * push_distance
+            ball.rect.center = ball.position
+
+            # 3b. Calculate Collision Response (Bounce and Friction)
+            bounce = getattr(collided_object, 'bounce_factor', 0.4)
+            friction = getattr(collided_object, 'friction', 0.3)
+
+            vn_scalar = ball.velocity.dot(normal)
+            normal_velocity = vn_scalar * normal
+            tangent_velocity = ball.velocity - normal_velocity
+
+            if vn_scalar < 0: # Moving into the surface
+                new_vn_scalar = -vn_scalar * bounce
+                if abs(new_vn_scalar) < MIN_BOUNCE_VELOCITY and abs(vn_scalar) > MIN_BOUNCE_VELOCITY / 2:
+                     new_vn_scalar = MIN_BOUNCE_VELOCITY
+                normal_velocity = new_vn_scalar * normal
+            else: # Moving away or parallel
+                 normal_velocity *= bounce # Still apply bounce factor
+
+            tangent_speed = tangent_velocity.length()
+            if tangent_speed > 1e-5:
+                # Assuming friction is a coefficient (0=no friction, 1=full stop)
+                # new_vt = vt * (1.0 - friction_coefficient)
+                friction_effect = max(0, 1.0 - friction)
+                tangent_velocity *= friction_effect
+
+            ball.velocity = normal_velocity + tangent_velocity
+
+            # 3c. Handle Collision Toggling (Anti-Stuck) - Check only after resolving
+            ball.update_collision_state(collided_object)
+            if ball.is_stuck():
+                ball.velocity = pygame.Vector2(0, 0)
+                ball.is_moving = False
+                ball.reset_collision_state()
+                print("Ball stuck, stopping.")
+                return False # Exit physics update immediately if stuck
+
+        # If no collisions were found in this iteration, exit the resolution loop
+        if not collision_found_this_iteration:
+            break
+    # --- End of Iterative Collision Resolution Loop ---
+
+    # Reset anti-stuck state if the ball wasn't stuck and ended the loop without collision
+    if best_collision is None: # No collision in the last iteration
+         ball.reset_collision_state()
+
+
+    # 4. Check for Stopping Condition (after all resolutions for this sub-step)
+    if ball.velocity.length_squared() < STOP_SPEED_THRESHOLD**2:
+        # Check if reasonably flat only if there was a collision resolved in the last iteration
+        is_on_flat_surface = False
+        if best_collision: # Check the normal from the last resolved collision
+            _, normal, _ = best_collision
+            if abs(normal.y) > 0.9: # Check if mostly vertical normal
+                is_on_flat_surface = True
+
+        # Stop if slow enough AND (no collision resolved OR on a flat surface)
+        if best_collision is None or is_on_flat_surface:
+            ball.velocity = pygame.Vector2(0, 0)
+            ball.is_moving = False
+            ball.reset_collision_state()
+            return False
+
+    # If we reach here, the ball is still considered moving after this sub-step
+    return True
