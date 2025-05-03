@@ -3,8 +3,7 @@
 import pygame
 from pygame import Vector2
 
-from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene import Scene, SceneType
 from src.hud.button import Button
 from src.utils.level_export import get_level_count
 
@@ -59,7 +58,7 @@ class LevelSelector(Scene):
                 size = Vector2(button_width, button_height)
                 button = Button(
                     self.screen,
-                    lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args=[lvl]),
+                    lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args={"level": lvl}),
                     position,
                     size,
                     "assets/images/buttons/menus/main/credits/credits.png",

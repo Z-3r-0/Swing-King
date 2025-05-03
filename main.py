@@ -1,9 +1,6 @@
 ﻿from src.utils import *
 from src.scene import SceneType
-import src.scenes.game as game_module
-import src.scenes.menu as menu_module
-import src.scenes.level_creator as level_creator_module
-import src.scenes.option_menu as option_module
+from src.scenes import *
 from src.events import scene_events
 
 pygame.init()
@@ -12,10 +9,11 @@ pygame.init()
 WIDTH, HEIGHT = 1920, 1080  # TODO - Replace by screen resolution later
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-game = game_module.Game(screen, "data/levels", None)
-main_menu = menu_module.Menu(screen)
-option_menu = option_module.OptionMenu(screen, None)
-level_creator = level_creator_module.LevelCreator(screen, None)
+game = Game(screen, "data/levels", None)
+main_menu = Menu(screen)
+option_menu = OptionMenu(screen, None)
+level_creator = LevelCreator(screen, None)
+level_selector = LevelSelector(screen, None)
 
 scene = SceneType.MAIN_MENU
 from_scene = None
@@ -23,6 +21,8 @@ from_scene = None
 clock = pygame.time.Clock()
 
 while True:
+    args = None
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -32,6 +32,12 @@ while True:
                 if event.type == evt_id:
                     from_scene = scene
                     scene = scene_type
+                    
+                    args = event.dict.get("args", None)
+                    
+                    if scene == SceneType.GAME and args is not None:
+                        level_number = args["level"]
+                        game.load_level(level_number)
 
     match scene:
         case SceneType.GAME:
@@ -50,6 +56,10 @@ while True:
             level_creator.scene_from = from_scene
             level_creator.running = True
             level_creator.run()
+        case SceneType.LEVEL_SELECTOR:
+            level_selector.scene_from = from_scene
+            level_selector.running = True
+            level_selector.run()
         case SceneType.CREDITS:
             # TODO - Implement credits menu
             pygame.quit()

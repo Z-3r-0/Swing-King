@@ -1,6 +1,4 @@
-﻿from PIL.ImageChops import offset
-
-from src.entities import Ball, Camera, Flag
+﻿from src.entities import Ball, Camera, Flag
 from src.utils import *
 import math
 from src.animation import Animation
@@ -31,7 +29,7 @@ class Game(Scene):
         
         self.level_dir = levels_dir_path
         
-        self.level_path = f"{self.level_dir}/level5.json"  # default level
+        self.level_path = f"{self.level_dir}/level1.json"  # default level
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)

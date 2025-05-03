@@ -47,7 +47,8 @@ class Scene:
     def resize_hud(self):
         pass
 
-    def switch_scene(self, scene: SceneType, args: list = None):
+    def switch_scene(self, scene: SceneType, args: dict = None):
+
         self.running = False
         
         if args:
