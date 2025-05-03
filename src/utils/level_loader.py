@@ -1,7 +1,8 @@
 ﻿import json
 import pygame
+from pygame import Vector2
 
-from src.entities import Terrain, Obstacle
+from src.entities import Terrain, Obstacle, Flag
 
 
 def load_json_level(file_path):
@@ -55,22 +56,33 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
                 terrain_ids[block["id"]] = new_terrain
 
-                # To get the final list in the order we want to draw the zones (not to draw one over another in a weird way)
-                # The order is based off the id of each zone in the json file
-                sorted_terrain_dict = dict(sorted(terrain_ids.items()))
+            # To get the final list in the order we want to draw the zones (not to draw one over another in a weird way)
+            # The order is based off the id of each zone in the json file
+            sorted_terrain_dict = dict(sorted(terrain_ids.items()))
 
-                for value in sorted_terrain_dict.values():
-                    terrain_list.append(value)
+            for value in sorted_terrain_dict.values():
+                terrain_list.append(value)
 
-                return terrain_list
+            return terrain_list
 
         case 1: # Case for obstacles
             for block in data:
 
+                if block["characteristic"] == "end":
+                    position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - 110)  # 110 is the size of the flag sprite
+                    angle = block["angle"]
+                    
+                    new_obstacle = Flag(position, angle)
+                    obstacles_ids[block["id"]] = new_obstacle
+                    
+                    continue
+
                 position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
                 size = block["size"]
+                angle = block["angle"]
                 is_colliding = block["is_colliding"]
-                new_obstacle = Obstacle(position, f"assets/images/obstacles/{block['type']}.png", size, is_colliding, 150)
+                characteristic = block["characteristic"]
+                new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
 
                 obstacles_ids[block["id"]] = new_obstacle
 
