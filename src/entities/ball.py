@@ -5,116 +5,108 @@ import pygame
 class Ball:
 
     def __init__(self, position: pygame.Vector2, diameter: float, mass: float, color: pygame.Color, image_path: str = None):
-        self.position = position
-        self.old_position = position
-        self.start_position = position
+        self.position = position.copy()
+        # self.old_position = position # Not used in current logic
+        self.start_position = position.copy()
 
         self.velocity = pygame.Vector2(0, 0)
-        self.acceleration = pygame.Vector2(0, 0)
+        # self.acceleration = pygame.Vector2(0, 0) # Not used
 
         self.scale_value = 7
-        self.diameter = floor(diameter) # * self.scale_value
-        self.radius = self.diameter / 2 # * self.scale_value / 2
-        self.rect = pygame.Rect((self.position.x - self.radius * self.scale_value), (self.position.y - self.radius * self.scale_value), (self.radius * self.scale_value)*2, (self.radius * self.scale_value)*2)
+        self.diameter = floor(diameter)
+        self.radius = self.diameter / 2
 
+        self.scaled_radius = self.radius * self.scale_value
+        self.scaled_diameter = self.diameter * self.scale_value
 
+        self.rect = pygame.Rect(
+            self.position.x - self.scaled_radius,
+            self.position.y - self.scaled_radius,
+            self.scaled_diameter,
+            self.scaled_diameter
+        )
 
         self.color = color
         self.mass = mass
 
-        self.is_moving = False
-        self.is_colliding = False
+        # self.is_moving = False # Handled by Game class
+        # self.is_colliding = False # Handled by Game class
         self.image_path = image_path
-
-        self.force = 0
-        self.angle = 0
-        self.velocity = pygame.Vector2(0, 0)
+        self.image = None
+        self.mask = None
+        # self.surface = None # Not needed if mask is from image
 
         if self.image_path:
-            self.image = pygame.image.load(image_path).convert_alpha()
-            self.image = pygame.transform.smoothscale(self.image, (
-                self.diameter * self.scale_value, self.diameter * self.scale_value))  # Arbitrary self.scale_value * 7 scale value
-        self.surface = pygame.Surface((self.diameter * self.scale_value, self.diameter * self.scale_value), pygame.SRCALPHA)
-        self.mask = pygame.mask.from_surface(self.surface)
+            try:
+                self.original_image = pygame.image.load(image_path).convert_alpha()
+                self.image = pygame.transform.smoothscale(self.original_image, (self.scaled_diameter, self.scaled_diameter))
+                self.mask = pygame.mask.from_surface(self.image)
+            except pygame.error as e:
+                print(f"Error loading ball image '{image_path}': {e}")
+                self._create_fallback_surface()
+        else:
+             self._create_fallback_surface()
 
-    def draw(self, surface):
+    def _create_fallback_surface(self):
+        self.image = pygame.Surface((self.scaled_diameter, self.scaled_diameter), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, self.color, (self.scaled_radius, self.scaled_radius), self.scaled_radius)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+    def draw(self, surface: pygame.Surface, camera_offset: pygame.Vector2):
         """
-        Draws the ball on the specified surface.
+        Draws the ball on the specified surface, adjusted by camera offset.
 
         :param surface: The surface to draw the ball on.
-        :return:
+        :param camera_offset: The camera's top-left world coordinate.
         """
+        if self.image:
+            screen_pos_x = self.position.x - self.scaled_radius - camera_offset.x
+            screen_pos_y = self.position.y - self.scaled_radius - camera_offset.y
+            surface.blit(self.image, (screen_pos_x, screen_pos_y))
+        # No fallback drawing needed if _create_fallback_surface works
 
-        surface.blit(self.image, (self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value))
     def get_speed(self,pos_camera_x: float = 0, fps: float = (1/60)):
         """
         Returns the speed of the ball.
         :return: The speed of the ball
         """
-        old_position = self.old_position
-        new_position = self.position + pygame.Vector2(pos_camera_x, 0)
-        distance = new_position.distance_to(old_position)
-        return distance / fps
+        # This function seems problematic:
+        # 1. Uses old_position which isn't reliably updated.
+        # 2. Adds camera_x but not camera_y.
+        # 3. Relies on fixed fps argument.
+        # Better approach: return self.velocity.length()
+        # old_position = self.old_position
+        # new_position = self.position + pygame.Vector2(pos_camera_x, 0)
+        # distance = new_position.distance_to(old_position)
+        # return distance / fps
+        return self.velocity.length() # Return current speed magnitude
 
     def update_position(self, new_position: pygame.Vector2):
         """
-        Updates the position of the ball.
-        :param new_position: The new position of the ball.
-        :return:
+        Updates the position of the ball and its rect.
+        :param new_position: The new world position of the ball's center.
         """
-        self.surface.fill((0, 0, 0, 0))  # Clear surface
-        pygame.draw.circle(self.surface, (255, 255, 255),
-                           (self.radius * self.scale_value, self.radius * self.scale_value),
-                           self.radius * self.scale_value)
-        self.mask = pygame.mask.from_surface(self.surface)
-
-        self.old_position = self.position
-        self.position = new_position
-        self.rect = pygame.Rect((self.position.x - self.radius * self.scale_value), (self.position.y - self.radius * self.scale_value), (self.radius * self.scale_value)*2, (self.radius * self.scale_value)*2)
-
-    def shift_out_of_collision(self, poly_mask: pygame.Mask, poly_rect: pygame.Rect,
-                               normal: pygame.Vector2, max_push: int = 10) -> bool:
-        """
-        Tente de repousser la balle hors de la collision le long de la normale.
-        :param poly_mask: mask du polygone
-        :param poly_rect: rect du polygone
-        :param normal: normale unitaire au point d'impact
-        :param max_push: distance max (en pixels) à tester
-        :return: True si la balle a pu sortir, False sinon
-        """
-        for i in range(1, max_push + 1):
-            shift = normal * i
-            # On déplace temporairement
-            self.shift_position(shift)
-            offset = (self.rect.left - poly_rect.left,
-                      self.rect.top - poly_rect.top)
-            # Si plus de collision, on garde ce déplacement
-            if not poly_mask.overlap(self.mask, offset):
-                return True
-            # Sinon on annule et on teste un push plus grand
-            self.shift_position(-shift)
-        return False
+        self.position = new_position.copy()
+        self.rect.center = self.position
+        # No need to recreate mask/surface on position update
 
     def shift_position(self, shift:pygame.Vector2):
         """
-        Shifts the position of the ball.
-        :param shift: The shift vector.
-        :return:
+        Shifts the position of the ball by a given vector and updates its rect.
+        :param shift: The vector to add to the current position.
         """
-        self.surface.fill((0, 0, 0, 0))  # Clear surface
-        pygame.draw.circle(self.surface, (255, 255, 255),
-                           (self.radius * self.scale_value, self.radius * self.scale_value),
-                           self.radius * self.scale_value)
-        self.mask = pygame.mask.from_surface(self.surface)
-
         self.position += shift
-        self.rect = pygame.Rect((self.position.x - self.radius * self.scale_value), (self.position.y - self.radius * self.scale_value), (self.radius * self.scale_value)*2, (self.radius * self.scale_value)*2)
-    def check_collision(self, element: pygame.Rect):
+        self.rect.center = self.position
+        # No need to recreate mask/surface on position update
+
+    # shift_out_of_collision removed as penetration is handled directly
+
+    def check_collision(self, element_rect: pygame.Rect):
         """
-        Checks if the ball is currently colliding with the element.
-        :param element: The element to check for collision.
-        :return: True if the ball is in contact with the element, False otherwise.
+        Checks if the ball's bounding box is currently colliding with the element's rect.
+        :param element_rect: The pygame.Rect of the element to check against.
+        :return: True if the bounding boxes overlap, False otherwise.
         """
-        if element.colliderect(pygame.Rect(self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value, self.radius * self.scale_value, self.radius * self.scale_value)):
-            return True
-        return False
+        # The original check was incorrect (used ball pos/radius instead of rect)
+        return self.rect.colliderect(element_rect)
