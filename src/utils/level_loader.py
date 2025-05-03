@@ -75,7 +75,7 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                     is_colliding = block.get("is_colliding", True)
                     characteristic = block.get("characteristic", None)
                     obstacle_type = block.get("type", "default_obstacle")
-                    image_path = f"assets/images/obstacles/{obstacle_type}.png"
+                    image_path = f"{obstacle_type}.png"
                     try:
                         new_obstacle = Obstacle(
                             position=position,
