@@ -37,31 +37,54 @@ class Terrain:
         pygame.draw.polygon(self.collision_surface, (255, 255, 255, 255), shifted_points)
         self.mask = pygame.mask.from_surface(self.collision_surface)
 
-        friction_factor = {
-            'green': 0.85,
-            'fairway': 0.4,
-            'bunker': 0.9,
-            'lake': 0.95,
-            'rocks': 0.5,
-            'dirt': 0.6,
-            'darkgreen': 0.5,
-            'darkrocks': 0.4,
-            'darkdirt': 0.7
-        }
-        self.friction = friction_factor.get(self.terrain_type, 0.5)
-
         bounce = {
-            'green': 0.4,
-            'fairway': 0.5,
-            'bunker': 0.1,
-            'lake': 0.05,
-            'rocks': 0.7,
-            'dirt': 0.3,
-            'darkgreen': 0.4,
-            'darkrocks': 0.6,
-            'darkdirt': 0.2
+            'green': 0.40,      # Lower bounce than fairway, promotes roll
+            'fairway': 0.50,    # Standard moderate bounce
+            'bunker': 0.15,     # Very low bounce, absorbs energy
+            'lake': 0.10,       # Minimal bounce
+            'rocks': 0.70,      # High bounce
+            'dirt': 0.35,       # Moderate-low bounce
+            'darkgreen': 0.35,  # Low bounce (like rough)
+            'darkrocks': 0.65,  # High bounce, slightly less than clean rocks
+            'darkdirt': 0.30    # Low bounce (softer/looser dirt)
         }
-        self.bounce_factor = bounce.get(self.terrain_type, 0.4)
+        self.bounce_factor = bounce.get(self.terrain_type, 0.4) # Default to 0.4 if type unknown
+
+        # --- IMPORTANT ---
+        # Don't forget friction! Realistic behavior needs both.
+        friction_factor = {
+            'green': 0.85,      # Low friction (high value means less speed reduction) -> promotes roll
+            'fairway': 0.70,    # Moderate friction
+            'bunker': 0.40,     # High friction (low value means more speed reduction) -> slows ball quickly
+            'lake': 0.30,       # Very high friction/drag
+            'rocks': 0.80,      # Low friction (less rolling resistance)
+            'dirt': 0.60,       # Moderate-high friction
+            'darkgreen': 0.55,  # Higher friction than fairway (rough)
+            'darkrocks': 0.75,  # Low friction
+            'darkdirt': 0.50    # High friction
+        }
+        # NOTE: Your previous friction values seemed inverted if 1.0 meant no friction.
+        # I've adjusted them assuming a factor applied to tangential velocity like:
+        # new_vt = vt * friction_factor (where friction_factor is closer to 1 for less friction)
+        # OR if your physics uses it like: new_vt = vt * (1.0 - friction_coefficient)
+        # then the values should be low for low friction (green) and high for high friction (bunker).
+        # Double-check how friction is applied in src/physics.py!
+        # Let's assume your physics uses: new_vt = vt * (1 - fric_coeff)
+        # Then the coefficients should be:
+        friction_coeffs = {
+             'green': 0.15,      # Low friction coeff -> less speed loss
+             'fairway': 0.30,
+             'bunker': 0.70,     # High friction coeff -> more speed loss
+             'lake': 0.85,
+             'rocks': 0.20,
+             'dirt': 0.40,
+             'darkgreen': 0.50,  # Rough has higher friction
+             'darkrocks': 0.25,
+             'darkdirt': 0.60
+        }
+        # Choose the correct dictionary based on your physics implementation!
+        # Assuming the second model (1.0 - coeff):
+        self.friction = friction_coeffs.get(self.terrain_type, 0.3) # Default friction coeff
 
         self.colors = {
             'green': (62, 179, 62),
