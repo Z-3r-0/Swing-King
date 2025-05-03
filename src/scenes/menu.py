@@ -19,7 +19,7 @@ class Menu(Scene):
 
         self.credits = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
-        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.GAME), Vector2(825, 520), Vector2(270, 80),
+        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_SELECTOR), Vector2(825, 520), Vector2(270, 80),
                            "assets/images/buttons/menus/main/play/play.png",
                            "assets/images/buttons/menus/main/play/play_hovered.png",
                            "assets/images/buttons/menus/main/play/play_clicked.png")
