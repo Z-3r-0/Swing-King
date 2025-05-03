@@ -14,7 +14,7 @@ GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH 
 # TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
-    def __init__(self, screen, scene_from: SceneType = None):
+    def __init__(self, screen, levels_dir_path: str, scene_from: SceneType = None):
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dt = 0
         self.dragging = False
@@ -28,8 +28,10 @@ class Game(Scene):
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
-
-        self.level_path = "data/levels/level6.json"
+        
+        self.level_dir = levels_dir_path
+        
+        self.level_path = f"{self.level_dir}/level5.json"  # default level
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
@@ -328,6 +330,20 @@ class Game(Scene):
             self.draw()
             pygame.display.flip()
             self.clock.tick(self.fps)
+
+    def load_level(self, id: int):
+
+        self.level_path = f"{self.level_dir}/level{id}.json"
+
+        # Load level data
+        self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
+
+        # Load terrain and obstacles
+        self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
+        self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
+        self.potential_collision_indices = []
+        self.potential_collision_polygons = []
+
 
     def check_flag_collision(self):
         """

@@ -12,7 +12,7 @@ pygame.init()
 WIDTH, HEIGHT = 1920, 1080  # TODO - Replace by screen resolution later
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-game = game_module.Game(screen, None)
+game = game_module.Game(screen, "data/levels", None)
 main_menu = menu_module.Menu(screen)
 option_menu = option_module.OptionMenu(screen, None)
 level_creator = level_creator_module.LevelCreator(screen, None)
