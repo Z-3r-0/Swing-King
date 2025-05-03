@@ -2,8 +2,7 @@
 from src.utils import *
 import math
 from src.animation import Animation
-from src.scene import Scene
-from src.scene_type import SceneType
+from src.scene import Scene, SceneType
 from src import physics
 
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - REPLACE WITH LEVEL DATA LATER

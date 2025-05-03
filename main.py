@@ -1,5 +1,5 @@
 ﻿from src.utils import *
-from src.scene_type import SceneType
+from src.scene import SceneType
 import src.scenes.game as game_module
 import src.scenes.menu as menu_module
 import src.scenes.level_creator as level_creator_module

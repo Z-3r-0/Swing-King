@@ -1,5 +1,5 @@
 import pygame
-from src.scene_type import SceneType
+from src.scene import SceneType
 
 scene_events = {
     SceneType.GAME: pygame.USEREVENT + SceneType.GAME.value,

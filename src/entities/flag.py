@@ -2,6 +2,7 @@
 from pygame import Vector2
 
 from src import Animation
+from src.entities.interactable import Interactable, InteractableType
 
 
 class Flag:
@@ -13,10 +14,13 @@ class Flag:
         
         self.position = position.copy()
         self.angle = angle
+        self.height = 110  # 110 is the height of the flag sprite
         
         self.animation = Animation('assets/images/flag', self.position)
         self.animation_sprite = pygame.sprite.Group()
         self.animation_sprite.add(self.animation)
+        
+        self.hole = Interactable()
     
     def draw(self, screen):
         self.animation.update()

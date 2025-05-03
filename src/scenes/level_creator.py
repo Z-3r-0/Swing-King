@@ -1,5 +1,4 @@
-﻿from src.scene import Scene
-from src.scene_type import SceneType
+﻿from src.scene import Scene, SceneType
 
 import src.utils.level_export as export
 from src.hud.level_creator_hud import *
