@@ -1,6 +1,9 @@
 ﻿from src.entities import Ball, Camera, Flag
 from src.utils import *
 import math
+import json
+import os
+from datetime import datetime
 from src.animation import Animation
 from src.scene import Scene, SceneType
 from src import physics
@@ -26,9 +29,9 @@ class Game(Scene):
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
-        
+
         self.level_dir = levels_dir_path
-        
+
         self.level_path = f"{self.level_dir}/level1.json"  # default level
 
         # Load level data
@@ -36,7 +39,7 @@ class Game(Scene):
 
         # Initialize game objects
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
-                 "assets/images/balls/golf_ball.png")
+                         "assets/images/balls/golf_ball.png")
 
         # Load terrain and obstacles
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
@@ -82,12 +85,14 @@ class Game(Scene):
         self.dot_spacing = 10
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
-        
+
         self.flag = None
         for obstacle in self.obstacles:
             if isinstance(obstacle, Flag):
                 self.flag = obstacle
                 break
+
+        self.saved = False
 
         # Animation du golfer
         # self.golfer_animation = Animation("assets/images/golfer", pygame.Vector2(500, 500))
@@ -208,7 +213,7 @@ class Game(Scene):
 
                     clickable_radius = self.ball.radius * self.ball.scale_value
                     if click_dist <= clickable_radius:
-                    # --- FIN CONDITION MODIFIÉE ---
+                        # --- FIN CONDITION MODIFIÉE ---
                         self.dragging = True
 
                         self.drag_start_pos = self.ball.position.copy()
@@ -317,10 +322,62 @@ class Game(Scene):
             mpos = pygame.mouse.get_pos()
             # Recalcule force/angle pour la prédiction pendant le drag
             self.force, self.angle = drag_and_release(self.drag_start_pos, mpos)
-            
-        if self.check_flag_collision():
-            print("Finished level")
 
+        if self.check_flag_collision():
+
+            # Split by "/" and get [-1] to get "levelXX.json"
+            # Then split by ".json" and get [0] to get "levelXX"
+            # Finally split by "level" and get [-1] to get "XX" the id of the level
+            # big aahhh expression 🥀
+            level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
+
+            # Enregistrer les statistiques
+            if not self.saved:
+                self.save_level_stats(level_id)
+                self.saved = True
+                self.switch_scene(SceneType.LEVEL_SELECTOR)  # this is not working idk why TODO - FIX SCENE CHANGE NOT DONE
+
+    def save_level_stats(self, level_id: int):
+        """
+            Saves the stats of the finished level in a JSON file.
+            
+            :param: level_id : ID of the finished level
+        """
+        
+        print("Saving data")
+    
+        # Create data directory if it does not exist 
+        stats_dir = "data/stats"
+        os.makedirs(stats_dir, exist_ok=True)
+    
+        stats_file = f"{stats_dir}/level_{level_id}_stats.json"
+    
+        # Data to save
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        new_data = {
+            "date": current_time,
+            "strokes": self.stroke_count
+        }
+    
+        # Load the existing values if there are
+        existing_data = []
+        if os.path.exists(stats_file):
+            try:
+                with open(stats_file, 'r') as file:
+                    existing_data = json.load(file)
+    
+                if not isinstance(existing_data, list):
+                    existing_data = []
+            except (json.JSONDecodeError, FileNotFoundError):
+                existing_data = []
+    
+        existing_data.append(new_data)
+    
+        # Save data
+        with open(stats_file, 'w') as file:
+            json.dump(existing_data, file, indent=4)
+    
+        print(f"Statistiques du niveau {level_id} enregistrées : {new_data}")
 
     def run(self):
         while True:
@@ -342,37 +399,44 @@ class Game(Scene):
         self.potential_collision_indices = []
         self.potential_collision_polygons = []
 
+        for obstacle in self.obstacles:
+            if isinstance(obstacle, Flag):
+                self.flag = obstacle
+                break
+                
+        self.saved = False
+
 
     def check_flag_collision(self):
         """
         Checks if the ball reached the base of the flag (hole)
         """
-        
+
         if not self.flag or not self.ball_in_motion:
             return False
-    
+
         ball_mask = self.ball.mask
-    
+
         flag_surface = self.flag.animation.image
         flag_mask = pygame.mask.from_surface(flag_surface)
-    
+
         # Create a mask for the base of the flag only (1/4 bottom of the flag)
         base_height = flag_surface.get_height() // 4
         base_rect = pygame.Rect(0, flag_surface.get_height() - base_height,
                                 flag_surface.get_width(), base_height)
-    
+
         base_mask = pygame.mask.Mask((flag_surface.get_width(), flag_surface.get_height()))
         for x in range(base_rect.width):
             for y in range(base_rect.height):
                 if flag_mask.get_at((x, base_rect.y + y)):
                     base_mask.set_at((x, base_rect.y + y), 1)
-    
+
         offset = (
             int(self.ball.rect.left - self.flag.animation.rect.left),
             int(self.ball.rect.top - self.flag.animation.rect.top)
         )
-    
+
         # Check if masks overlap with the offset
         overlap = base_mask.overlap(ball_mask, offset)
-    
+
         return overlap is not None

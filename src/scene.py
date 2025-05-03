@@ -48,7 +48,6 @@ class Scene:
         pass
 
     def switch_scene(self, scene: SceneType, args: dict = None):
-
         self.running = False
         
         if args:
