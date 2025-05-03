@@ -27,3 +27,60 @@ golf_game/
     ├── settings.py        # General game settings (resolution, speed, levels, etc.)
     ├── levels.py          # Defines the levels, terrain zones, and their specifics
     └── constants.py       # Contains useful constants (e.g., base physical values)
+
+
+New one:
+Swing-King/
+├── assets/
+│   ├── audio/
+│   │   └── music/
+│   │       └── SwingKing.mp3
+│   └── images/
+│       ├── backgrounds/
+│       ├── balls/
+│       ├── buttons/
+│       ├── flag/
+│       ├── golfer/
+│       ├── hud/
+│       └── props/
+├── data/
+├── src/
+│   ├── entities/
+│   │   ├── __init__.py
+│   │   ├── ball.py
+│   │   ├── camera.py
+│   │   ├── obstacle.py
+│   │   └── terrain.py
+│   ├── hud/
+│   │   ├── level_creator_hud/
+│   │   │   ├── __init__.py
+│   │   │   ├── button.py
+│   │   │   ├── buttons_actions.py
+│   │   │   ├── buttons_initializer.py
+│   │   │   ├── obstacle.py
+│   │   │   └── polygons.py
+│   │   ├── __init__.py
+│   │   ├── button.py
+│   │   ├── colors.py
+│   │   └── dropdown.py
+│   ├── scenes/
+│   │   ├── __init__.py
+│   │   ├── game.py
+│   │   ├── level_creator.py
+│   │   ├── menu.py
+│   │   └── option_menu.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── drag_handler.py
+│   │   ├── level_export.py
+│   │   ├── level_loader.py
+│   │   ├── physics_utils.py
+│   │   └── settings_loader.py
+│   ├── __init__.py
+│   ├── animation.py
+│   ├── events.py
+│   ├── physics.py
+│   ├── scene.py
+│   └── scenetype.py
+├── main.py
+└── README.md
