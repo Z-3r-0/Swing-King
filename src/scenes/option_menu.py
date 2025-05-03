@@ -4,8 +4,7 @@ from pygame import Vector2
 from src.hud import Button
 from src.hud.dropdown import Dropdown
 from src.hud.slider import Slider
-from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene import Scene, SceneType
 
 
 class OptionMenu(Scene):

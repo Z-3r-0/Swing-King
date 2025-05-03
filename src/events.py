@@ -1,5 +1,5 @@
 import pygame
-from src.scenetype import SceneType
+from src.scene import SceneType
 
 scene_events = {
     SceneType.GAME: pygame.USEREVENT + SceneType.GAME.value,
@@ -12,4 +12,9 @@ scene_events = {
 
 options_events = {
     "RESIZE": pygame.USEREVENT + 10,
+}
+
+interact_events = {
+    "COIN_COLLECTED": pygame.USEREVENT + 20,
+    "FLAG_REACHED": pygame.USEREVENT + 21,
 }
