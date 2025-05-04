@@ -6,8 +6,7 @@ from datetime import datetime
 import time # For potential debugging delays
 
 # Import base class and types FIRST
-from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene import *
 
 # Then import entities and utils
 # Make sure Flag is imported if it's a separate class
