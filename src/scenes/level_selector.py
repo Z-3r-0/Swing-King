@@ -25,13 +25,16 @@ class LevelSelector(Scene):
         # Thus, we can't access the following levels
         # This is why we don't look directly in the data/levels folder but rather in the stats
         self.level_count = get_level_count("data/stats") + 1  # +1 because we want to be able to play the level after the last one finished
+        self.level_count = min(self.level_count, get_level_count("data/levels"))  # To make sure there are not too many buttons compared to the actual count of levels in data/levels
+        
         self.max_button_per_row = 4
         self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
 
         self.build_buttons()
 
     def reload(self):
-        self.level_count = get_level_count("data/stats") + 1  # +1 because we want to be able to play the level after the last one finished
+        self.level_count = get_level_count("data/stats") + 1
+        self.level_count = min(self.level_count, get_level_count("data/levels"))
         self.max_button_per_row = 4
         self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
 

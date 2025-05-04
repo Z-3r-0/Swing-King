@@ -1,4 +1,6 @@
-﻿from src.entities import Ball, Camera, Flag
+﻿from pygame import Vector2
+
+from src.entities import Ball, Camera, Flag
 from src.utils import *
 import math
 import json
@@ -60,7 +62,8 @@ class Game(Scene):
             self.ui_font = pygame.font.Font(None, 36)
         # On a besoin de ça pour l'animation simple :
         self.previous_stroke_count = -1
-        # --- Variables pour Animation/Style ---
+        
+        #region Stroke counter animation
         self.previous_stroke_count = -1
         self.animate_stroke_timer = 0
         self.STROKE_ANIM_DURATION = 10
@@ -69,7 +72,7 @@ class Game(Scene):
         self.STROKE_BG_COLOR = (40, 40, 40, 180)
         self.STROKE_PADDING = 8
         self.STROKE_CORNER_RADIUS = 5
-        # --- Fin Compteur/Police ---
+        #endregion
 
 
         # Initialize camera
@@ -88,6 +91,8 @@ class Game(Scene):
 
         self.flag = None
         for obstacle in self.obstacles:
+            if not isinstance(obstacle, Flag) and obstacle.characteristic == "start":
+                self.ball.position = obstacle.position
             if isinstance(obstacle, Flag):
                 self.flag = obstacle
                 break
@@ -335,8 +340,36 @@ class Game(Scene):
             if not self.saved:
                 self.save_level_stats(level_id)
                 self.saved = True
-                self.switch_scene(SceneType.LEVEL_SELECTOR)  # this is not working idk why TODO - FIX SCENE CHANGE NOT DONE
+                
+                self.reset()
+                
+                self.switch_scene(SceneType.LEVEL_SELECTOR)
 
+    def reset(self):
+        self.dt = 0
+        self.dragging = False
+        self.drag_done = False
+        self.ball_in_motion = False
+        self.saved = False
+    
+        self.stroke_count = 0
+    
+        self.force = 0
+        self.angle = 0
+    
+        self.camera.position = Vector2(0, 0)
+        self.ball.position = Vector2(BALL_START_X, BALL_START_Y)
+        self.ball.velocity = Vector2(0, 0)
+    
+        # Reset collision-related variables
+        self.prev_collision_terrain = None
+        self.collision_toggle_count = 0
+    
+        # Reset animation states
+        self.previous_stroke_count = -1
+        self.animate_stroke_timer = 0
+        
+        
     def save_level_stats(self, level_id: int):
         """
             Saves the stats of the finished level in a JSON file.
@@ -401,6 +434,8 @@ class Game(Scene):
         self.potential_collision_polygons = []
 
         for obstacle in self.obstacles:
+            if not isinstance(obstacle, Flag) and obstacle.characteristic == "start":
+                self.ball.position = obstacle.position
             if isinstance(obstacle, Flag):
                 self.flag = obstacle
                 break
