@@ -341,33 +341,9 @@ class Game(Scene):
                 self.save_level_stats(level_id)
                 self.saved = True
                 
-                self.reset()
+                self.__init__(self.screen, self.level_dir, self.scene_from)  # Did not find any solution except this one to reset the level
                 
                 self.switch_scene(SceneType.LEVEL_SELECTOR)
-
-    def reset(self):
-        self.dt = 0
-        self.dragging = False
-        self.drag_done = False
-        self.ball_in_motion = False
-        self.saved = False
-    
-        self.stroke_count = 0
-    
-        self.force = 0
-        self.angle = 0
-    
-        self.camera.position = Vector2(0, 0)
-        self.ball.position = Vector2(BALL_START_X, BALL_START_Y)
-        self.ball.velocity = Vector2(0, 0)
-    
-        # Reset collision-related variables
-        self.prev_collision_terrain = None
-        self.collision_toggle_count = 0
-    
-        # Reset animation states
-        self.previous_stroke_count = -1
-        self.animate_stroke_timer = 0
         
         
     def save_level_stats(self, level_id: int):
