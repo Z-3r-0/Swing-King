@@ -20,9 +20,20 @@ class LevelSelector(Scene):
         self.panel.fill((128, 128, 128))
         self.panel.set_alpha(200)
 
-        self.level_count = get_level_count("data/levels")
+
+        # Here, each files stores the completion data of a level, if there is no file for a level, it means we did not complete it
+        # Thus, we can't access the following levels
+        # This is why we don't look directly in the data/levels folder but rather in the stats
+        self.level_count = get_level_count("data/stats") + 1  # +1 because we want to be able to play the level after the last one finished
         self.max_button_per_row = 4
-        self.buttons = []  # This is a matrix so that we can easily build a grid out of the button list
+        self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
+
+        self.build_buttons()
+
+    def reload(self):
+        self.level_count = get_level_count("data/stats") + 1  # +1 because we want to be able to play the level after the last one finished
+        self.max_button_per_row = 4
+        self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
 
         self.build_buttons()
 
