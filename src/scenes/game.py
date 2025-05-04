@@ -10,7 +10,7 @@ from src import physics # Import the physics module
 BALL_START_X, BALL_START_Y = 800, 500 # TODO - Replace with level data later
 SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000 # TODO - Replace with level data later
 
-MAX_SHOT_FORCE = 1500.0 # Max force magnitude from dragging
+MAX_SHOT_FORCE = 2500.0 # Max force magnitude from dragging
 MIN_SHOT_FORCE = 50.0   # Min force needed to register a shot
 
 # Trajectory prediction parameters
@@ -22,7 +22,7 @@ PREDICTION_DOT_COLOR = (255, 255, 255, 180) # White with some transparency
 
 # --- Physics Simulation Parameters ---
 PHYSICS_SUB_STEPS = 2  # Number of physics steps per frame (Increase for stability, decrease for performance)
-FIXED_DT = 1.0 / (120.0 * PHYSICS_SUB_STEPS) # Fixed time step for each physics sub-step (assuming target 60fps)
+FIXED_DT = 1.0 / (90.0 * PHYSICS_SUB_STEPS) # Fixed time step for each physics sub-step (assuming target 60fps)
 
 
 class Game(Scene):

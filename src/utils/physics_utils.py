@@ -3,6 +3,9 @@ import pygame # Import pygame for Vector2
 
 # --- Collision Helper Functions ---
 
+# project_polygon and project_circle are no longer needed by the optimized
+# get_polygon_collision_normal_depth, but might be useful elsewhere.
+# Keep them for now, or remove if definitely unused.
 def project_polygon(axis, points):
     """Projects a polygon onto an axis."""
     min_proj = float('inf')
@@ -22,121 +25,90 @@ def project_circle(axis, center, radius):
 
 def get_polygon_collision_normal_depth(poly_points, ball_center, ball_radius):
     """
-    Calculates the collision normal and penetration depth for a ball colliding
-    with a convex polygon using Separating Axis Theorem ideas combined with
-    closest point calculation for better normal/depth accuracy.
+    Optimized: Calculates collision normal and depth by finding the closest
+    point on the polygon to the ball center. Assumes broad-phase (AABB)
+    check has already passed.
 
-    Assumes poly_points are Vector2 in world coordinates.
-    Returns (normal, depth) or (None, 0). Normal points away from the polygon towards the ball.
+    Args:
+        poly_points: List of Vector2 points defining the polygon (world coords).
+        ball_center: Vector2 position of the ball's center (world coords).
+        ball_radius: Float radius of the ball.
+
+    Returns:
+        (normal, depth) or (None, 0). Normal points away from the polygon
+        towards the ball. Depth is the penetration amount.
     """
-    min_depth = float('inf')
-    collision_normal = None
-    axis_normal = None # Store the potential normal from SAT edge check
-
-    points = poly_points # Assume they are already Vector2
+    points = poly_points
     num_points = len(points)
 
     if num_points < 2: # Need at least a line segment
         return None, 0
 
-    # --- SAT Check (Primarily for early exit) ---
-    # 1. Check Polygon Edges
-    for i in range(num_points):
-        p1 = points[i]
-        p2 = points[(i + 1) % num_points]
-        edge = p2 - p1
-        if edge.length_squared() < 1e-9: continue # Skip zero-length edges
-
-        # Normal perpendicular to the edge
-        edge_normal = pygame.Vector2(-edge.y, edge.x)
-        if edge_normal.length_squared() < 1e-9: continue
-        edge_normal = edge_normal.normalize()
-
-        min_proj_poly, max_proj_poly = project_polygon(edge_normal, points)
-        min_proj_ball, max_proj_ball = project_circle(edge_normal, ball_center, ball_radius)
-
-        # Check for separation
-        if max_proj_ball < min_proj_poly - 1e-5 or max_proj_poly < min_proj_ball - 1e-5:
-            return None, 0 # Separating axis found
-
-        # Calculate overlap on this axis
-        overlap = min(max_proj_poly, max_proj_ball) - max(min_proj_poly, min_proj_ball)
-
-        # Store the axis normal corresponding to the minimum overlap found so far
-        if overlap < min_depth:
-            min_depth = overlap
-            axis_normal = edge_normal # Potential collision normal
-
-    # 2. Check Axes from Ball Center to Polygon Vertices (Needed for circle-vertex collision)
-    for vertex in points:
-        axis = (ball_center - vertex)
-        if axis.length_squared() < 1e-9: continue # Skip if ball center is on vertex
-        axis = axis.normalize()
-
-        min_proj_poly, max_proj_poly = project_polygon(axis, points)
-        min_proj_ball, max_proj_ball = project_circle(axis, ball_center, ball_radius)
-
-        # Check for separation
-        if max_proj_ball < min_proj_poly - 1e-5 or max_proj_poly < min_proj_ball - 1e-5:
-            return None, 0 # Separating axis found
-
-    # --- Closest Point Check (For accurate normal and depth) ---
-    # If SAT didn't find separation, a collision is likely. Find the closest point.
     closest_point_on_poly = None
     min_dist_sq = float('inf')
 
+    # --- Find Closest Point on Polygon Boundary ---
     for i in range(num_points):
         p1 = points[i]
-        p2 = points[(i + 1) % num_points]
+        p2 = points[(i + 1) % num_points] # Next vertex with wrap-around
         edge = p2 - p1
-        segment_vec = ball_center - p1
         edge_len_sq = edge.length_squared()
 
+        # Vector from segment start (p1) to ball center
+        segment_to_ball = ball_center - p1
+
+        # Calculate projection parameter 't' of ball center onto the infinite line
+        # Clamp 't' to [0, 1] to find the closest point on the *segment*
         if edge_len_sq > 1e-9: # Avoid division by zero for zero-length edges
-            t = segment_vec.dot(edge) / edge_len_sq
+            t = segment_to_ball.dot(edge) / edge_len_sq
             t = max(0.0, min(1.0, t)) # Clamp to segment
         else:
-            t = 0.0 # Treat as point p1 if edge has no length
+            t = 0.0 # If edge is a point, closest point is p1
 
+        # Calculate the closest point on this specific segment
         point_on_segment = p1 + t * edge
+
+        # Calculate squared distance from ball center to this point on segment
         dist_sq = ball_center.distance_squared_to(point_on_segment)
 
+        # Update overall closest point if this one is closer
         if dist_sq < min_dist_sq:
             min_dist_sq = dist_sq
             closest_point_on_poly = point_on_segment
 
-    # If a closest point was found and it's within the ball's radius
+    # --- Check for Collision and Calculate Response ---
+    # If a closest point was found and it's within the ball's radius (allowing for small float errors)
     if closest_point_on_poly is not None and min_dist_sq < (ball_radius * ball_radius) + 1e-5:
         dist = math.sqrt(min_dist_sq)
         depth = ball_radius - dist
 
-        # Ensure depth is positive before reporting collision
+        # Ensure depth is meaningfully positive before reporting collision
         if depth > 1e-5:
             # Calculate normal pointing from closest point towards ball center
-            if dist > 1e-6:
+            if dist > 1e-6: # Avoid normalization if ball center is (almost) exactly on the point
                 normal = (ball_center - closest_point_on_poly).normalize()
             else:
-                # Ball center is very close/on boundary. Use the SAT axis normal.
-                # Ensure it points towards the ball.
-                if axis_normal is not None:
-                    if axis_normal.dot(ball_center - closest_point_on_poly) < 0:
-                         normal = -axis_normal # Flip if pointing wrong way
-                    else:
-                         normal = axis_normal
-                else:
-                    # Fallback: If SAT somehow failed but closest point check passed
-                    # This case is unlikely if SAT is correct. Use an arbitrary normal.
-                    print("Warning: Closest point collision detected but no SAT axis found.")
-                    normal = pygame.Vector2(0, -1) # Arbitrary up normal
+                # Ball center is extremely close or on the boundary.
+                # We need *some* normal. A fallback pointing straight up might suffice,
+                # or ideally, we could try getting the normal of the segment it's on.
+                # Let's try segment normal as a fallback:
+                # Find the segment that yielded the closest point (requires storing 'i' or the segment)
+                # For simplicity now, use an arbitrary fallback.
+                # print("Warning: Ball center very close to polygon boundary. Using fallback normal.")
+                normal = pygame.Vector2(0, -1) # Arbitrary up normal (adjust if needed)
+                # A better fallback might involve checking the segment normal if dist is near zero.
 
-            return normal, depth # Return normal from closest point and calculated depth
-
-    # If closest point is outside radius or no closest point found (shouldn't happen if SAT passed)
-    return None, 0
+            return normal, depth # Return the calculated normal and depth
+        else:
+            # Depth is negligible, treat as no collision
+            return None, 0
+    else:
+        # Closest point is outside the ball's radius, no collision
+        return None, 0
 
 
 # --- Trajectory Prediction ---
-
+# (This function remains unchanged)
 def draw_predicted_trajectory(
     surface: pygame.Surface,
     start_pos: pygame.Vector2,
