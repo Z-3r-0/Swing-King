@@ -1,7 +1,8 @@
 ﻿import json
 import pygame
+from pygame import Vector2
 
-from src.entities import Terrain, Obstacle
+from src.entities import Terrain, Obstacle, Flag
 
 
 def load_json_level(file_path):
@@ -11,6 +12,7 @@ def load_json_level(file_path):
     :return: The data under form of a list
     """
     try:
+        # Use "utf-8-sig" encoding to ignore BOM
         with open(file_path, 'r', encoding='utf-8-sig') as f:
             content = f.read()
             level = json.loads(content)
@@ -68,37 +70,36 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
             case 1: # Case for obstacles
                 for block in data:
-                    pos_data = block.get("position", {"x": 0, "y": 0})
-                    position = pygame.Vector2(pos_data.get("x", 0), screen_height - pos_data.get("y", 0))
-                    size = block.get("size", 100)
-                    angle = block.get("angle", 0)
-                    is_colliding = block.get("is_colliding", True)
-                    characteristic = block.get("characteristic", None)
-                    obstacle_type = block.get("type", "default_obstacle")
-                    image_path = f"{obstacle_type}.png"
-                    try:
-                        new_obstacle = Obstacle(
-                            position=position,
-                            image_path=image_path,
-                            size=size,
-                            is_colliding=is_colliding,
-                            angle=angle,
-                            nb_points=150,
-                            characteristic=characteristic
-                        )
-                        obstacles_ids[block.get("id", -1)] = new_obstacle
-                    except pygame.error as img_err:
-                         print(f"Error loading obstacle image '{image_path}': {img_err}. Skipping obstacle ID {block.get('id', 'N/A')}.")
-                    except Exception as obs_err:
-                         print(f"Error creating obstacle ID {block.get('id', 'N/A')}: {obs_err}. Skipping.")
-                sorted_obstacle_dict = dict(sorted(obstacles_ids.items()))
-                for value in sorted_obstacle_dict.values():
-                    obstacles_list.append(value)
-                return obstacles_list
+
+                    if block["characteristic"] == "end":
+                        position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - 110)  # 110 is the size of the flag sprite
+                        angle = block["angle"]
+
+                        new_obstacle = Flag(position, angle)
+                        obstacles_ids[block["id"]] = new_obstacle
+
+                        continue
+
+                position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
+                size = block["size"]
+                angle = block["angle"]
+                is_colliding = block["is_colliding"]
+                characteristic = block["characteristic"]
+                new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
+
+                obstacles_ids[block["id"]] = new_obstacle
 
             case _:
                 print("Error: Invalid layer specified in json_to_list.")
                 return []
+
+        sorted_obstacle_dict = dict(sorted(obstacles_ids.items()))
+
+        for value in sorted_obstacle_dict.values():
+            obstacles_list.append(value)
+
+        return obstacles_list
+
     except Exception as e:
         print(f"An error occurred processing layer {layer} data: {e}")
         return []

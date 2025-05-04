@@ -141,7 +141,7 @@ class Obstacle:
         for sp in screen_points:
             pygame.draw.circle(screen, (255, 0, 0), sp, 2)
 
-    def draw_obstacle(self, screen: pygame.Surface, camera_offset: pygame.Vector2, color: tuple[int, int, int, int] = (255, 255, 255, 0)):
+    def draw(self, screen: pygame.Surface, camera_offset: pygame.Vector2, color: tuple[int, int, int, int] = (255, 255, 255, 0)):
         """Draw the obstacle on the screen"""
         if self.rotated_image:
             screen_pos = self.position - camera_offset
@@ -161,6 +161,19 @@ class Obstacle:
     # def shift_obstacle(self, shift: pygame.Vector2): ...
     # def update_obstacle(self, screen: pygame.Surface, camera_movement: pygame.Vector2): ...
 
+    def shift_obstacle(self, shift: pygame.Vector2):
+        """
+        Move the obstacle according to a shift vector
+        DO NOT GIVE COORDINATES OF CAMERA
+        """
+        self.position -= shift
+        self.shift -= shift
+
+    def update_obstacle(self, screen: pygame.Surface, camera_movement: pygame.Vector2):
+        """Update the position of the obstacle based on camera movement and draw it"""
+        self.shift_obstacle(camera_movement)
+        self.draw(screen)
+
     def contains_point(self, world_point: pygame.Vector2) -> bool:
         """Check if a world point is inside the obstacle's rotated mask."""
         if not self.rotated_mask:
@@ -176,3 +189,12 @@ class Obstacle:
             except IndexError:
                 return False
         return False
+
+    def rotate(self, angle_degrees):
+        """Rotate the obstacle by a given angle in degrees."""
+        self.angle = angle_degrees % 360  # Keep angle within 0-360 range
+        self.rotated_image = pygame.transform.rotate(self.image, self.angle)
+        self.rotated_mask = pygame.mask.from_surface(self.rotated_image.convert_alpha())
+
+        self.rotated_points = self.rotated_mask.outline()
+        self.rotated_points = self.reduce_nb_points(self.rotated_points, self.nb_points)

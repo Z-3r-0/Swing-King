@@ -2,8 +2,7 @@ from pygame import Vector2
 from pygame import mixer
 from src.hud.button import *
 
-from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene import Scene, SceneType
 
 from src.hud import Button
 
@@ -20,7 +19,7 @@ class Menu(Scene):
 
         self.credits = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
-        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.GAME), Vector2(825, 520), Vector2(270, 80),
+        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_SELECTOR), Vector2(825, 520), Vector2(270, 80),
                            "assets/images/buttons/menus/main/play/play.png",
                            "assets/images/buttons/menus/main/play/play_hovered.png",
                            "assets/images/buttons/menus/main/play/play_clicked.png")
@@ -56,8 +55,8 @@ class Menu(Scene):
         self.resize_elements()
 
     def run(self):
-        self.running = True
-
+        super().run()
+        
         while self.running:
             self.screen.blit(self.background, (0, 0))
 
