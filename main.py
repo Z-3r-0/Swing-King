@@ -53,6 +53,7 @@ while True:
             level_creator.scene_from = from_scene
             level_creator.run()
         case SceneType.LEVEL_SELECTOR:
+            level_selector.reload()
             level_selector.scene_from = from_scene
             level_selector.run()
         case SceneType.CREDITS:
