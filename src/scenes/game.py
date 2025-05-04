@@ -330,8 +330,8 @@ class Game(Scene):
             # Finally split by "level" and get [-1] to get "XX" the id of the level
             # big aahhh expression 🥀
             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
-
-            # Enregistrer les statistiques
+  
+            # Save stats and back to level selector
             if not self.saved:
                 self.save_level_stats(level_id)
                 self.saved = True
@@ -343,8 +343,6 @@ class Game(Scene):
             
             :param: level_id : ID of the finished level
         """
-        
-        print("Saving data")
     
         # Create data directory if it does not exist 
         stats_dir = "data/stats"
@@ -380,7 +378,10 @@ class Game(Scene):
         print(f"Statistiques du niveau {level_id} enregistrées : {new_data}")
 
     def run(self):
-        while True:
+        
+        super().run()
+        
+        while self.running:
             self.handle_events()
             self.draw()
             pygame.display.flip()

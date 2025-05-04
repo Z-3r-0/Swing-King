@@ -272,6 +272,9 @@ class LevelCreator(Scene):
             y += grid_size
             
     def run(self):
+        
+        super().run()
+        
         while self.running:
             self.interacted = False
             clicked_control_point = False

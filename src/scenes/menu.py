@@ -55,8 +55,8 @@ class Menu(Scene):
         self.resize_elements()
 
     def run(self):
-        self.running = True
-
+        super().run()
+        
         while self.running:
             self.screen.blit(self.background, (0, 0))
 

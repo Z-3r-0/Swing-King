@@ -42,23 +42,18 @@ while True:
     match scene:
         case SceneType.GAME:
             game.scene_from = from_scene
-            game.running = True
             game.run()
         case SceneType.MAIN_MENU:
             main_menu.scene_from = from_scene
-            main_menu.running = True
             main_menu.run()
         case SceneType.OPTIONS_MENU:
             option_menu.scene_from = from_scene
-            option_menu.running = True
             option_menu.run()
         case SceneType.LEVEL_CREATOR:
             level_creator.scene_from = from_scene
-            level_creator.running = True
             level_creator.run()
         case SceneType.LEVEL_SELECTOR:
             level_selector.scene_from = from_scene
-            level_selector.running = True
             level_selector.run()
         case SceneType.CREDITS:
             # TODO - Implement credits menu
