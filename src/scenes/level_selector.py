@@ -33,6 +33,17 @@ class LevelSelector(Scene):
 
         self.build_buttons()
 
+        button_size = Vector2(270, 80)
+
+        pos_x = screen.get_width() / 2 - button_size.x / 2
+        pos_y = screen.get_height() / 2 - button_size.y / 2
+
+        self.BACK = Button(self.screen, lambda: self.switch_scene(self.scene_from), Vector2(pos_x, pos_y + 425), Vector2(270, 80),
+                           "assets/images/buttons/menus/main/back/back.png",
+                           "assets/images/buttons/menus/main/back/back_hovered.png",
+                           "assets/images/buttons/menus/main/back/back_clicked.png"
+                           )
+
     def reload(self):
         self.level_count = get_level_count("data/stats") + 1
         self.level_count = min(self.level_count, get_level_count("data/levels"))
@@ -111,12 +122,17 @@ class LevelSelector(Scene):
                     for button in row:
                         button.listen(event)
 
+                self.BACK.listen(event)
+
             self.screen.blit(self.panel, (200, 100))
 
             for row in self.buttons:
                 for button in row:
                     button.hover()
                     button.draw()
+
+            self.BACK.hover()
+            self.BACK.draw()
 
             for row in self.texts:
                 for text in row:

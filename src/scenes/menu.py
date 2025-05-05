@@ -19,33 +19,34 @@ class Menu(Scene):
 
         self.credits = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
-        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_SELECTOR), Vector2(825, 520), Vector2(270, 80),
+        button_size = Vector2(270, 80)
+
+        pos_x = screen.get_width() / 2 - button_size.x / 2
+        pos_y = screen.get_height() / 2 - button_size.y / 2
+
+        self.PLAY = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_SELECTOR), Vector2(pos_x, pos_y), Vector2(270, 80),
                            "assets/images/buttons/menus/main/play/play.png",
                            "assets/images/buttons/menus/main/play/play_hovered.png",
                            "assets/images/buttons/menus/main/play/play_clicked.png")
-        self.OPTIONS = Button(screen, lambda: self.switch_scene(SceneType.OPTIONS_MENU), Vector2(825, 610),
+        self.OPTIONS = Button(screen, lambda: self.switch_scene(SceneType.OPTIONS_MENU), Vector2(pos_x, pos_y + 90),
                               Vector2(270, 80),
                               "assets/images/buttons/menus/main/options/options.png",
                               "assets/images/buttons/menus/main/options/options_hovered.png",
                               "assets/images/buttons/menus/main/options/options_clicked.png")
-        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(825, 700), Vector2(270, 80),
+        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(pos_x, pos_y + 180), Vector2(270, 80),
                               "assets/images/buttons/menus/main/credits/credits.png",
                               "assets/images/buttons/menus/main/credits/credits_hovered.png",
                               "assets/images/buttons/menus/main/credits/credits_clicked.png")
-        self.LEVEL_CREATOR = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_CREATOR), Vector2(825, 790),
+        self.LEVEL_CREATOR = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_CREATOR), Vector2(pos_x, pos_y + 270),
                                     Vector2(270, 80),
                                     "assets/images/buttons/menus/main/level_creator/levelcreator.png",
                                     "assets/images/buttons/menus/main/level_creator/levelcreator_hovered.png",
                                     "assets/images/buttons/menus/main/level_creator/levelcreator_clicked.png"
                                     )
-        self.EXIT = Button(screen, lambda: pygame.quit(), Vector2(825, 880), Vector2(270, 80),
+        self.EXIT = Button(screen, lambda: pygame.quit(), Vector2(pos_x, pos_y + 360), Vector2(270, 80),
                            "assets/images/buttons/menus/main/exit/exit.png",
                            "assets/images/buttons/menus/main/exit/exit_hovered.png",
                            "assets/images/buttons/menus/main/exit/exit_clicked.png")
-        # self.BACK = Button(screen, lambda: self.switch_scene(), (825, 640), (270, 80),
-        #               "assets/images/buttons/menus/main/back/back.png",
-        #               "assets/images/buttons/menus/main/back/back_hovered.png",
-        #               "assets/images/buttons/menus/main/back/back_clicked.png")
 
         self.buttons = [self.PLAY, self.OPTIONS, self.CREDITS, self.LEVEL_CREATOR, self.EXIT]
 
