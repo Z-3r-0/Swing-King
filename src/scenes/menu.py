@@ -33,16 +33,17 @@ class Menu(Scene):
                               "assets/images/buttons/menus/main/options/options.png",
                               "assets/images/buttons/menus/main/options/options_hovered.png",
                               "assets/images/buttons/menus/main/options/options_clicked.png")
-        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(pos_x, pos_y + 180), Vector2(270, 80),
-                              "assets/images/buttons/menus/main/credits/credits.png",
-                              "assets/images/buttons/menus/main/credits/credits_hovered.png",
-                              "assets/images/buttons/menus/main/credits/credits_clicked.png")
-        self.LEVEL_CREATOR = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_CREATOR), Vector2(pos_x, pos_y + 270),
+        self.LEVEL_CREATOR = Button(screen, lambda: self.switch_scene(SceneType.LEVEL_CREATOR),
+                                    Vector2(pos_x, pos_y + 180),
                                     Vector2(270, 80),
                                     "assets/images/buttons/menus/main/level_creator/levelcreator.png",
                                     "assets/images/buttons/menus/main/level_creator/levelcreator_hovered.png",
                                     "assets/images/buttons/menus/main/level_creator/levelcreator_clicked.png"
                                     )
+        self.CREDITS = Button(screen, lambda: self.switch_scene(SceneType.CREDITS), Vector2(pos_x, pos_y + 270), Vector2(270, 80),
+                              "assets/images/buttons/menus/main/credits/credits.png",
+                              "assets/images/buttons/menus/main/credits/credits_hovered.png",
+                              "assets/images/buttons/menus/main/credits/credits_clicked.png")
         self.EXIT = Button(screen, lambda: pygame.quit(), Vector2(pos_x, pos_y + 360), Vector2(270, 80),
                            "assets/images/buttons/menus/main/exit/exit.png",
                            "assets/images/buttons/menus/main/exit/exit_hovered.png",
