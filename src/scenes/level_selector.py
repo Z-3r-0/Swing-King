@@ -29,8 +29,20 @@ class LevelSelector(Scene):
         
         self.max_button_per_row = 4
         self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
+        self.texts = []  # Also a matrix corresponding to the text to display on each button
 
         self.build_buttons()
+
+        button_size = Vector2(270, 80)
+
+        pos_x = screen.get_width() / 2 - button_size.x / 2
+        pos_y = screen.get_height() / 2 - button_size.y / 2
+
+        self.BACK = Button(self.screen, lambda: self.switch_scene(self.scene_from), Vector2(pos_x, pos_y + 425), Vector2(270, 80),
+                           "assets/images/buttons/menus/main/back/back.png",
+                           "assets/images/buttons/menus/main/back/back_hovered.png",
+                           "assets/images/buttons/menus/main/back/back_clicked.png"
+                           )
 
     def reload(self):
         self.level_count = get_level_count("data/stats") + 1
@@ -47,6 +59,7 @@ class LevelSelector(Scene):
         # Pre-compute the number of lines we need
         for i in range(rows):
             self.buttons.append([])
+            self.texts.append([])
     
         # Calculate sizes
         button_width = 270
@@ -75,11 +88,23 @@ class LevelSelector(Scene):
                     lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args={"level": lvl}),
                     position,
                     size,
-                    "assets/images/buttons/menus/main/credits/credits.png",
-                    "assets/images/buttons/menus/main/credits/credits_hovered.png",
-                    "assets/images/buttons/menus/main/credits/credits_clicked.png"
+                    "assets/images/buttons/blank/blank_button.png",
+                    "assets/images/buttons/blank/blank_button.png",
+                    "assets/images/buttons/blank/blank_button.png"
                 )
+
+
+
+                # Add text at the center of the button
+                x = button.rect.x + button.rect.width / 2
+                y = button.rect.y + button.rect.height / 2
+                text_position = Vector2(x, y)
+                label = f"Level {self.level_count - count + 1}"
+
+                text = (text_position, label)
+
                 self.buttons[i].append(button)
+                self.texts[i].append(text)
                 count -= 1
 
     def run(self):
@@ -97,12 +122,26 @@ class LevelSelector(Scene):
                     for button in row:
                         button.listen(event)
 
+                self.BACK.listen(event)
+
             self.screen.blit(self.panel, (200, 100))
 
             for row in self.buttons:
                 for button in row:
                     button.hover()
                     button.draw()
+
+            self.BACK.hover()
+            self.BACK.draw()
+
+            for row in self.texts:
+                for text in row:
+
+                    font = pygame.font.Font("assets/fonts/shrikhand-regular.ttf", 30)
+                    label = text[1]
+                    text_surface = font.render(label, True, (31, 128, 41))
+                    text_rect = text_surface.get_rect(center=text[0])
+                    self.screen.blit(text_surface, text_rect)
 
             pygame.display.flip()
             self.clock.tick(self.fps)

@@ -282,6 +282,8 @@ class LevelCreator(Scene):
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                    pygame.quit()
+                    exit()
         
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     self.moving_obstacle = None
