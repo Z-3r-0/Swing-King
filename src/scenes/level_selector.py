@@ -29,6 +29,7 @@ class LevelSelector(Scene):
         
         self.max_button_per_row = 4
         self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
+        self.texts = []  # Also a matrix corresponding to the text to display on each button
 
         self.build_buttons()
 
@@ -47,6 +48,7 @@ class LevelSelector(Scene):
         # Pre-compute the number of lines we need
         for i in range(rows):
             self.buttons.append([])
+            self.texts.append([])
     
         # Calculate sizes
         button_width = 270
@@ -75,11 +77,23 @@ class LevelSelector(Scene):
                     lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args={"level": lvl}),
                     position,
                     size,
-                    "assets/images/buttons/menus/main/credits/credits.png",
-                    "assets/images/buttons/menus/main/credits/credits_hovered.png",
-                    "assets/images/buttons/menus/main/credits/credits_clicked.png"
+                    "assets/images/buttons/blank/blank_button.png",
+                    "assets/images/buttons/blank/blank_button.png",
+                    "assets/images/buttons/blank/blank_button.png"
                 )
+
+
+
+                # Add text at the center of the button
+                x = button.rect.x + button.rect.width / 2
+                y = button.rect.y + button.rect.height / 2
+                text_position = Vector2(x, y)
+                label = f"Level {self.level_count - count + 1}"
+
+                text = (text_position, label)
+
                 self.buttons[i].append(button)
+                self.texts[i].append(text)
                 count -= 1
 
     def run(self):
@@ -103,6 +117,15 @@ class LevelSelector(Scene):
                 for button in row:
                     button.hover()
                     button.draw()
+
+            for row in self.texts:
+                for text in row:
+
+                    font = pygame.font.Font("assets/fonts/shrikhand-regular.ttf", 30)
+                    label = text[1]
+                    text_surface = font.render(label, True, (31, 128, 41))
+                    text_rect = text_surface.get_rect(center=text[0])
+                    self.screen.blit(text_surface, text_rect)
 
             pygame.display.flip()
             self.clock.tick(self.fps)
