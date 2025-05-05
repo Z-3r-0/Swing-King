@@ -1,5 +1,4 @@
-﻿from src.scene import Scene
-from src.scenetype import SceneType
+﻿from src.scene import Scene, SceneType
 
 import src.utils.level_export as export
 from src.hud.level_creator_hud import *
@@ -273,6 +272,9 @@ class LevelCreator(Scene):
             y += grid_size
             
     def run(self):
+        
+        super().run()
+        
         while self.running:
             self.interacted = False
             clicked_control_point = False

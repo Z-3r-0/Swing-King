@@ -3,8 +3,7 @@
 import pygame
 from pygame import Vector2
 
-from src.scene import Scene
-from src.scenetype import SceneType
+from src.scene import Scene, SceneType
 from src.hud.button import Button
 from src.utils.level_export import get_level_count
 
@@ -21,9 +20,23 @@ class LevelSelector(Scene):
         self.panel.fill((128, 128, 128))
         self.panel.set_alpha(200)
 
-        self.level_count = get_level_count("data/levels")
+
+        # Here, each files stores the completion data of a level, if there is no file for a level, it means we did not complete it
+        # Thus, we can't access the following levels
+        # This is why we don't look directly in the data/levels folder but rather in the stats
+        self.level_count = get_level_count("data/stats") + 1  # +1 because we want to be able to play the level after the last one finished
+        self.level_count = min(self.level_count, get_level_count("data/levels"))  # To make sure there are not too many buttons compared to the actual count of levels in data/levels
+        
         self.max_button_per_row = 4
-        self.buttons = []  # This is a matrix so that we can easily build a grid out of the button list
+        self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
+
+        self.build_buttons()
+
+    def reload(self):
+        self.level_count = get_level_count("data/stats") + 1
+        self.level_count = min(self.level_count, get_level_count("data/levels"))
+        self.max_button_per_row = 4
+        self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
 
         self.build_buttons()
 
@@ -59,7 +72,7 @@ class LevelSelector(Scene):
                 size = Vector2(button_width, button_height)
                 button = Button(
                     self.screen,
-                    lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args=[lvl]),
+                    lambda lvl=self.level_count - count + 1: self.switch_scene(SceneType.GAME, args={"level": lvl}),
                     position,
                     size,
                     "assets/images/buttons/menus/main/credits/credits.png",
@@ -70,6 +83,8 @@ class LevelSelector(Scene):
                 count -= 1
 
     def run(self):
+
+        super().run()
 
         while self.running:
             self.screen.blit(self.background, (0, 0))

@@ -1,11 +1,24 @@
 import abc
 
+from enum import Enum
 import pygame
 
-from src.events import scene_events
-from src.scenetype import SceneType
+
 import src.utils.settings_loader as settings
 
+
+class SceneType(Enum):
+    """
+    Enum representing the different scenes in the game.
+    """
+    MAIN_MENU = 1
+    GAME = 2
+    OPTIONS_MENU = 3
+    LEVEL_SELECTOR = 4
+    LEVEL_CREATOR = 5
+    CREDITS = 6
+
+from src.events import scene_events
 
 class Scene:
 
@@ -28,13 +41,13 @@ class Scene:
         """
         Abstract method to run the scene. This method should be implemented by subclasses.
         """
-        pass
+        self.running = True
 
 
     def resize_hud(self):
         pass
 
-    def switch_scene(self, scene: SceneType, args: list = None):
+    def switch_scene(self, scene: SceneType, args: dict = None):
         self.running = False
         
         if args:

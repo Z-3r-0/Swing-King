@@ -1,34 +1,55 @@
 import math
-
 import pygame
 
+# Max distance for full power drag
+MAX_DRAG_DISTANCE = 300.0
+# Factor to convert drag distance to force magnitude
+FORCE_SCALING_FACTOR = 5.0 # Adjust this to change sensitivity
 
-def drag_and_release(start_pos, end_pos):
-    dx = end_pos[0] - start_pos[0]
-    dy = end_pos[1] - start_pos[1]
-    distance = min(math.hypot(dx, dy), 500)  # Limit the force
-    angle = math.degrees(math.atan2(-dy, dx))  # Natural direction from the center
-    force = distance * 5.0  # Greatly increased force to propel the ball further
-    return force, angle
+def calculate_shot_parameters(ball_screen_pos: pygame.Vector2, mouse_pos: pygame.Vector2, max_force: float, min_force_threshold: float):
+    """
+    Calculates the force magnitude and angle for the shot based on mouse drag.
 
+    Args:
+        ball_screen_pos: The screen position (Vector2) of the ball's center.
+        mouse_pos: The current screen position (Vector2) of the mouse.
+        max_force: The maximum possible force magnitude.
+        min_force_threshold: The minimum force required to register a shot.
 
-def draw_predicted_trajectory(start_pos, force, angle, gravity, fps, screen):
-    # Calculate the initial velocity vector from the center of the ball
-    initial_velocity = pygame.Vector2(
-        -force * math.cos(math.radians(angle)),
-        force * math.sin(math.radians(angle))
-    )
+    Returns:
+        A tuple (force, angle_degrees):
+        - force (float): The magnitude of the force to apply (0 if below threshold).
+        - angle_degrees (float): The angle of the shot direction in degrees
+                                 (0-360, counter-clockwise from positive x-axis).
+                                 Returns 0 if force is 0.
+    """
+    drag_vector = mouse_pos - ball_screen_pos # Vector from ball towards mouse
 
-    # Incorporation of friction in the prediction:
-    # k is the continuous friction coefficient, such that exp(-k) ~ 0.98 over one frame.
-    k = -math.log(0.98) * fps
+    if drag_vector.length_squared() == 0:
+        return 0, 0
 
-    # Draw only the beginning of the trajectory (for example during 0.75 seconds)
-    t = 0.0
-    dt_sim = 0.1  # Fewer points for a cleaner trajectory
-    while t < 0.75:
-        # Predicted position incorporating friction and gravity:
-        pred_x = start_pos.x + (initial_velocity.x / k) * (1 - math.exp(-k * t))
-        pred_y = start_pos.y + ((initial_velocity.y - gravity / k) / k) * (1 - math.exp(-k * t)) + (gravity * t / k)
-        pygame.draw.circle(screen, pygame.Color("white"), (int(pred_x), int(pred_y)), 3)
-        t += dt_sim
+    # Calculate distance and clamp it
+    distance = drag_vector.length()
+    clamped_distance = min(distance, MAX_DRAG_DISTANCE)
+
+    # Calculate force based on clamped distance
+    force = (clamped_distance / MAX_DRAG_DISTANCE) * max_force
+
+    # Check against minimum threshold
+    if force < min_force_threshold:
+        return 0, 0
+
+    # Calculate the angle of the vector pointing *away* from the drag
+    # This is the direction the ball should travel
+    shot_vector = -drag_vector
+    angle_radians = math.atan2(shot_vector.y, shot_vector.x) # Note: Pygame y is inverted, but atan2 handles it
+
+    # Convert to degrees (0-360)
+    angle_degrees = math.degrees(angle_radians)
+    angle_degrees = (angle_degrees + 360) % 360 # Normalize to 0-360
+
+    return force, angle_degrees
+
+def draw_drag_line(surface: pygame.Surface, start_pos: pygame.Vector2, end_pos: pygame.Vector2, color: tuple, width: int):
+    """Draws the visual drag indicator line."""
+    pygame.draw.line(surface, color, start_pos, end_pos, width)
