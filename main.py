@@ -5,10 +5,8 @@ from src.events import scene_events
 
 pygame.init()
 
-# Window parameters
-WIDTH, HEIGHT = 1920, 1080  # TODO - Replace by screen resolution later
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode()
 game = Game(screen, "data/levels", None)
 main_menu = Menu(screen)
 option_menu = OptionMenu(screen, None)
