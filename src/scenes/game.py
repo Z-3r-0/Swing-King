@@ -1,6 +1,6 @@
 from pygame import Vector2
 
-from src.entities import Ball, Camera, Flag
+from src.entities import Ball, Camera, Flag, Obstacle
 from src.utils import *
 import math
 import json
@@ -11,7 +11,10 @@ from src.scene import Scene, SceneType
 from src import physics
 
 BALL_START_X, BALL_START_Y = 800, 500  # TODO - REPLACE WITH LEVEL DATA LATER
-SCENE_WIDTH, SCENE_HEIGHT = 10000, 2000  # TODO - REPLACE WITH LEVEL DATA LATER
+WORLD_MIN_X_BOUNDARY = -1000
+WORLD_MAX_X_BOUNDARY = 10000
+WORLD_MIN_Y_BOUNDARY = -500
+WORLD_MAX_Y_BOUNDARY = 2000
 GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
 
 
@@ -76,7 +79,7 @@ class Game(Scene):
         # endregion
 
         # Initialize camera
-        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, SCENE_WIDTH, SCENE_HEIGHT)
+        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height,level_max_width=WORLD_MAX_X_BOUNDARY,level_max_height=WORLD_MAX_Y_BOUNDARY,level_min_x=WORLD_MIN_X_BOUNDARY,level_min_y=WORLD_MIN_Y_BOUNDARY)
 
         # Load background
         self.background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
@@ -90,45 +93,41 @@ class Game(Scene):
         self.dot_color = (255, 0, 0)
 
         self.flag = None
+        self.isflag = False
         for obstacle in self.obstacles:
             if not isinstance(obstacle, Flag) and obstacle.characteristic == "start":
                 self.ball.position = obstacle.position
-            if isinstance(obstacle, Flag):
+            if isinstance(obstacle, Flag) and not self.isflag:
                 self.flag = obstacle
-                break
-
+                self.isflag = True
         self.saved = False
-
-        # Animation du golfer
-        # self.golfer_animation = Animation("assets/images/golfer", pygame.Vector2(500, 500))
-        # self.golfer_animation_sprite = pygame.sprite.Group()
-        # self.golfer_animation_sprite.add(self.golfer_animation)
+        self.camera.calculate_position(self.ball.position)
 
     def draw(self):
         self.screen.blit(self.background, (0, 0))
+        camera_offset = self.camera.position
 
         for poly in self.terrain_polys:
-            poly.draw_polygon(self.screen)
+            screen_points = [(p[0] - camera_offset.x, p[1] - camera_offset.y) for p in poly.points]
+            poly.draw_polygon(self.screen, screen_points)
 
         for obs in self.obstacles:
-            if not (isinstance(obs, Flag)) and obs.characteristic == "start":  # Not to draw the red ball
+            if not (isinstance(obs, Flag)) and obs.characteristic == "start":
                 continue
-            obs.draw(self.screen)
+            if isinstance(obs, Flag):
+                obs.draw(self.screen)
+            else:
+                obs.draw(self.screen, camera_offset)
 
-        self.ball.draw(self.screen)
+        self.ball.draw(self.screen, camera_offset)
 
-        # Toujours l'anim du golfeur
-        # self.golfer_animation_sprite.draw(self.screen)
-        # self.golfer_animation_sprite.update()
-
-        # Draw the trajectory
         if self.dragging:
-            current_mouse = pygame.mouse.get_pos()
+            current_mouse_screen_pos = pygame.mouse.get_pos()
 
-            pygame.draw.line(self.screen, pygame.Color("red"), self.ball.position, current_mouse, 2)
-            draw_predicted_trajectory(self.ball.position, self.force, self.angle, GRAVITY, self.fps, self.screen)
-            # DANS src/scenes/game.py -> MÉTHODE draw
-            # REMPLACE ton bloc try/except actuel par celui-ci :
+            ball_screen_pos = self.ball.position - camera_offset
+
+            pygame.draw.line(self.screen, pygame.Color("red"), ball_screen_pos, current_mouse_screen_pos, 2)
+            draw_predicted_trajectory(ball_screen_pos, self.force, self.angle, GRAVITY, self.fps, self.screen)
 
         # --- AFFICHAGE AMÉLIORÉ DU COMPTEUR (CENTERED at width/5, height/5) ---
         current_scale = 1.0
@@ -193,9 +192,6 @@ class Game(Scene):
 
         except Exception as e:
             print(f"Erreur lors de l'affichage du compteur animé : {e}")
-        # --- FIN AFFICHAGE AMÉLIORÉ ---
-
-        # La méthode handle_events suit après...
 
     def handle_events(self):
         """
@@ -210,7 +206,10 @@ class Game(Scene):
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.ball_in_motion:
-                    click_dist = pygame.Vector2(event.pos).distance_to(self.ball.position)
+                    mouse_screen_pos = pygame.Vector2(event.pos)
+                    mouse_world_pos = mouse_screen_pos + self.camera.position
+
+                    click_dist = mouse_world_pos.distance_to(self.ball.position)
 
                     clickable_radius = self.ball.radius * self.ball.scale_value
                     if click_dist <= clickable_radius:
@@ -218,22 +217,22 @@ class Game(Scene):
                         self.drag_start_pos = self.ball.position.copy()
 
             if event.type == pygame.MOUSEBUTTONUP and self.dragging:
-                self.force, self.angle = drag_and_release(
-                    self.drag_start_pos,
-                    pygame.mouse.get_pos()
-                )
-                self.ball.velocity = pygame.Vector2(
-                    -self.force * math.cos(math.radians(self.angle)),
-                    self.force * math.sin(math.radians(self.angle))
-                )
+                mouse_screen_pos = pygame.mouse.get_pos()
+                mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
+
+                self.force, self.angle = drag_and_release(self.drag_start_pos,mouse_world_pos)
+
+                self.ball.velocity = pygame.Vector2(-self.force * math.cos(math.radians(self.angle)),self.force * math.sin(math.radians(self.angle)))
 
                 self.stroke_count += 1
-
                 self.dragging = False
                 self.ball_in_motion = True
 
         if self.ball_in_motion:
-            self.ball.shift_position(self.ball.velocity * self.dt)
+
+            self.ball.position += self.ball.velocity * self.dt
+            self.ball.rect.center = self.ball.position
+
             self.ball.velocity.y += GRAVITY * self.dt
             self.ball.velocity *= 0.98
 
@@ -258,12 +257,14 @@ class Game(Scene):
             if len(collisions) >= 2:
                 self.ball.velocity = pygame.Vector2(0, 0)
                 self.ball_in_motion = False
-
                 return
 
-            elif len(collisions) == 1:  # Utilise elif si tu avais un return au-dessus
+            elif len(collisions) == 1:
                 terrain, normal, depth = collisions[0]
-                self.ball.shift_position(normal * depth)
+
+                self.ball.position += normal * depth
+                self.ball.rect.center = self.ball.position
+
                 vel = self.ball.velocity
                 tangent = pygame.Vector2(-normal.y, normal.x)
                 vn = vel.dot(normal)
@@ -290,36 +291,27 @@ class Game(Scene):
                     return
 
                 STOP_S = 5.0
-                if self.ball.velocity.length() < STOP_S:  # Tu peux utiliser length_squared() pour optimiser
+                if self.ball.velocity.length_squared() < STOP_S ** 2:
                     self.ball.velocity = pygame.Vector2(0, 0)
                     self.ball_in_motion = False
-
-            else:  # Pas de collision
+            else:
                 self.prev_collision_terrain = None
                 self.collision_toggle_count = 0
 
         if self.dragging:
-            mpos = pygame.mouse.get_pos()
-            self.force, self.angle = drag_and_release(self.drag_start_pos, mpos)
+            mouse_screen_pos = pygame.mouse.get_pos()
+            mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
+            self.force, self.angle = drag_and_release(self.drag_start_pos, mouse_world_pos)
 
         if self.check_flag_collision():
-
-            # Split by "/" and get [-1] to get "levelXX.json"
-            # Then split by ".json" and get [0] to get "levelXX"
-            # Finally split by "level" and get [-1] to get "XX" the id of the level
-            # big aahhh expression 🥀
             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
-
-            # Save stats and back to level selector
             if not self.saved:
                 self.save_level_stats(level_id)
                 self.saved = True
-
-                self.__init__(self.screen, self.level_dir,
-                              self.scene_from)  # Did not find any solution except this one to reset the level
-
+                self.__init__(self.screen, self.level_dir, self.scene_from)
                 self.switch_scene(SceneType.LEVEL_SELECTOR)
 
+        self.camera.calculate_position(self.ball.position)
     def save_level_stats(self, level_id: int):
         """
             Saves the stats of the finished level in a JSON file.

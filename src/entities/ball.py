@@ -37,7 +37,7 @@ class Ball:
         self.surface = pygame.Surface((self.diameter * self.scale_value, self.diameter * self.scale_value), pygame.SRCALPHA)
         self.mask = pygame.mask.from_surface(self.surface)
 
-    def draw(self, surface):
+    def draw(self, surface, position_cam: pygame.Vector2 = pygame.Vector2(0, 0)):
         """
         Draws the ball on the specified surface.
 
@@ -45,7 +45,7 @@ class Ball:
         :return:
         """
 
-        surface.blit(self.image, (self.position.x - self.radius * self.scale_value, self.position.y - self.radius * self.scale_value))
+        surface.blit(self.image, (self.position.x-position_cam.x - self.radius * self.scale_value, self.position.y-position_cam.y - self.radius * self.scale_value))
     def get_speed(self,pos_camera_x: float = 0, fps: float = (1/60)):
         """
         Returns the speed of the ball.
@@ -102,12 +102,9 @@ class Ball:
         :return:
         """
         self.surface.fill((0, 0, 0, 0))  # Clear surface
-        pygame.draw.circle(self.surface, (255, 255, 255),
-                           (self.radius * self.scale_value, self.radius * self.scale_value),
-                           self.radius * self.scale_value)
+        pygame.draw.circle(self.surface, (255, 255, 255),(self.radius * self.scale_value, self.radius * self.scale_value),self.radius * self.scale_value)
         self.mask = pygame.mask.from_surface(self.surface)
-
-        self.position += shift
+        self.position -= shift
         self.rect = pygame.Rect((self.position.x - self.radius * self.scale_value), (self.position.y - self.radius * self.scale_value), (self.radius * self.scale_value)*2, (self.radius * self.scale_value)*2)
     def check_collision(self, element: pygame.Rect):
         """

@@ -74,15 +74,21 @@ class Obstacle:
         for point in self.rotated_points:
             pygame.draw.circle(screen, (255, 0, 0), point + self.position, 2)
 
-    def draw(self, screen: pygame.Surface, color: tuple[int, int, int, int] = (255, 255, 255, 0)):
-        """Draw the obstacle on the screen"""
-        screen.blit(self.rotated_image, self.position)  # Display the image at the position
+    def draw(self, screen: pygame.Surface, camera_offset: pygame.Vector2 = None,
+             color: tuple[int, int, int, int] = (255, 255, 255, 0)):
+        """Draw the obstacle on the screen, adjusted by camera_offset."""
 
-        # Draw a transparent polygon on top for collision handling (if necessary)
-        if len(self.rotated_points) > 2 and color[3] > 0:  # Only if alpha > 0
+        draw_position_on_screen: pygame.Vector2
+        if camera_offset is not None:
+            draw_position_on_screen = self.position - camera_offset
+        else:
+            draw_position_on_screen = self.position
+
+        screen.blit(self.rotated_image, draw_position_on_screen)
+        if len(self.rotated_points) > 2 and color[3] > 0:
             self.transparent_surface.fill((0, 0, 0, 0))
             pygame.draw.polygon(self.transparent_surface, color, self.rotated_points)
-            screen.blit(self.transparent_surface, self.position)
+            screen.blit(self.transparent_surface, draw_position_on_screen)
 
     def draw_bounding_box(self, screen: pygame.Surface, color=(255, 0, 0)):
         """Draw the bounding box of the obstacle"""

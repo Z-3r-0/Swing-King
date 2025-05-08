@@ -79,7 +79,7 @@ class Terrain:
         """
         print("TODO - Implement apply_effects function")
 
-    def draw_polygon(self, screen: pygame.Surface):
+    def draw_polygon(self, screen: pygame.Surface, points: list = None):
         """
         Draws the terrain zone on the specified surface with rotation.
         :param surface: The main draw surface to draw the terrain on.
@@ -97,8 +97,10 @@ class Terrain:
         'darkdirt': (87, 59, 19)
         }
         color = colors.get(self.terrain_type, (255, 255, 255))
-        if len(self.points) > 2:
-            pygame.draw.polygon(screen, color, self.points)
+        if points is None:
+            points = self.points
+        if len(points) > 2:
+            pygame.draw.polygon(screen, color, points)
 
     def shift_poly(self, shift: pygame.Vector2):
         """
