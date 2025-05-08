@@ -39,6 +39,8 @@ class Obstacle:
 
         # Rotate the image a first time to ensure it is in the correct position
         self.rotate(self.angle)
+        self.rect = self.rotated_image.get_rect(topleft=(self.position.x, self.position.y))
+
 
     def resize(self, size: int):
         """Resize the obstacle
