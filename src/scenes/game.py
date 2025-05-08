@@ -253,20 +253,15 @@ class Game(Scene):
             possible_collisions = []
             collisions = []
 
-            for terrain in self.terrain_polys:
-                mask_off = (
-                    self.ball.rect.left - terrain.rect.left,
-                    self.ball.rect.top - terrain.rect.top
-                )
+            for terrain in self.terrain_polys: # self.obstacles + self.terrain_polys:
+                mask_off = (self.ball.rect.left - terrain.rect.left,self.ball.rect.top - terrain.rect.top)
                 overlap = terrain.mask.overlap(self.ball.mask, mask_off)
                 if not overlap:
                     continue
                 gx = terrain.rect.left + overlap[0]
                 gy = terrain.rect.top + overlap[1]
                 rad_px = self.ball.radius * self.ball.scale_value
-                normal, depth = physics.get_collision_normal_and_depth(
-                    terrain.points, (gx, gy), self.ball.position, rad_px
-                )
+                normal, depth = physics.get_collision_normal_and_depth(terrain.points, (gx, gy), self.ball.position, rad_px)
                 if normal and depth > 0:
                     collisions.append((terrain, normal, depth))
 
@@ -276,7 +271,7 @@ class Game(Scene):
                 return
 
             elif len(collisions) == 1:
-                terrain, normal, depth = collisions[0]
+                terrain, normal, depth, type  = collisions[0]
 
                 self.ball.position += normal * depth
                 self.ball.rect.center = self.ball.position
@@ -379,6 +374,9 @@ class Game(Scene):
             pygame.display.flip()
             self.clock.tick(self.fps)
 
+
+
+    # @Julien à quoi sert cette fonction??
     def load_level(self, id: int):
 
         self.level_path = f"{self.level_dir}/level{id}.json"
