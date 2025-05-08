@@ -80,14 +80,14 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
 
                         continue
 
-                position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
-                size = block["size"]
-                angle = block["angle"]
-                is_colliding = block["is_colliding"]
-                characteristic = block["characteristic"]
-                new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
+                    position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
+                    size = block["size"]
+                    angle = block["angle"]
+                    is_colliding = block["is_colliding"]
+                    characteristic = block["characteristic"]
+                    new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
 
-                obstacles_ids[block["id"]] = new_obstacle
+                    obstacles_ids[block["id"]] = new_obstacle
 
             case _:
                 print("Error: Invalid layer specified in json_to_list.")
