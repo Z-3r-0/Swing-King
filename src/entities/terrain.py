@@ -27,28 +27,21 @@ class Terrain:
         max_x = max(point[0] for point in self.points)
         max_y = max(point[1] for point in self.points)
 
-        # Calculate width and height
         width = max_x - min_x
         height = max_y - min_y
 
-        # Create and return the Rect
         self.rect = pygame.Rect(min_x, min_y, width, height)
-
-        # Surface de collision des polygones
         self.surface_collision = pygame.Surface((width, height), pygame.SRCALPHA)
-        # Convert points relative to the surface
         shifted_points = [(p[0] - min_x, p[1] - min_y) for p in self.points]
         pygame.draw.polygon(self.surface_collision, (255, 255, 255), shifted_points)
         self.mask = pygame.mask.from_surface(self.surface_collision)
 
-        # Dessiner le polygone sur la surface de collision
         shifted_points = [(point[0] - min_x, point[1] - min_y) for point in self.points]
         pygame.draw.polygon(self.surface_collision, (255, 255, 255), shifted_points)
 
-        # Générer le masque à partir de la surface de collision
         self.mask = pygame.mask.from_surface(self.surface_collision)
         friction_factor = {
-            'green': 0.5,
+            'green': 0.1,
             'fairway': 0.2,
             'bunker': 0.1,
             'lake': 0.1,
@@ -60,7 +53,7 @@ class Terrain:
         }
         self.friction = friction_factor[self.terrain_type]
         bounce = {
-            'green': 0.5,
+            'green': 0.9,
             'fairway': 0.5,
             'bunker': 0.1,
             'lake': 0.1,
@@ -71,13 +64,6 @@ class Terrain:
             'darkdirt': 0.1
         }
         self.bounce_factor = bounce[self.terrain_type]
-    def apply_effects(self, ball):
-        """
-        Applies terrain-specific effects to the ball (e.g., friction, bounce).
-
-        :param ball: The ball object interacting with the terrain.
-        """
-        print("TODO - Implement apply_effects function")
 
     def draw_polygon(self, screen: pygame.Surface, points: list = None):
         """
