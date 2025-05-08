@@ -10,15 +10,9 @@ from src.animation import Animation
 from src.scene import Scene, SceneType
 from src import physics
 
-BALL_START_X, BALL_START_Y = 800, 500  # TODO - REPLACE WITH LEVEL DATA LATER
-WORLD_MIN_X_BOUNDARY = -1000
-WORLD_MAX_X_BOUNDARY = 10000
-WORLD_MIN_Y_BOUNDARY = -500
-WORLD_MAX_Y_BOUNDARY = 2000
-GRAVITY = 980  # Gravitational acceleration in pixels/s² # TODO - REPLACE WITH LEVEL DATA LATER
 
+GRAVITY = 980  # Gravitational acceleration in pixels/s²
 
-# TODO - INSERT IN THE CLASS LATER
 
 class Game(Scene):
     def __init__(self, screen, levels_dir_path: str, scene_from: SceneType = None):
@@ -28,10 +22,12 @@ class Game(Scene):
         self.drag_done = False
         self.ball_in_motion = False
 
-        self.max_force = 500
+        self.max_force = 1500
 
         self.force = 0
         self.angle = 0
+
+
 
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
@@ -43,6 +39,7 @@ class Game(Scene):
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
+        BALL_START_X, BALL_START_Y = 0, 0  # Default start position
         # Initialize game objects
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                          "assets/images/balls/golf_ball.png")
@@ -52,6 +49,26 @@ class Game(Scene):
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
         self.potential_collision_indices = []
         self.potential_collision_polygons = []
+
+
+        # Calculation of level limitations:
+        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
+
+        for terrain in self.terrain_polys:
+            for point in terrain.points:
+                if point[0] < WORLD_MIN_X_BOUNDARY:
+                    WORLD_MIN_X_BOUNDARY = point[0]
+                if point[0] > WORLD_MAX_X_BOUNDARY:
+                    WORLD_MAX_X_BOUNDARY = point[0]
+                if point[1] < WORLD_MIN_Y_BOUNDARY:
+                    WORLD_MIN_Y_BOUNDARY = point[1]
+                if point[1] > WORLD_MAX_Y_BOUNDARY:
+                    WORLD_MAX_Y_BOUNDARY = point[1]
+        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
+
 
         self.prev_collision_terrain = None
         self.collision_toggle_count = 0
@@ -114,10 +131,7 @@ class Game(Scene):
         for obs in self.obstacles:
             if not (isinstance(obs, Flag)) and obs.characteristic == "start":
                 continue
-            if isinstance(obs, Flag):
-                obs.draw(self.screen)
-            else:
-                obs.draw(self.screen, camera_offset)
+            obs.draw(self.screen, camera_offset)
 
         self.ball.draw(self.screen, camera_offset)
 
@@ -227,7 +241,7 @@ class Game(Scene):
                 self.stroke_count += 1
                 self.dragging = False
                 self.ball_in_motion = True
-
+        #region Ball movement and collision detection
         if self.ball_in_motion:
 
             self.ball.position += self.ball.velocity * self.dt
@@ -236,7 +250,9 @@ class Game(Scene):
             self.ball.velocity.y += GRAVITY * self.dt
             self.ball.velocity *= 0.98
 
+            possible_collisions = []
             collisions = []
+
             for terrain in self.terrain_polys:
                 mask_off = (
                     self.ball.rect.left - terrain.rect.left,
@@ -297,7 +313,7 @@ class Game(Scene):
             else:
                 self.prev_collision_terrain = None
                 self.collision_toggle_count = 0
-
+        #endregion
         if self.dragging:
             mouse_screen_pos = pygame.mouse.get_pos()
             mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
@@ -312,6 +328,7 @@ class Game(Scene):
                 self.switch_scene(SceneType.LEVEL_SELECTOR)
 
         self.camera.calculate_position(self.ball.position)
+
     def save_level_stats(self, level_id: int):
         """
             Saves the stats of the finished level in a JSON file.
