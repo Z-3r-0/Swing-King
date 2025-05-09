@@ -4,4 +4,4 @@
    - ## The team
 | Côme                                              | Julien                           | Lucas                                                     | Calvin                            | Gautier                             |
 |---------------------------------------------------|----------------------------------|-----------------------------------------------------------|-----------------------------------|-------------------------------------|
-| Collisions, Level builder, Camera, level handling | Nothing this looser !!!! boooooo | Artistic director (levels, music, graphics) and main menu | Trajectories and drag and release | readMe, options parameters, buttons |
+| Collisions, Level builder, Camera, level handling | Scene Management, Project structure, Level builder, Level management | Artistic director (levels, music, graphics) and main menu | Trajectories and drag and release | readMe, options parameters, buttons |
