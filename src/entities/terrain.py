@@ -41,27 +41,25 @@ class Terrain:
 
         self.mask = pygame.mask.from_surface(self.surface_collision)
         friction_factor = {
-            'green': 0.1,
-            'fairway': 0.2,
-            'bunker': 0.1,
-            'lake': 0.1,
-            'rocks': 0.1,
-            'dirt': 0.1,
-            'darkgreen': 0.1,
-            'darkrocks': 0.1,
-            'darkdirt': 0.1
-        }
+            'green': 0.2,
+            'fairway': 0.3,
+            'bunker': 0.7,
+            'lake': 0.95,
+            'rocks': 0.25,
+            'dirt': 0.4,
+            'darkrocks': 0.3,
+            'darkdirt': 0.6}
         self.friction = friction_factor[self.terrain_type]
         bounce = {
-            'green': 0.9,
-            'fairway': 0.5,
-            'bunker': 0.1,
-            'lake': 0.1,
-            'rocks': 0.1,
-            'dirt': 0.1,
-            'darkgreen': 0.1,
-            'darkrocks': 0.1,
-            'darkdirt': 0.1
+            'green': 0.4,  # Moderate-low bounce, promotes roll.
+            'fairway': 0.5,  # Standard moderate bounce.
+            'bunker': 0.15,  # Very low bounce, absorbs energy.
+            'lake': 0.1,  # Minimal bounce.
+            'rocks': 0.7,  # High bounce.
+            'dirt': 0.35,  # Moderate-low bounce.
+            'darkgreen': 0.3,  # Low bounce (like rough).
+            'darkrocks': 0.65,  # High bounce, slightly less than clean rocks.
+            'darkdirt': 0.3  # Low bounce (softer/looser dirt).
         }
         self.bounce_factor = bounce[self.terrain_type]
 
