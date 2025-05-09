@@ -11,8 +11,6 @@ from src.scene import Scene, SceneType
 from src import physics
 
 
-GRAVITY = 980  # Gravitational acceleration in pixels/s²
-
 # --- Constants for trajectory prediction ---
 PREDICTION_STEPS = 350 # How many steps to predict
 PRECISION_NB_DOTS = 6 # Number of dots to draw
@@ -29,7 +27,7 @@ class Game(Scene):
         # self.drag_done = False # Not used in the new logic
         # self.ball_in_motion = False # We will use self.ball.is_moving
 
-        self.max_force = 1000  # User's existing value
+        self.max_force = 1500  # User's existing value
 
         self.force = 0
         self.angle = 0
@@ -165,19 +163,7 @@ class Game(Scene):
             preview_vel_x = -self.force * math.cos(math.radians(self.angle))
             preview_vel_y = self.force * math.sin(math.radians(self.angle))  # Or -self.force * sin if math angle
             initial_vel_for_prediction = pygame.Vector2(preview_vel_x, preview_vel_y)
-            draw_predicted_trajectory(
-                self.screen,
-                self.ball.position,  # Start prediction from current ball world position
-                initial_vel_for_prediction,
-                physics.GRAVITY_ACCELERATION,  # Use the same gravity
-                physics.DEFAULT_DAMPING_FACTOR,  # Pass the base damping factor
-                self.fixed_dt,  # Use the same fixed_dt as your physics sub-steps
-                PREDICTION_STEPS,  # Number of steps to predict
-                self.camera.position,
-                PREDICTION_DOT_COLOR,
-                PREDICTION_DOT_RADIUS,
-                PREDICTION_DOT_SPACING
-            )
+            draw_predicted_trajectory(self.screen,self.ball.position,initial_vel_for_prediction,physics.GRAVITY_ACCELERATION,physics.DEFAULT_DAMPING_FACTOR,self.fixed_dt,PREDICTION_STEPS,self.camera.position,PREDICTION_DOT_COLOR,PREDICTION_DOT_RADIUS,PREDICTION_DOT_SPACING)
 
         # --- AFFICHAGE AMÉLIORÉ DU COMPTEUR (CENTERED at width/5, height/5) ---
         current_scale = 1.0

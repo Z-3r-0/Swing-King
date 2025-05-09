@@ -1,6 +1,16 @@
 ﻿import pygame
-
+import math
 from src.entities import Obstacle, Terrain
+
+# --- Constants ---
+GRAVITY_ACCELERATION = 980.0  # Gravitational acceleration in pixels/s²
+DEFAULT_DAMPING_FACTOR = 0.90  # Velocity multiplier per frame to simulate air/rolling resistance
+BALL_STOP_SPEED_THRESHOLD = 8.0  # Speed (pixels/s) below which the ball is considered stopped
+MIN_BOUNCE_VELOCITY_NORMAL = 15.0  # Minimum velocity component normal to surface after bounce
+COLLISION_PENETRATION_PUSH_FACTOR = 1.01  # Factor to push ball out of penetration (slightly > 1)
+MAX_PHYSICS_COLLISION_ITERATIONS = 3  # Max times to re-check collisions within one sub-step
+
+
 
 def distance_point_to_segment_vector(point_p: pygame.Vector2, seg_a: pygame.Vector2, seg_b: pygame.Vector2) -> float:
     """
@@ -113,9 +123,6 @@ def get_closest_edge_normal(polygon_points, collision_point_global):
 
     return closest_normal
 
-import pygame
-import math
-
 def get_collision_normal_and_depth(polygon_points, collision_point, ball_center, ball_pixel_radius):
     """
     :param polygon_points: liste de (x,y) en pixels du polygone
@@ -168,20 +175,6 @@ def get_collision_normal_and_depth(polygon_points, collision_point, ball_center,
 
     return normal, depth
 
-
-# physics.py
-import pygame
-import math
-
-# --- Constants ---
-# GRAVITY is defined in Game.py by user as 980. We'll use that if passed or define here.
-# For consistency, let's define it here and Game.py can remove its global GRAVITY.
-GRAVITY_ACCELERATION = 980.0  # Gravitational acceleration in pixels/s²
-DEFAULT_DAMPING_FACTOR = 0.99  # Velocity multiplier per frame to simulate air/rolling resistance
-BALL_STOP_SPEED_THRESHOLD = 8.0  # Speed (pixels/s) below which the ball is considered stopped
-MIN_BOUNCE_VELOCITY_NORMAL = 15.0  # Minimum velocity component normal to surface after bounce
-COLLISION_PENETRATION_PUSH_FACTOR = 1.01  # Factor to push ball out of penetration (slightly > 1)
-MAX_PHYSICS_COLLISION_ITERATIONS = 3  # Max times to re-check collisions within one sub-step
 
 
 # --- Helper Function: Polygon-Circle Collision ---
