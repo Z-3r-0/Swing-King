@@ -5,3 +5,10 @@
 | Côme                                              | Julien                           | Lucas                                                     | Calvin                            | Gautier                             |
 |---------------------------------------------------|----------------------------------|-----------------------------------------------------------|-----------------------------------|-------------------------------------|
 | Collisions, Level builder, Camera, level handling | Scene Management, Project structure, Level builder, Level management | Artistic director (levels, music, graphics) and main menu | Trajectories and drag and release | readMe, options parameters, buttons |
+     
+- ## Features
+     - Dynamic trajectory with physics equations
+     - drag and release
+     - A level creator
+     - Change the volume and the resolution
+     - Play golf
