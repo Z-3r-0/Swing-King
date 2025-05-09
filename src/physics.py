@@ -284,13 +284,7 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
 
         for entity in collidable_entities:
             # Broad phase: AABB (Axis-Aligned Bounding Box) check
-            entity_rect = None
-            if isinstance(entity, Terrain):  # User's Terrain has .rect
-                entity_rect = entity.rect
-            elif isinstance(entity, Obstacle):  # User's Obstacle has .rect
-                entity_rect = entity.rect  # This is rect of rotated image, good
-            else:
-                continue  # Should not happen if lists are clean
+            entity_rect = entity.rect
 
             ball_scaled_radius = ball.radius * ball.scale_value
             if not ball.rect.colliderect(entity_rect):
@@ -345,8 +339,7 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
 
             # 3b. Calculate Collision Response (Bounce and Friction)
             bounce_coeff = getattr(collided_object, 'bounce_factor', 0.4)  # Default bounce
-            friction_coeff = getattr(collided_object, 'friction',
-                                     0.3)  # Default friction (0 to 1, where 0.3 means 30% energy loss)
+            friction_coeff = getattr(collided_object, 'friction',0.3)  # Default friction (0 to 1, where 0.3 means 30% energy loss)
 
             velocity_normal_component_scalar = ball.velocity.dot(normal_vec)
             normal_velocity_vector = velocity_normal_component_scalar * normal_vec

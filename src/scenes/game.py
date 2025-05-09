@@ -38,7 +38,7 @@ class Game(Scene):
         # Physics sub-stepping variables
         self.physics_sub_steps = PHYSICS_SUB_STEPS
         # Assuming self.fps is defined in Scene or Game. If not, set a default e.g., 60
-        target_fps = getattr(self, 'fps', 60)
+        target_fps = getattr(self, 'fps', 200)
         if target_fps <= 0: target_fps = 60  # Ensure FPS is positive
         self.fixed_dt = 1.0 / (target_fps * self.physics_sub_steps)
         self.physics_accumulator = 0.0
@@ -140,15 +140,21 @@ class Game(Scene):
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         camera_offset = self.camera.position
+        camera_view_rect_world = self.camera.get_rect()
 
         for poly in self.terrain_polys:
-            screen_points = [(p[0] - camera_offset.x, p[1] - camera_offset.y) for p in poly.points]
-            poly.draw_polygon(self.screen, screen_points)
+            if poly.rect.colliderect(camera_view_rect_world):
+                screen_points = [(p[0] - camera_offset.x, p[1] - camera_offset.y) for p in poly.points]
+                poly.draw_polygon(self.screen, screen_points)
 
         for obs in self.obstacles:
-            if not (isinstance(obs, Flag)) and obs.characteristic == "start":
-                continue
-            obs.draw(self.screen, camera_offset)
+            if not (isinstance(obs, Flag)):
+                if obs.characteristic == "start":
+                    continue
+                if obs.rect.colliderect(camera_view_rect_world):
+                    obs.draw(self.screen, camera_offset)
+            else:
+                obs.draw(self.screen, camera_offset)
 
         self.ball.draw(self.screen, camera_offset)
 
@@ -315,13 +321,7 @@ class Game(Scene):
                     # Filter obstacles that are collidable
                     collidable_obstacles_list = [obs for obs in self.obstacles if (not isinstance(obs, Flag)) and obs.is_colliding]
 
-                    still_moving = physics.update_ball_physics(
-                        self.ball,
-                        self.terrain_polys,
-                        collidable_obstacles_list,
-                        self.fixed_dt,
-                        self  # Pass the game instance for anti-stuck state
-                    )
+                    still_moving = physics.update_ball_physics(self.ball,self.terrain_polys,collidable_obstacles_list,self.fixed_dt,self)
 
                     if not still_moving:
                         self.ball.is_moving = False  # Ball has stopped
