@@ -13,6 +13,12 @@ from src import physics
 
 GRAVITY = 980  # Gravitational acceleration in pixels/s²
 
+# --- Constants for trajectory prediction ---
+PREDICTION_STEPS = 350 # How many steps to predict
+PRECISION_NB_DOTS = 6 # Number of dots to draw
+PREDICTION_DOT_SPACING = PREDICTION_STEPS//PRECISION_NB_DOTS # Draw a dot every N steps
+PREDICTION_DOT_RADIUS = 5
+PREDICTION_DOT_COLOR = (255, 0, 0, 150) # Semi-transparent white
 PHYSICS_SUB_STEPS = 8 # Number of physics sub-steps per frame
 
 class Game(Scene):
@@ -23,7 +29,7 @@ class Game(Scene):
         # self.drag_done = False # Not used in the new logic
         # self.ball_in_motion = False # We will use self.ball.is_moving
 
-        self.max_force = 1500  # User's existing value
+        self.max_force = 1000  # User's existing value
 
         self.force = 0
         self.angle = 0
@@ -154,7 +160,24 @@ class Game(Scene):
             ball_screen_pos = self.ball.position - camera_offset
 
             pygame.draw.line(self.screen, pygame.Color("red"), ball_screen_pos, current_mouse_screen_pos, 2)
-            draw_predicted_trajectory(ball_screen_pos, self.force, self.angle, GRAVITY, self.fps, self.screen)
+            ball_screen_pos = self.ball.position - camera_offset
+            pygame.draw.line(self.screen, pygame.Color("red"), ball_screen_pos, current_mouse_screen_pos, 2)
+            preview_vel_x = -self.force * math.cos(math.radians(self.angle))
+            preview_vel_y = self.force * math.sin(math.radians(self.angle))  # Or -self.force * sin if math angle
+            initial_vel_for_prediction = pygame.Vector2(preview_vel_x, preview_vel_y)
+            draw_predicted_trajectory(
+                self.screen,
+                self.ball.position,  # Start prediction from current ball world position
+                initial_vel_for_prediction,
+                physics.GRAVITY_ACCELERATION,  # Use the same gravity
+                physics.DEFAULT_DAMPING_FACTOR,  # Pass the base damping factor
+                self.fixed_dt,  # Use the same fixed_dt as your physics sub-steps
+                PREDICTION_STEPS,  # Number of steps to predict
+                self.camera.position,
+                PREDICTION_DOT_COLOR,
+                PREDICTION_DOT_RADIUS,
+                PREDICTION_DOT_SPACING
+            )
 
         # --- AFFICHAGE AMÉLIORÉ DU COMPTEUR (CENTERED at width/5, height/5) ---
         current_scale = 1.0

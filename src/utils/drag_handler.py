@@ -1,5 +1,5 @@
 import math
-
+from src import physics
 import pygame
 
 
@@ -12,23 +12,43 @@ def drag_and_release(start_pos, end_pos):
     return force, angle
 
 
-def draw_predicted_trajectory(start_pos, force, angle, gravity, fps, screen):
-    # Calculate the initial velocity vector from the center of the ball
-    initial_velocity = pygame.Vector2(
-        -force * math.cos(math.radians(angle)),
-        force * math.sin(math.radians(angle))
-    )
+def draw_predicted_trajectory(
+    surface: pygame.Surface,
+    start_pos: pygame.Vector2,
+    initial_velocity: pygame.Vector2,
+    gravity_accel: float, # Renamed for clarity
+    base_damping_factor: float, # Renamed for clarity
+    dt: float, # Time step for each prediction step
+    steps: int,
+    camera_offset: pygame.Vector2,
+    color: tuple,
+    radius: int,
+    spacing: int
+):
+    if initial_velocity.length_squared() == 0:
+        return
 
-    # Incorporation of friction in the prediction:
-    # k is the continuous friction coefficient, such that exp(-k) ~ 0.98 over one frame.
-    k = -math.log(0.98) * fps
+    position = start_pos.copy()
+    velocity = initial_velocity.copy()
+    steps_since_last_dot = 0
 
-    # Draw only the beginning of the trajectory (for example during 0.75 seconds)
-    t = 0.0
-    dt_sim = 0.1  # Fewer points for a cleaner trajectory
-    while t < 0.75:
-        # Predicted position incorporating friction and gravity:
-        pred_x = start_pos.x + (initial_velocity.x / k) * (1 - math.exp(-k * t))
-        pred_y = start_pos.y + ((initial_velocity.y - gravity / k) / k) * (1 - math.exp(-k * t)) + (gravity * t / k)
-        pygame.draw.circle(screen, pygame.Color("white"), (int(pred_x), int(pred_y)), 3)
-        t += dt_sim
+    # Calculate effective damping for this dt, same as in main physics
+    effective_damping_per_step = base_damping_factor ** dt
+
+    for i in range(steps):
+        # Update velocity (gravity and damping)
+        velocity.y += gravity_accel * dt
+        velocity *= effective_damping_per_step # Apply consistent damping
+
+        # Update position
+        position += velocity * dt
+
+        # Draw dot periodically
+        steps_since_last_dot += 1
+        if steps_since_last_dot >= spacing:
+            screen_pos = position - camera_offset
+            pygame.draw.circle(surface, color, screen_pos, radius)
+            steps_since_last_dot = 0
+
+        if velocity.length_squared() < (physics.BALL_STOP_SPEED_THRESHOLD ** 2): # Optional: stop if slow
+            break
