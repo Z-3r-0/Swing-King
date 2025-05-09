@@ -52,7 +52,7 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                     positions = block.get("vertices", [])
                     for vertice in positions:
                         vertices.append((vertice.get("x", 0), screen_height - vertice.get("y", 0)))
-                    terrain_type = block.get("type", "dirt")
+                    terrain_type = block.get("type", "fairway")
                     if len(vertices) >= 3:
                         try:
                             new_terrain = Terrain(terrain_type, vertices)

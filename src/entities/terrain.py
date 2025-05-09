@@ -47,6 +47,7 @@ class Terrain:
             'lake': 0.95,
             'rocks': 0.25,
             'dirt': 0.4,
+            'darkgreen': 0.4,
             'darkrocks': 0.3,
             'darkdirt': 0.6}
         self.friction = friction_factor[self.terrain_type]
