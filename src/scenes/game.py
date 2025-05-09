@@ -13,78 +13,74 @@ from src import physics
 
 GRAVITY = 980  # Gravitational acceleration in pixels/s²
 
+PHYSICS_SUB_STEPS = 8 # Number of physics sub-steps per frame
 
 class Game(Scene):
-    def __init__(self, screen, levels_dir_path: str, scene_from: SceneType = None):
+    def __init__(self, screen, levels_dir_path: str, scene_from: SceneType = None):  # Keep existing signature
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
-        self.dt = 0
+        # self.dt = 0 # dt will be updated in run loop or used as fixed 1/fps
         self.dragging = False
-        self.drag_done = False
-        self.ball_in_motion = False
+        # self.drag_done = False # Not used in the new logic
+        # self.ball_in_motion = False # We will use self.ball.is_moving
 
-        self.max_force = 1500
+        self.max_force = 1500  # User's existing value
 
         self.force = 0
         self.angle = 0
 
-
-
         self.width = self.screen.get_width()
         self.height = self.screen.get_height()
 
-        self.level_dir = levels_dir_path
+        # Physics sub-stepping variables
+        self.physics_sub_steps = PHYSICS_SUB_STEPS
+        # Assuming self.fps is defined in Scene or Game. If not, set a default e.g., 60
+        target_fps = getattr(self, 'fps', 60)
+        if target_fps <= 0: target_fps = 60  # Ensure FPS is positive
+        self.fixed_dt = 1.0 / (target_fps * self.physics_sub_steps)
+        self.physics_accumulator = 0.0
 
+        # Game state for anti-stuck mechanism (managed by Game instance)
+        self.physics_last_collided_object_id = None
+        self.physics_collision_toggle_count = 0
+        self.max_toggle_toggles = 4#is already defined by user as 4, we'll use that
+
+        self.level_dir = levels_dir_path
         self.level_path = f"{self.level_dir}/level1.json"  # default level
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
         BALL_START_X, BALL_START_Y = 0, 0  # Default start position
-        # Initialize game objects
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                          "assets/images/balls/golf_ball.png")
+        # Ensure ball.is_moving exists and is False initially
+        self.ball.is_moving = False
 
-        # Load terrain and obstacles
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
-        self.potential_collision_indices = []
-        self.potential_collision_polygons = []
+        # self.potential_collision_indices = [] # Not used in new logic
+        # self.potential_collision_polygons = [] # Not used in new logic
 
+        # ... (rest of your __init__ method, including WORLD boundary calculations, camera, background) ...
+        # Make sure self.dt is correctly representing frame time.
+        # If self.dt is fixed (1/self.fps), the accumulator will use that.
+        # If self.clock.tick() is used in run() to get variable dt, that's better.
+        # For now, assuming self.dt = 1 / self.fps as per user's current code.
+        # This self.dt is used for the accumulator.
+        if not hasattr(self, 'dt') or self.dt == 0:  # If dt wasn't set or is 0 from Scene
+            self.dt = 1.0 / target_fps
 
-        # Calculation of level limitations:
-        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0]
-        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0]
-        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][0]
-        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
+        # Ensure these are initialized as they are used in the original handle_events
+        self.prev_collision_terrain = None  # Will be replaced by physics_last_collided_object_id
+        # self.collision_toggle_count = 0 # Replaced by physics_collision_toggle_count
+        # self.max_toggle_toggles = 4 # This will be passed to physics
 
-        for terrain in self.terrain_polys:
-            for point in terrain.points:
-                if point[0] < WORLD_MIN_X_BOUNDARY:
-                    WORLD_MIN_X_BOUNDARY = point[0]
-                if point[0] > WORLD_MAX_X_BOUNDARY:
-                    WORLD_MAX_X_BOUNDARY = point[0]
-                if point[1] < WORLD_MIN_Y_BOUNDARY:
-                    WORLD_MIN_Y_BOUNDARY = point[1]
-                if point[1] > WORLD_MAX_Y_BOUNDARY:
-                    WORLD_MAX_Y_BOUNDARY = point[1]
-        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
-
-
-        self.prev_collision_terrain = None
-        self.collision_toggle_count = 0
-        self.max_toggle_toggles = 4  # maximum alternations allowed before stopping
-
-        # --- Compteur et Police (Minimum Requis) ---
+        # --- Compteur et Police ---
         self.stroke_count = 0
         try:
-            # Gardons une taille et police simples pour l'instant
             self.ui_font = pygame.font.SysFont('Arial', 30)
         except:
             self.ui_font = pygame.font.Font(None, 36)
-        # On a besoin de ça pour l'animation simple :
-        self.previous_stroke_count = -1
-
-        # region Stroke counter animation
         self.previous_stroke_count = -1
         self.animate_stroke_timer = 0
         self.STROKE_ANIM_DURATION = 10
@@ -93,30 +89,47 @@ class Game(Scene):
         self.STROKE_BG_COLOR = (40, 40, 40, 180)
         self.STROKE_PADDING = 8
         self.STROKE_CORNER_RADIUS = 5
-        # endregion
 
-        # Initialize camera
-        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height,level_max_width=WORLD_MAX_X_BOUNDARY,level_max_height=WORLD_MAX_Y_BOUNDARY,level_min_x=WORLD_MIN_X_BOUNDARY,level_min_y=WORLD_MIN_Y_BOUNDARY)
+        # Camera and background (ensure these are after width/height and level boundaries)
+        # Calculation of level limitations:
+        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else 0
+        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else self.width
+        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1] if self.terrain_polys else 0  # Corrected index
+        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][
+            1] if self.terrain_polys else self.height  # Corrected index
 
-        # Load background
+        for terrain in self.terrain_polys:
+            for point_tuple in terrain.points:  # Iterate through point tuples
+                point = pygame.Vector2(point_tuple)  # Convert to Vector2 for consistency
+                if point.x < WORLD_MIN_X_BOUNDARY:
+                    WORLD_MIN_X_BOUNDARY = point.x
+                if point.x > WORLD_MAX_X_BOUNDARY:
+                    WORLD_MAX_X_BOUNDARY = point.x
+                if point.y < WORLD_MIN_Y_BOUNDARY:
+                    WORLD_MIN_Y_BOUNDARY = point.y
+                if point.y > WORLD_MAX_Y_BOUNDARY:
+                    WORLD_MAX_Y_BOUNDARY = point.y
+        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height  # User's original logic
+
+        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
+                             level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
+                             level_min_y=WORLD_MIN_Y_BOUNDARY)
         self.background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
         self.background = pygame.transform.smoothscale(self.background, (self.width, self.height))
 
-        self.dt = 1 / self.fps
-
-        # Set up the dot parameters
         self.dot_spacing = 10
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
 
         self.flag = None
-        self.isflag = False
+        self.isflag = False  # Redundant if self.flag is None or set
         for obstacle in self.obstacles:
-            if not isinstance(obstacle, Flag) and obstacle.characteristic == "start":
-                self.ball.position = obstacle.position
-            if isinstance(obstacle, Flag) and not self.isflag:
+            if not isinstance(obstacle, Flag) and getattr(obstacle, 'characteristic', None) == "start":
+                self.ball.position = obstacle.position.copy()  # Ensure it's a copy
+                self.ball.start_position = obstacle.position.copy()
+            if isinstance(obstacle, Flag):  # Removed "and not self.isflag" as it's not needed
                 self.flag = obstacle
-                self.isflag = True
+                # self.isflag = True # Not strictly needed if self.flag is the source of truth
         self.saved = False
         self.camera.calculate_position(self.ball.position)
 
@@ -215,114 +228,130 @@ class Game(Scene):
         """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
+                # self.running = False # Assuming Scene's run loop handles this
+                pygame.quit()  # Or post a quit event: pygame.event.post(pygame.event.Event(pygame.QUIT))
+                exit()  # Or sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if not self.ball_in_motion:
+            # --- Input Handling for Dragging and Shooting ---
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
+                if not self.ball.is_moving:  # Only allow drag if ball is stationary
                     mouse_screen_pos = pygame.Vector2(event.pos)
-                    mouse_world_pos = mouse_screen_pos + self.camera.position
+                    # Convert ball world position to screen position for distance check
+                    ball_screen_pos = self.ball.position - self.camera.position
 
-                    click_dist = mouse_world_pos.distance_to(self.ball.position)
-
+                    # Use ball's visual radius for click detection
                     clickable_radius = self.ball.radius * self.ball.scale_value
-                    if click_dist <= clickable_radius:
+                    if mouse_screen_pos.distance_to(
+                            ball_screen_pos) <= clickable_radius * 1.5:  # x1.5 for easier clicking
                         self.dragging = True
+                        # drag_start_pos is ball's world position, not screen position
                         self.drag_start_pos = self.ball.position.copy()
+                        # self.current_mouse_pos = mouse_screen_pos # For trajectory preview if needed
 
-            if event.type == pygame.MOUSEBUTTONUP and self.dragging:
-                mouse_screen_pos = pygame.mouse.get_pos()
-                mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
+            if event.type == pygame.MOUSEMOTION:
+                if self.dragging:
+                    # self.current_mouse_pos = pygame.Vector2(event.pos) # For trajectory preview
+                    # Calculate force/angle for trajectory preview if you implement it
+                    # For now, just update based on release
+                    pass
 
-                self.force, self.angle = drag_and_release(self.drag_start_pos,mouse_world_pos)
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # Left-click release
+                if self.dragging:
+                    self.dragging = False
+                    mouse_screen_pos = pygame.mouse.get_pos()
+                    # Convert release position to world coordinates for angle/force calc
+                    # drag_and_release expects world positions or consistent coordinate space
+                    # Assuming drag_and_release uses the delta between drag_start_pos (world)
+                    # and current mouse_world_pos.
+                    current_mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
 
-                self.ball.velocity = pygame.Vector2(-self.force * math.cos(math.radians(self.angle)),self.force * math.sin(math.radians(self.angle)))
+                    # Your drag_and_release function calculates force and angle
+                    # Ensure it handles the coordinate systems correctly.
+                    # The original code used self.drag_start_pos (world) and mouse_world_pos
+                    self.force, self.angle = drag_and_release(self.drag_start_pos, current_mouse_world_pos)
 
-                self.stroke_count += 1
-                self.dragging = False
-                self.ball_in_motion = True
-        #region Ball movement and collision detection
-        if self.ball_in_motion:
+                    # Limit force if necessary
+                    self.force = min(self.force, self.max_force)
 
-            self.ball.position += self.ball.velocity * self.dt
-            self.ball.rect.center = self.ball.position
+                    # Apply shot if force is significant (optional min_force check)
+                    MIN_SHOT_FORCE = 50
+                    if self.force >= MIN_SHOT_FORCE:
+                        # Apply velocity based on force and angle
+                        # This matches your original code's velocity assignment
+                        vel_x = -self.force * math.cos(math.radians(self.angle))
+                        vel_y = self.force * math.sin(math.radians(self.angle))
+                        self.ball.velocity = pygame.Vector2(vel_x, vel_y)
 
-            self.ball.velocity.y += GRAVITY * self.dt
-            self.ball.velocity *= 0.98
+                        self.ball.is_moving = True
+                        self.stroke_count += 1
+                        # Reset anti-stuck for new shot
+                        self.physics_last_collided_object_id = None
+                        self.physics_collision_toggle_count = 0
+                    # Reset drag state
+                    self.drag_start_pos = None
+                    self.force = 0
+                    self.angle = 0
 
-            possible_collisions = []
-            collisions = []
+        # --- Physics Update Loop (replaces the old collision block) ---
+        if self.ball.is_moving:
+            # self.dt is the time for the current frame (e.g., 1/60.0 or variable)
+            self.physics_accumulator += self.dt
 
-            for terrain in self.terrain_polys: # self.obstacles + self.terrain_polys:
-                mask_off = (self.ball.rect.left - terrain.rect.left,self.ball.rect.top - terrain.rect.top)
-                overlap = terrain.mask.overlap(self.ball.mask, mask_off)
-                if not overlap:
-                    continue
-                gx = terrain.rect.left + overlap[0]
-                gy = terrain.rect.top + overlap[1]
-                rad_px = self.ball.radius * self.ball.scale_value
-                normal, depth = physics.get_collision_normal_and_depth(terrain.points, (gx, gy), self.ball.position, rad_px)
-                if normal and depth > 0:
-                    collisions.append((terrain, normal, depth))
+            # Limit max steps per frame to prevent spiral of death if dt is too large
+            max_sub_steps_per_frame = self.physics_sub_steps * 2
+            sub_steps_this_frame = 0
 
-            if len(collisions) >= 2:
-                self.ball.velocity = pygame.Vector2(0, 0)
-                self.ball_in_motion = False
-                return
+            while self.physics_accumulator >= self.fixed_dt and sub_steps_this_frame < max_sub_steps_per_frame:
+                if self.ball.is_moving:  # Double check inside loop
+                    # Filter obstacles that are collidable
+                    collidable_obstacles_list = [obs for obs in self.obstacles if (not isinstance(obs, Flag)) and obs.is_colliding]
 
-            elif len(collisions) == 1:
-                terrain, normal, depth, type  = collisions[0]
+                    still_moving = physics.update_ball_physics(
+                        self.ball,
+                        self.terrain_polys,
+                        collidable_obstacles_list,
+                        self.fixed_dt,
+                        self  # Pass the game instance for anti-stuck state
+                    )
 
-                self.ball.position += normal * depth
-                self.ball.rect.center = self.ball.position
-
-                vel = self.ball.velocity
-                tangent = pygame.Vector2(-normal.y, normal.x)
-                vn = vel.dot(normal)
-                vt = vel.dot(tangent)
-                rest = terrain.bounce_factor
-                fric = terrain.friction
-                if abs(normal.x) < 0.2 and normal.y < 0:
-                    new_vn = 0
+                    if not still_moving:
+                        self.ball.is_moving = False  # Ball has stopped
+                        self.physics_accumulator = 0  # Clear accumulator
+                        # Check win condition AFTER ball stops and physics is fully resolved
+                        if self.check_flag_collision():  # check_flag_collision should verify ball is NOT moving
+                            level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
+                            if not self.saved:
+                                self.save_level_stats(level_id)
+                                self.saved = True
+                                # self.__init__(self.screen, self.level_dir, self.scene_from) # This reinitializes, be careful
+                                self.switch_scene(SceneType.LEVEL_SELECTOR)  # More common to switch scene
+                        break  # Exit sub-step loop
                 else:
-                    new_vn = -vn * rest
-                new_vt = vt * (1 - fric)
-                MICRO = 2.0
-                if abs(new_vn) < MICRO:
-                    self.ball.velocity = new_vt * tangent
-                else:
-                    self.ball.velocity = new_vn * normal + new_vt * tangent
-                current_terrain_id = id(terrain)
-                if self.prev_collision_terrain is not None and current_terrain_id != self.prev_collision_terrain:
-                    self.collision_toggle_count += 1
-                self.prev_collision_terrain = current_terrain_id
-                if self.collision_toggle_count >= self.max_toggle_toggles:
-                    self.ball.velocity = pygame.Vector2(0, 0)
-                    self.ball_in_motion = False
-                    return
+                    # Ball stopped during a sub-step sequence (e.g. by anti-stuck)
+                    self.physics_accumulator = 0
+                    break  # Exit sub-step loop
 
-                STOP_S = 5.0
-                if self.ball.velocity.length_squared() < STOP_S ** 2:
-                    self.ball.velocity = pygame.Vector2(0, 0)
-                    self.ball_in_motion = False
-            else:
-                self.prev_collision_terrain = None
-                self.collision_toggle_count = 0
-        #endregion
-        if self.dragging:
-            mouse_screen_pos = pygame.mouse.get_pos()
-            mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
-            self.force, self.angle = drag_and_release(self.drag_start_pos, mouse_world_pos)
+                self.physics_accumulator -= self.fixed_dt
+                sub_steps_this_frame += 1
+        # --- End of Physics Update Loop ---
 
-        if self.check_flag_collision():
-            level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
-            if not self.saved:
-                self.save_level_stats(level_id)
-                self.saved = True
-                self.__init__(self.screen, self.level_dir, self.scene_from)
-                self.switch_scene(SceneType.LEVEL_SELECTOR)
+        # Update camera position based on ball (if ball moved or dragging for preview)
+        # The original code had camera update outside the ball_in_motion check.
+        # This is fine, camera can follow even if ball is stationary but was just placed.
+        if self.ball.is_moving or self.dragging:  # Or always update if you want smooth pan to stationary ball
+            self.camera.calculate_position(self.ball.position)
 
-        self.camera.calculate_position(self.ball.position)
+        # The win condition check was here in original code, moved to after ball stops in physics loop.
+        # if self.check_flag_collision(): ...
+
+        # Update drag line preview if dragging (this part is mostly for drawing, but related to input state)
+        if self.dragging and self.drag_start_pos:  # drag_start_pos is world
+            current_mouse_screen_pos = pygame.mouse.get_pos()
+            current_mouse_world_pos = pygame.Vector2(current_mouse_screen_pos) + self.camera.position
+            # Recalculate force/angle for preview if needed by draw_predicted_trajectory
+            self.force, self.angle = drag_and_release(self.drag_start_pos, current_mouse_world_pos)
+            self.force = min(self.force, self.max_force)
+
 
     def save_level_stats(self, level_id: int):
         """
@@ -404,7 +433,7 @@ class Game(Scene):
         Checks if the ball reached the base of the flag (hole)
         """
 
-        if not self.flag or not self.ball_in_motion:
+        if not self.flag or self.ball.is_moving: # <--- CORRECTED THIS LINE
             return False
 
         ball_mask = self.ball.mask
