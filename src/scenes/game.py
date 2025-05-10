@@ -11,6 +11,7 @@ from src.scene import Scene, SceneType
 from src import physics
 
 
+BALL_START_X, BALL_START_Y = 0, 0  # Default start position
 # --- Constants for trajectory prediction ---
 PREDICTION_STEPS = 350 # How many steps to predict
 PRECISION_NB_DOTS = 6 # Number of dots to draw
@@ -22,10 +23,7 @@ PHYSICS_SUB_STEPS = 8 # Number of physics sub-steps per frame
 class Game(Scene):
     def __init__(self, screen, levels_dir_path: str, scene_from: SceneType = None):  # Keep existing signature
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
-        # self.dt = 0 # dt will be updated in run loop or used as fixed 1/fps
         self.dragging = False
-        # self.drag_done = False # Not used in the new logic
-        # self.ball_in_motion = False # We will use self.ball.is_moving
 
         self.max_force = 1500  # User's existing value
 
@@ -37,16 +35,14 @@ class Game(Scene):
 
         # Physics sub-stepping variables
         self.physics_sub_steps = PHYSICS_SUB_STEPS
-        # Assuming self.fps is defined in Scene or Game. If not, set a default e.g., 60
         target_fps = getattr(self, 'fps', 200)
         if target_fps <= 0: target_fps = 60  # Ensure FPS is positive
         self.fixed_dt = 1.0 / (target_fps * self.physics_sub_steps)
         self.physics_accumulator = 0.0
 
-        # Game state for anti-stuck mechanism (managed by Game instance)
         self.physics_last_collided_object_id = None
         self.physics_collision_toggle_count = 0
-        self.max_toggle_toggles = 4#is already defined by user as 4, we'll use that
+        self.max_toggle_toggles = 4
 
         self.level_dir = levels_dir_path
         self.level_path = f"{self.level_dir}/level1.json"  # default level
@@ -54,30 +50,17 @@ class Game(Scene):
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
-        BALL_START_X, BALL_START_Y = 0, 0  # Default start position
+
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                          "assets/images/balls/golf_ball.png")
-        # Ensure ball.is_moving exists and is False initially
         self.ball.is_moving = False
 
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
-        # self.potential_collision_indices = [] # Not used in new logic
-        # self.potential_collision_polygons = [] # Not used in new logic
-
-        # ... (rest of your __init__ method, including WORLD boundary calculations, camera, background) ...
-        # Make sure self.dt is correctly representing frame time.
-        # If self.dt is fixed (1/self.fps), the accumulator will use that.
-        # If self.clock.tick() is used in run() to get variable dt, that's better.
-        # For now, assuming self.dt = 1 / self.fps as per user's current code.
-        # This self.dt is used for the accumulator.
-        if not hasattr(self, 'dt') or self.dt == 0:  # If dt wasn't set or is 0 from Scene
+        if not hasattr(self, 'dt') or self.dt == 0:
             self.dt = 1.0 / target_fps
 
-        # Ensure these are initialized as they are used in the original handle_events
-        self.prev_collision_terrain = None  # Will be replaced by physics_last_collided_object_id
-        # self.collision_toggle_count = 0 # Replaced by physics_collision_toggle_count
-        # self.max_toggle_toggles = 4 # This will be passed to physics
+        self.prev_collision_terrain = None
 
         # --- Compteur et Police ---
         self.stroke_count = 0
@@ -259,7 +242,6 @@ class Game(Scene):
 
         self.camera.calculate_position(self.ball.position)
 
-
     def handle_events(self):
         """
         Handle input, ball movement, gravity, collisions with bounce/slide,
@@ -390,7 +372,6 @@ class Game(Scene):
             self.force, self.angle = drag_and_release(self.drag_start_pos, current_mouse_world_pos)
             self.force = min(self.force, self.max_force)
 
-
     def save_level_stats(self, level_id: int):
         """
             Saves the stats of the finished level in a JSON file.
@@ -441,9 +422,6 @@ class Game(Scene):
             pygame.display.flip()
             self.clock.tick(self.fps)
 
-
-
-    # @Julien à quoi sert cette fonction??
     def load_level(self, id: int):
 
         self.level_path = f"{self.level_dir}/level{id}.json"
@@ -451,20 +429,74 @@ class Game(Scene):
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
 
-        # Load terrain and obstacles
+        self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
+                         "assets/images/balls/golf_ball.png")
+        self.ball.is_moving = False
+
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
-        self.potential_collision_indices = []
-        self.potential_collision_polygons = []
 
+        self.prev_collision_terrain = None
+
+        # --- Compteur et Police ---
+        self.stroke_count = 0
+        try:
+            self.ui_font = pygame.font.SysFont('Arial', 30)
+        except:
+            self.ui_font = pygame.font.Font(None, 36)
+        self.previous_stroke_count = -1
+        self.animate_stroke_timer = 0
+        self.STROKE_ANIM_DURATION = 10
+        self.STROKE_ANIM_SCALE = 1.1
+        self.STROKE_TEXT_COLOR = (220, 70, 70)
+        self.STROKE_BG_COLOR = (40, 40, 40, 180)
+        self.STROKE_PADDING = 8
+        self.STROKE_CORNER_RADIUS = 5
+
+        # Camera and background (ensure these are after width/height and level boundaries)
+        # Calculation of level limitations:
+        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else 0
+        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else self.width
+        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1] if self.terrain_polys else 0  # Corrected index
+        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][
+            1] if self.terrain_polys else self.height  # Corrected index
+
+        for terrain in self.terrain_polys:
+            for point_tuple in terrain.points:  # Iterate through point tuples
+                point = pygame.Vector2(point_tuple)  # Convert to Vector2 for consistency
+                if point.x < WORLD_MIN_X_BOUNDARY:
+                    WORLD_MIN_X_BOUNDARY = point.x
+                if point.x > WORLD_MAX_X_BOUNDARY:
+                    WORLD_MAX_X_BOUNDARY = point.x
+                if point.y < WORLD_MIN_Y_BOUNDARY:
+                    WORLD_MIN_Y_BOUNDARY = point.y
+                if point.y > WORLD_MAX_Y_BOUNDARY:
+                    WORLD_MAX_Y_BOUNDARY = point.y
+        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height  # User's original logic
+
+        self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
+                             level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
+                             level_min_y=WORLD_MIN_Y_BOUNDARY)
+        self.background = pygame.image.load("assets/images/backgrounds/background.jpg").convert()
+        self.background = pygame.transform.smoothscale(self.background, (self.width, self.height))
+
+        self.dot_spacing = 10
+        self.dot_radius = 2
+        self.dot_color = (255, 0, 0)
+
+        self.flag = None
         for obstacle in self.obstacles:
-            if not isinstance(obstacle, Flag) and obstacle.characteristic == "start":
-                self.ball.position = obstacle.position
+            if not isinstance(obstacle, Flag) and getattr(obstacle, 'characteristic', None) == "start":
+                self.ball.position = obstacle.position.copy()
+                self.ball.start_position = obstacle.position.copy()
             if isinstance(obstacle, Flag):
                 self.flag = obstacle
-                break
+
+        self.collidable_obstacles_list = [obs for obs in self.obstacles if
+                                          (not isinstance(obs, Flag)) and obs.is_colliding]
 
         self.saved = False
+        self.camera.calculate_position(self.ball.position)
 
     def check_flag_collision(self):
         """
