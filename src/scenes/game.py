@@ -126,14 +126,15 @@ class Game(Scene):
         self.dot_color = (255, 0, 0)
 
         self.flag = None
-        self.isflag = False  # Redundant if self.flag is None or set
         for obstacle in self.obstacles:
             if not isinstance(obstacle, Flag) and getattr(obstacle, 'characteristic', None) == "start":
-                self.ball.position = obstacle.position.copy()  # Ensure it's a copy
+                self.ball.position = obstacle.position.copy()
                 self.ball.start_position = obstacle.position.copy()
-            if isinstance(obstacle, Flag):  # Removed "and not self.isflag" as it's not needed
+            if isinstance(obstacle, Flag):
                 self.flag = obstacle
-                # self.isflag = True # Not strictly needed if self.flag is the source of truth
+
+        self.collidable_obstacles_list = [obs for obs in self.obstacles if (not isinstance(obs, Flag)) and obs.is_colliding]
+
         self.saved = False
         self.camera.calculate_position(self.ball.position)
 
@@ -235,6 +236,30 @@ class Game(Scene):
         except Exception as e:
             print(f"Erreur lors de l'affichage du compteur animé : {e}")
 
+    def reset_level_state(self):
+        """Resets the state of the level"""
+        self.ball.position = self.ball.start_position.copy()
+        self.ball.velocity = pygame.Vector2(0, 0)
+        self.ball.is_moving = False
+
+        self.stroke_count = 0
+        self.previous_stroke_count = -1
+        self.animate_stroke_timer = 0
+
+        self.dragging = False
+        self.drag_start_pos = None
+        self.force = 0
+        self.angle = 0
+
+        self.physics_last_collided_object_id = None
+        self.physics_collision_toggle_count = 0
+        self.physics_accumulator = 0.0
+
+        self.saved_level_stats = False
+
+        self.camera.calculate_position(self.ball.position)
+
+
     def handle_events(self):
         """
         Handle input, ball movement, gravity, collisions with bounce/slide,
@@ -246,6 +271,16 @@ class Game(Scene):
                 # self.running = False # Assuming Scene's run loop handles this
                 pygame.quit()  # Or post a quit event: pygame.event.post(pygame.event.Event(pygame.QUIT))
                 exit()  # Or sys.exit()
+
+            # --- Key Presses ---
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.reset_level_state()
+                    self.switch_scene(SceneType.MAIN_MENU)
+                    return
+                if event.key == pygame.K_r:
+                    self.reset_level_state()
+
 
             # --- Input Handling for Dragging and Shooting ---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
@@ -307,21 +342,16 @@ class Game(Scene):
                     self.force = 0
                     self.angle = 0
 
-        # --- Physics Update Loop (replaces the old collision block) ---
         if self.ball.is_moving:
-            # self.dt is the time for the current frame (e.g., 1/60.0 or variable)
             self.physics_accumulator += self.dt
 
-            # Limit max steps per frame to prevent spiral of death if dt is too large
+            # Limit max steps per frame
             max_sub_steps_per_frame = self.physics_sub_steps * 2
             sub_steps_this_frame = 0
 
             while self.physics_accumulator >= self.fixed_dt and sub_steps_this_frame < max_sub_steps_per_frame:
-                if self.ball.is_moving:  # Double check inside loop
-                    # Filter obstacles that are collidable
-                    collidable_obstacles_list = [obs for obs in self.obstacles if (not isinstance(obs, Flag)) and obs.is_colliding]
-
-                    still_moving = physics.update_ball_physics(self.ball,self.terrain_polys,collidable_obstacles_list,self.fixed_dt,self)
+                if self.ball.is_moving:  # Recheck if ball is moving after each sub-step
+                    still_moving = physics.update_ball_physics(self.ball,self.terrain_polys,self.collidable_obstacles_list,self.fixed_dt,self)
 
                     if not still_moving:
                         self.ball.is_moving = False  # Ball has stopped
@@ -342,7 +372,6 @@ class Game(Scene):
 
                 self.physics_accumulator -= self.fixed_dt
                 sub_steps_this_frame += 1
-        # --- End of Physics Update Loop ---
 
         # Update camera position based on ball (if ball moved or dragging for preview)
         # The original code had camera update outside the ball_in_motion check.
