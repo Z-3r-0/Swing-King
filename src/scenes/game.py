@@ -471,7 +471,7 @@ class Game(Scene):
         Checks if the ball reached the base of the flag (hole)
         """
 
-        if not self.flag or self.ball.is_moving: # <--- CORRECTED THIS LINE
+        if not self.flag or self.ball.is_moving:
             return False
 
         ball_mask = self.ball.mask
@@ -481,19 +481,17 @@ class Game(Scene):
 
         # Create a mask for the base of the flag only (1/4 bottom of the flag)
         base_height = flag_surface.get_height() // 4
-        base_rect = pygame.Rect(0, flag_surface.get_height() - base_height,
-                                flag_surface.get_width(), base_height)
+        base_rect = pygame.Rect(0, flag_surface.get_height() - base_height,flag_surface.get_width(), base_height)
 
         base_mask = pygame.mask.Mask((flag_surface.get_width(), flag_surface.get_height()))
         for x in range(base_rect.width):
             for y in range(base_rect.height):
-                if flag_mask.get_at((x, base_rect.y + y)):
-                    base_mask.set_at((x, base_rect.y + y), 1)
+                y_coord = base_rect.y + y
+                if flag_mask.get_at((x, y_coord)):
+                    base_mask.set_at((x, y_coord), 1)
 
-        offset = (
-            int(self.ball.rect.left - self.flag.animation.rect.left),
-            int(self.ball.rect.top - self.flag.animation.rect.top)
-        )
+        offset = (int(self.ball.rect.left - self.flag.position.x),
+            int(self.ball.rect.top - self.flag.position.y))
 
         # Check if masks overlap with the offset
         overlap = base_mask.overlap(ball_mask, offset)
