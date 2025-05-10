@@ -72,7 +72,7 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                 for block in data:
 
                     if block["characteristic"] == "end":
-                        position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - 110)  # 110 is the size of the flag sprite
+                        position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - (108-block["size"]))  # 110 is the size of the flag sprite
                         angle = block["angle"]
 
                         new_obstacle = Flag(position, angle)
