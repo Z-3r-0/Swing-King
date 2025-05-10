@@ -25,8 +25,7 @@ class Game(Scene):
         super().__init__(screen, SceneType.GAME, "Game", scene_from)
         self.dragging = False
 
-        self.max_force = 1500  # User's existing value
-
+        self.max_force = 1500
         self.force = 0
         self.angle = 0
 
@@ -79,11 +78,10 @@ class Game(Scene):
 
         # Camera and background (ensure these are after width/height and level boundaries)
         # Calculation of level limitations:
-        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else 0
-        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else self.width
-        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1] if self.terrain_polys else 0  # Corrected index
-        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][
-            1] if self.terrain_polys else self.height  # Corrected index
+        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
+        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
 
         for terrain in self.terrain_polys:
             for point_tuple in terrain.points:  # Iterate through point tuples
@@ -96,7 +94,7 @@ class Game(Scene):
                     WORLD_MIN_Y_BOUNDARY = point.y
                 if point.y > WORLD_MAX_Y_BOUNDARY:
                     WORLD_MAX_Y_BOUNDARY = point.y
-        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height  # User's original logic
+        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
                              level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
@@ -438,32 +436,16 @@ class Game(Scene):
 
         self.prev_collision_terrain = None
 
-        # --- Compteur et Police ---
-        self.stroke_count = 0
-        try:
-            self.ui_font = pygame.font.SysFont('Arial', 30)
-        except:
-            self.ui_font = pygame.font.Font(None, 36)
-        self.previous_stroke_count = -1
-        self.animate_stroke_timer = 0
-        self.STROKE_ANIM_DURATION = 10
-        self.STROKE_ANIM_SCALE = 1.1
-        self.STROKE_TEXT_COLOR = (220, 70, 70)
-        self.STROKE_BG_COLOR = (40, 40, 40, 180)
-        self.STROKE_PADDING = 8
-        self.STROKE_CORNER_RADIUS = 5
-
         # Camera and background (ensure these are after width/height and level boundaries)
         # Calculation of level limitations:
-        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else 0
-        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0] if self.terrain_polys else self.width
-        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1] if self.terrain_polys else 0  # Corrected index
-        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][
-            1] if self.terrain_polys else self.height  # Corrected index
+        WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0]
+        WORLD_MIN_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
+        WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
 
         for terrain in self.terrain_polys:
-            for point_tuple in terrain.points:  # Iterate through point tuples
-                point = pygame.Vector2(point_tuple)  # Convert to Vector2 for consistency
+            for point_tuple in terrain.points:
+                point = pygame.Vector2(point_tuple)
                 if point.x < WORLD_MIN_X_BOUNDARY:
                     WORLD_MIN_X_BOUNDARY = point.x
                 if point.x > WORLD_MAX_X_BOUNDARY:
@@ -472,7 +454,7 @@ class Game(Scene):
                     WORLD_MIN_Y_BOUNDARY = point.y
                 if point.y > WORLD_MAX_Y_BOUNDARY:
                     WORLD_MAX_Y_BOUNDARY = point.y
-        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height  # User's original logic
+        WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
                              level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
