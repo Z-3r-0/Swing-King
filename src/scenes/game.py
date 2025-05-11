@@ -99,6 +99,10 @@ class Game(Scene):
                     if point.y > WORLD_MAX_Y_BOUNDARY:
                         WORLD_MAX_Y_BOUNDARY = point.y
         WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
+        WORLD_MIN_X_BOUNDARY += 10
+        WORLD_MAX_X_BOUNDARY -= 10
+
+
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
                              level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
@@ -476,6 +480,8 @@ class Game(Scene):
                     if point.y > WORLD_MAX_Y_BOUNDARY:
                         WORLD_MAX_Y_BOUNDARY = point.y
         WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
+        WORLD_MIN_X_BOUNDARY += 10
+        WORLD_MAX_X_BOUNDARY -= 10
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
                              level_max_height=WORLD_MAX_Y_BOUNDARY, level_min_x=WORLD_MIN_X_BOUNDARY,
