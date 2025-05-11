@@ -3,7 +3,9 @@ import random
 
 import pygame
 import math
+
 from src.entities import Obstacle, Terrain
+from src.utils import load_json_settings
 
 # --- Constants ---
 GRAVITY_ACCELERATION = 980.0  # Gravitational acceleration in pixels/s²
@@ -14,6 +16,7 @@ COLLISION_PENETRATION_PUSH_FACTOR = 1.01  # Factor to push ball out of penetrati
 MAX_PHYSICS_COLLISION_ITERATIONS = 3  # Max times to re-check collisions within one sub-step
 
 pygame.mixer.init()
+
 grass_sound = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_herbe.mp3")
 rock_sound_1 = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_pierre.mp3")
 rock_sound_2 = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_pierre2.mp3")
@@ -196,11 +199,11 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             terrain_type = getattr(collided_object, 'terrain_type', Terrain)
 
             if terrain_type == "green" or terrain_type == "fairway" or terrain_type == "darkgreen":
-                grass_sound.play()
+                pygame.mixer.Channel(0).play(grass_sound)
             elif terrain_type == "rocks" or terrain_type == "darkrocks":
-                random.choice(rock_sounds).play()
+                pygame.mixer.Channel(0).play(random.choice(rock_sounds))
             elif terrain_type == "bunker":
-                sand_effect.play()
+                pygame.mixer.Channel(0).play(sand_effect)
 
             velocity_normal_component_scalar = ball.velocity.dot(normal_vec)
             normal_velocity_vector = velocity_normal_component_scalar * normal_vec

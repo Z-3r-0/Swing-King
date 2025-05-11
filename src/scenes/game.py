@@ -320,7 +320,7 @@ class Game(Scene):
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # Left-click release
                 if self.dragging:
                     self.dragging = False
-                    random.choice(self.swing_effects).play()
+                    pygame.mixer.Channel(0).play(random.choice(self.swing_effects))
                     mouse_screen_pos = pygame.mouse.get_pos()
                     # Convert release position to world coordinates for angle/force calc
                     # drag_and_release expects world positions
