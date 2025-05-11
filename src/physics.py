@@ -29,6 +29,8 @@ water_effects = []
 for effect in os.listdir("assets/audio/sound_effect/water"):
     sound = pygame.mixer.Sound("assets/audio/sound_effect/water/" + effect)
     water_effects.append(sound)
+    
+sand_effect = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_sable.mp3")
 
 
 played_sound = False
@@ -197,6 +199,8 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
                 grass_sound.play()
             elif terrain_type == "rocks" or terrain_type == "darkrocks":
                 random.choice(rock_sounds).play()
+            elif terrain_type == "bunker":
+                sand_effect.play()
 
             velocity_normal_component_scalar = ball.velocity.dot(normal_vec)
             normal_velocity_vector = velocity_normal_component_scalar * normal_vec
