@@ -22,7 +22,11 @@ class Slider(ResizableHUD):
         pygame.draw.rect(self.screen, Color.blue.value, filling)
     
         if hasattr(self, 'police'):
-            surface_text = self.police.render(f"{text}: {self.value}%", True, Color.white.value)
+            surface_text = self.police.render(f"{text}: {self.value}%", True, Color.cyan.value)
+            bg_rect = pygame.Surface((100, 25), pygame.SRCALPHA)
+            bg_rect.fill((0, 0, 0, 150))
+            self.screen.blit(bg_rect, (self.rect.x, self.rect.y - 30))
+            self.police.set_bold(True)
             self.screen.blit(surface_text, (self.rect.x, self.rect.y - 30))
         else:
             print("Error: self.police is not defined!")

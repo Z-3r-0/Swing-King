@@ -8,8 +8,8 @@
         "fps_limit": 60
     },
     "audio": {
-        "Master": 33,
-        "Music": 69,
+        "Master": 54,
+        "Music": 39,
         "SFX": 17,
         "Voice": 48,
         "mute": false
