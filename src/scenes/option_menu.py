@@ -18,7 +18,7 @@ class OptionMenu(Scene):
             "SFX": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), screen.get_height()/4+screen.get_height()/8), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
         }
 
-        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(((screen.get_width()/2)-screen.get_width()/16), screen.get_height()/2), Vector2(270, 80),
+        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(((screen.get_width()/2)-screen.get_width()/16), screen.get_height()/2-screen.get_height()/16), Vector2(270, 80),
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png",
                                 "assets/images/buttons/menus/option/fullscreen/Fullscreen_Hovered.png",
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png")
