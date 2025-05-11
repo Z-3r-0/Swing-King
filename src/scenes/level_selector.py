@@ -38,7 +38,7 @@ class LevelSelector(Scene):
         pos_x = screen.get_width() / 2 - button_size.x / 2
         pos_y = screen.get_height() / 2 - button_size.y / 2
 
-        self.BACK = Button(self.screen, lambda: self.switch_scene(self.scene_from), Vector2(pos_x, pos_y + 425), Vector2(270, 80),
+        self.BACK = Button(self.screen, lambda: self.switch_scene(SceneType.MAIN_MENU), Vector2(pos_x, pos_y + 425), Vector2(270, 80),
                            "assets/images/buttons/menus/main/back/back.png",
                            "assets/images/buttons/menus/main/back/back_hovered.png",
                            "assets/images/buttons/menus/main/back/back_clicked.png"
@@ -49,6 +49,7 @@ class LevelSelector(Scene):
         self.level_count = min(self.level_count, get_level_count("data/levels"))
         self.max_button_per_row = 4
         self.buttons = []  # This will be a matrix so that we can easily build a grid out of the button list
+        self.texts = []
 
         self.build_buttons()
 
