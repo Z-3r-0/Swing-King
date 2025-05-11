@@ -1,13 +1,13 @@
-﻿
-from src.utils import *
+﻿from src.utils import *
 from src.scene import SceneType
 from src.scenes import *
 from src.events import scene_events
 
 pygame.init()
 pygame.mixer.init()
-
 pygame.mixer.music.load("assets/audio/music/SwingKing.mp3")
+
+
 screen = pygame.display.set_mode(flags=pygame.SRCALPHA)
 game = Game(screen, "data/levels", None)
 main_menu = Menu(screen)
@@ -19,8 +19,12 @@ scene = SceneType.MAIN_MENU
 from_scene = None
 
 clock = pygame.time.Clock()
+pygame.mixer.Channel(0)
 
-# pygame.mixer.music.play(-1)
+pygame.mixer.Channel(0).set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["SFX"] / 100))
+
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["Music"] / 100))
 
 while True:
     args = None

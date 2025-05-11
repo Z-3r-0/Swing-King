@@ -8,3 +8,4 @@ class Color(Enum):
     grey = (100, 100, 100)
     red = (200, 50, 50)
     green = (50, 200, 50)
+    cyan = 	(0, 255, 255)
