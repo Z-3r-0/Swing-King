@@ -53,6 +53,8 @@ class Game(Scene):
                          "assets/images/balls/golf_ball.png")
         self.ball.is_moving = False
 
+        self.last_position = self.ball.position.copy()
+
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
         if not hasattr(self, 'dt') or self.dt == 0:
@@ -219,6 +221,7 @@ class Game(Scene):
     def reset_level_state(self):
         """Resets the state of the level"""
         self.ball.position = self.ball.start_position.copy()
+        self.last_position = self.ball.position.copy()
         self.ball.velocity = pygame.Vector2(0, 0)
         self.ball.is_moving = False
 
@@ -260,7 +263,24 @@ class Game(Scene):
                 if event.key == pygame.K_r:
                     self.reset_level_state()
 
-
+            if event.type == pygame.USEREVENT + 30:  # HIT RESTART ZONE (see events.py)
+                print("Hit restart zone")
+                self.ball.position = self.last_position.copy()  # Use copy to avoid reference issues
+                self.ball.velocity = pygame.Vector2(0, 0)
+                self.ball.is_moving = False  # Stop the ball so it can be shot again
+            
+                # Update camera to follow the teleported ball
+                self.camera.calculate_position(self.ball.position)
+            
+                # Reset physics accumulator to prevent residual physics calculations
+                self.physics_accumulator = 0.0
+            
+                # Reset anti-stuck mechanism if it was active
+                self.physics_last_collided_object_id = None
+                self.physics_collision_toggle_count = 0
+            
+                continue
+                
             # --- Input Handling for Dragging and Shooting ---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
                 if not self.ball.is_moving:  # Only allow drag if ball is stationary
@@ -335,6 +355,7 @@ class Game(Scene):
                     if not still_moving:
                         self.ball.is_moving = False  # Ball has stopped
                         self.physics_accumulator = 0  # Clear accumulator
+                        self.last_position = self.ball.position.copy()
                         # Check win condition AFTER ball stops and physics is fully resolved
                         if self.check_flag_collision():  # check_flag_collision should verify ball is NOT moving
                             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])

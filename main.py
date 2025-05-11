@@ -6,7 +6,7 @@ from src.events import scene_events
 pygame.init()
 
 
-screen = pygame.display.set_mode()
+screen = pygame.display.set_mode(flags=pygame.SRCALPHA)
 game = Game(screen, "data/levels", None)
 main_menu = Menu(screen)
 option_menu = OptionMenu(screen, None)

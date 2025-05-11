@@ -44,6 +44,8 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
     obstacles_list = []
     screen_height = screen.get_height()
 
+    min_y = float('-inf')
+
     try:
         match layer:
             case 0: # Case for terrain
@@ -52,6 +54,10 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                     positions = block.get("vertices", [])
                     for vertice in positions:
                         vertices.append((vertice.get("x", 0), screen_height - vertice.get("y", 0)))
+                        
+                        if vertice.get("y", 0) > min_y:
+                            min_y = screen_height - vertice.get("y", 0)
+                        
                     terrain_type = block.get("type", "fairway")
                     if len(vertices) >= 3:
                         try:
@@ -66,6 +72,13 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                 sorted_terrain_dict = dict(sorted(terrain_ids.items()))
                 for value in sorted_terrain_dict.values():
                     terrain_list.append(value)
+                    
+                # Create a terrain of type void at 0 x position and minimum y position, as long as the level size
+                vertices = [(0, min_y), (10000, min_y), (100000, min_y - 30), (0, min_y - 30)]  # 10000 is the max size of a level, +30 is arbitrary
+                void = Terrain("void", vertices)
+                
+                terrain_list.append(void)
+                    
                 return terrain_list
 
             case 1: # Case for obstacles

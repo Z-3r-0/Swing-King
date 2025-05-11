@@ -44,23 +44,26 @@ class Terrain:
             'green': 0.2,
             'fairway': 0.3,
             'bunker': 0.7,
-            'lake': 0.95,
+            'lake': -1,
             'rocks': 0.25,
             'dirt': 0.4,
             'darkgreen': 0.4,
             'darkrocks': 0.3,
-            'darkdirt': 0.6}
+            'darkdirt': 0.6,
+            "void": -1,
+        }
         self.friction = friction_factor[self.terrain_type]
         bounce = {
             'green': 0.4,  # Moderate-low bounce, promotes roll.
             'fairway': 0.5,  # Standard moderate bounce.
             'bunker': 0.15,  # Very low bounce, absorbs energy.
-            'lake': 0.1,  # Minimal bounce.
+            'lake': -1,
             'rocks': 0.7,  # High bounce.
             'dirt': 0.35,  # Moderate-low bounce.
             'darkgreen': 0.3,  # Low bounce (like rough).
             'darkrocks': 0.65,  # High bounce, slightly less than clean rocks.
-            'darkdirt': 0.3  # Low bounce (softer/looser dirt).
+            'darkdirt': 0.3,  # Low bounce (softer/looser dirt).
+            "void": -1,
         }
         self.bounce_factor = bounce[self.terrain_type]
 
@@ -71,21 +74,28 @@ class Terrain:
         """
 
         colors = {
-        'green': (62, 179, 62),  # @Lucas ici pour la couleur des terrains
-        'fairway': (62, 133, 54),
-        'bunker': (255, 197, 106),
-        'lake': (46, 118, 201),
-        'rocks': (156, 151, 144),
-        'dirt': (130, 99, 54),
-        'darkgreen': (49, 110, 46),
-        'darkrocks': (128, 128, 128),
-        'darkdirt': (87, 59, 19)
+            'green': (62, 179, 62),  # @Lucas ici pour la couleur des terrains
+            'fairway': (62, 133, 54),
+            'bunker': (255, 197, 106),
+            'lake': (46, 118, 201),
+            'rocks': (156, 151, 144),
+            'dirt': (130, 99, 54),
+            'darkgreen': (49, 110, 46),
+            'darkrocks': (128, 128, 128),
+            'darkdirt': (87, 59, 19),
+            'void': (0, 0, 0, 0)
         }
+        
         color = colors.get(self.terrain_type, (255, 255, 255))
         if points is None:
             points = self.points
         if len(points) > 2:
-            pygame.draw.polygon(screen, color, points)
+    
+            if self.terrain_type == 'void':
+                surface = pygame.Surface((10000, 30), pygame.SRCALPHA)
+                pygame.draw.polygon(surface, color, points)
+            else:
+                pygame.draw.polygon(screen, color, points)
 
     def shift_poly(self, shift: pygame.Vector2):
         """
