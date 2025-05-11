@@ -119,7 +119,6 @@ class Game(Scene):
             self.swing_effects.append(sound)
             
         self.win_effect = pygame.mixer.Sound("assets/audio/sound_effect/victory/victory.mp3")
-        self.defeat_effect = pygame.mixer.Sound("assets/audio/sound_effect/defeat/defeat.mp3")
 
         self.flag = None
         for obstacle in self.obstacles:
@@ -277,7 +276,7 @@ class Game(Scene):
                     self.reset_level_state()
 
             if event.type == pygame.USEREVENT + 30:  # HIT RESTART ZONE (see events.py)
-                self.defeat_effect.play()
+                
                 self.ball.position = self.last_position.copy()  # Use copy to avoid reference issues
                 self.ball.velocity = pygame.Vector2(0, 0)
                 self.ball.is_moving = False  # Stop the ball so it can be shot again
