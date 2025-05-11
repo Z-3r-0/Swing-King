@@ -5,7 +5,6 @@ import pygame
 import math
 
 from src.entities import Obstacle, Terrain
-from src.utils import load_json_settings
 
 # --- Constants ---
 GRAVITY_ACCELERATION = 980.0  # Gravitational acceleration in pixels/s²
@@ -194,9 +193,9 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
 
             # compute new velocity
             bounce_coeff = getattr(collided_object, 'bounce_factor', 0.4)
-            friction_coeff = getattr(collided_object, 'friction',0.3)
+            friction_coeff = getattr(collided_object, 'friction', 0.3)
 
-            terrain_type = getattr(collided_object, 'terrain_type', Terrain)
+            terrain_type = getattr(collided_object, 'terrain_type', "rocks")
 
             if terrain_type == "green" or terrain_type == "fairway" or terrain_type == "darkgreen":
                 pygame.mixer.Channel(0).play(grass_sound)

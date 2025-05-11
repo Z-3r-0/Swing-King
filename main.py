@@ -1,6 +1,4 @@
-﻿import pygame.mixer_music
-
-from src.utils import *
+﻿from src.utils import *
 from src.scene import SceneType
 from src.scenes import *
 from src.events import scene_events
