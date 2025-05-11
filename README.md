@@ -17,7 +17,7 @@
   - ### Level creator
     - There are different buttons with arrows to look at the level
     - Different obstacles (rocks) and decorations (trees)
-    - Different types of grounds with their own properties (sand, stone, fairway, green, water)
+    - Different types of grounds with their own properties (sand, fairway, green, water)
     - Can place the beginning and the hole where you want
     - Press del to delete an obstacle
     - Press T or R to turn the obstacle
@@ -28,4 +28,4 @@
     - You can press esc to return to menu
   - ### The different types of ground
     - If the ball go in the water you return to the position of the last shot
-    - 
+    - In the sand The ball doesn't bounce
