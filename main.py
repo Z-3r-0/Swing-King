@@ -2,7 +2,8 @@
 from src.utils import *
 from src.scene import SceneType
 from src.scenes import *
-from src.events import scene_events
+from src.events import scene_events, options_events
+from src.utils.volume import update_volume
 
 pygame.init()
 pygame.mixer.init()
@@ -23,10 +24,9 @@ from_scene = None
 clock = pygame.time.Clock()
 pygame.mixer.Channel(0)
 
-pygame.mixer.Channel(0).set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["SFX"] / 100 * (load_json_settings("data/settings/settings.json")["audio"]["Master"] / 100)))
-
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["Music"] / 100 * (load_json_settings("data/settings/settings.json")["audio"]["Master"] / 100)))
+
+update_volume()
 
 while True:
     args = None
@@ -35,7 +35,7 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-        elif event.type in scene_events.values():
+        if event.type in scene_events.values():
             for scene_type, evt_id in scene_events.items():
                 if event.type == evt_id:
                     from_scene = scene
@@ -69,4 +69,4 @@ while True:
             credits.scene_from = from_scene
             credits.run()
 
-    clock.tick(60)
+    clock.tick(load_json_settings("data/settings/settings.json")["graphics"]["fps_limit"])

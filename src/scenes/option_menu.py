@@ -5,6 +5,8 @@ from src.utils.settings_loader import *
 from src.hud import Button
 from src.hud.slider import Slider
 from src.scene import Scene, SceneType
+from src.utils.volume import update_volume
+
 
 class OptionMenu(Scene):
     
@@ -71,6 +73,8 @@ class OptionMenu(Scene):
                     for barre in self.volumes_sliders.keys():
                         if self.volumes_sliders[barre].rect.collidepoint(event.pos):
                             self.volumes_sliders[barre].save(event.pos[0], barre)
+
+                            update_volume()
 
             for nom, barre in self.volumes_sliders.items():
                 barre.draw(nom)

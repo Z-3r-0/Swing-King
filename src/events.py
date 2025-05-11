@@ -12,6 +12,7 @@ scene_events = {
 
 options_events = {
     "RESIZE": pygame.USEREVENT + 10,
+    "VOLUME_UPDATE": pygame.USEREVENT + 11,
 }
 
 interact_events = {
