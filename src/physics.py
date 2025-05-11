@@ -1,4 +1,7 @@
-﻿import pygame
+﻿import os
+import random
+
+import pygame
 import math
 from src.entities import Obstacle, Terrain
 
@@ -9,6 +12,13 @@ BALL_STOP_SPEED_THRESHOLD = 8.0  # Speed (pixels/s) below which the ball is cons
 MIN_BOUNCE_VELOCITY_NORMAL = 15.0  # Minimum velocity component normal to surface after bounce
 COLLISION_PENETRATION_PUSH_FACTOR = 1.01  # Factor to push ball out of penetration (slightly > 1)
 MAX_PHYSICS_COLLISION_ITERATIONS = 3  # Max times to re-check collisions within one sub-step
+
+pygame.mixer.init()
+grass_sound = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_herbe.mp3")
+rock_sound_1 = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_pierre.mp3")
+rock_sound_2 = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_pierre2.mp3")
+
+rock_sounds = [rock_sound_1, rock_sound_2]
 
 def get_polygon_collision_normal_depth(poly_points_world, ball_center_world, ball_radius):
     """
@@ -120,6 +130,7 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             entity_world_points = []
             if isinstance(entity, Terrain):
                 entity_world_points = [pygame.Vector2(p) for p in entity.points]
+                
             elif isinstance(entity, Obstacle):
                 # Obstacle points are relative to topleft, convert to world coordinate
                 entity_world_points = [(pygame.Vector2(p) + entity.position) for p in entity.rotated_points]
@@ -165,6 +176,13 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             bounce_coeff = getattr(collided_object, 'bounce_factor', 0.4)
             friction_coeff = getattr(collided_object, 'friction',0.3)
 
+            terrain_type = getattr(collided_object, 'terrain_type', Terrain)
+
+            if terrain_type == "green" or terrain_type == "fairway" or terrain_type == "darkgreen":
+                grass_sound.play()
+            elif terrain_type == "rocks" or terrain_type == "darkrocks":
+                random.choice(rock_sounds).play()
+            
             if friction_coeff < 0:
                 pygame.event.post(pygame.event.Event(pygame.USEREVENT + 30))
 
@@ -211,5 +229,6 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             game_instance.physics_last_collided_object_id = None
             game_instance.physics_collision_toggle_count = 0
             return False  # Ball has stopped
+    
 
     return True
