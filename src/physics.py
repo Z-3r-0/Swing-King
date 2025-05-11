@@ -341,6 +341,10 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             bounce_coeff = getattr(collided_object, 'bounce_factor', 0.4)  # Default bounce
             friction_coeff = getattr(collided_object, 'friction',0.3)  # Default friction (0 to 1, where 0.3 means 30% energy loss)
 
+            if friction_coeff < 0:  # If we touched a restart zone
+                # print("Touched water or dead zone")
+                pygame.event.post(pygame.event.Event(pygame.USEREVENT + 30))  # (see events.py file)
+
             velocity_normal_component_scalar = ball.velocity.dot(normal_vec)
             normal_velocity_vector = velocity_normal_component_scalar * normal_vec
             tangent_velocity_vector = ball.velocity - normal_velocity_vector

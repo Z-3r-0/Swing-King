@@ -44,7 +44,7 @@ class Terrain:
             'green': 0.2,
             'fairway': 0.3,
             'bunker': 0.7,
-            'lake': 0.95,
+            'lake': -1,
             'rocks': 0.25,
             'dirt': 0.4,
             'darkgreen': 0.4,
