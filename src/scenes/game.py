@@ -85,16 +85,17 @@ class Game(Scene):
         WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
 
         for terrain in self.terrain_polys:
-            for point_tuple in terrain.points:  # Iterate through point tuples
-                point = pygame.Vector2(point_tuple)  # Convert to Vector2 for consistency
-                if point.x < WORLD_MIN_X_BOUNDARY:
-                    WORLD_MIN_X_BOUNDARY = point.x
-                if point.x > WORLD_MAX_X_BOUNDARY:
-                    WORLD_MAX_X_BOUNDARY = point.x
-                if point.y < WORLD_MIN_Y_BOUNDARY:
-                    WORLD_MIN_Y_BOUNDARY = point.y
-                if point.y > WORLD_MAX_Y_BOUNDARY:
-                    WORLD_MAX_Y_BOUNDARY = point.y
+            if not (terrain.terrain_type == "void"):
+                for point_tuple in terrain.points:
+                    point = pygame.Vector2(point_tuple)
+                    if point.x < WORLD_MIN_X_BOUNDARY:
+                        WORLD_MIN_X_BOUNDARY = point.x
+                    if point.x > WORLD_MAX_X_BOUNDARY:
+                        WORLD_MAX_X_BOUNDARY = point.x
+                    if point.y < WORLD_MIN_Y_BOUNDARY:
+                        WORLD_MIN_Y_BOUNDARY = point.y
+                    if point.y > WORLD_MAX_Y_BOUNDARY:
+                        WORLD_MAX_Y_BOUNDARY = point.y
         WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
@@ -464,16 +465,17 @@ class Game(Scene):
         WORLD_MAX_Y_BOUNDARY = self.terrain_polys[0].points[0][1]
 
         for terrain in self.terrain_polys:
-            for point_tuple in terrain.points:
-                point = pygame.Vector2(point_tuple)
-                if point.x < WORLD_MIN_X_BOUNDARY:
-                    WORLD_MIN_X_BOUNDARY = point.x
-                if point.x > WORLD_MAX_X_BOUNDARY:
-                    WORLD_MAX_X_BOUNDARY = point.x
-                if point.y < WORLD_MIN_Y_BOUNDARY:
-                    WORLD_MIN_Y_BOUNDARY = point.y
-                if point.y > WORLD_MAX_Y_BOUNDARY:
-                    WORLD_MAX_Y_BOUNDARY = point.y
+            if not (terrain.terrain_type == "void"):
+                for point_tuple in terrain.points:
+                    point = pygame.Vector2(point_tuple)
+                    if point.x < WORLD_MIN_X_BOUNDARY:
+                        WORLD_MIN_X_BOUNDARY = point.x
+                    if point.x > WORLD_MAX_X_BOUNDARY:
+                        WORLD_MAX_X_BOUNDARY = point.x
+                    if point.y < WORLD_MIN_Y_BOUNDARY:
+                        WORLD_MIN_Y_BOUNDARY = point.y
+                    if point.y > WORLD_MAX_Y_BOUNDARY:
+                        WORLD_MAX_Y_BOUNDARY = point.y
         WORLD_MIN_Y_BOUNDARY = WORLD_MIN_Y_BOUNDARY - self.height
 
         self.camera = Camera(pygame.Vector2(0, 0), self.width, self.height, level_max_width=WORLD_MAX_X_BOUNDARY,
