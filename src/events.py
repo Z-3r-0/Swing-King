@@ -18,7 +18,3 @@ interact_events = {
     "COIN_COLLECTED": pygame.USEREVENT + 20,
     "FLAG_REACHED": pygame.USEREVENT + 21,
 }
-
-collision_events = {
-    "HIT_RESTART_ZONE": pygame.USEREVENT + 30,
-}

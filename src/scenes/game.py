@@ -1,4 +1,3 @@
-import pygame
 from pygame import Vector2
 
 from src.entities import Ball, Camera, Flag, Obstacle
@@ -53,9 +52,6 @@ class Game(Scene):
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                          "assets/images/balls/golf_ball.png")
         self.ball.is_moving = False
-        
-        self.last_position = self.ball.position.copy()
-        self.hit_restart_zone = False
 
         self.terrain_polys = level_loader.json_to_list(self.terrain_data, self.screen, 0)
         self.obstacles = level_loader.json_to_list(self.obstacles_data, self.screen, 1)
@@ -223,7 +219,6 @@ class Game(Scene):
     def reset_level_state(self):
         """Resets the state of the level"""
         self.ball.position = self.ball.start_position.copy()
-        self.last_position = self.ball.position.copy()
         self.ball.velocity = pygame.Vector2(0, 0)
         self.ball.is_moving = False
 
@@ -265,13 +260,6 @@ class Game(Scene):
                 if event.key == pygame.K_r:
                     self.reset_level_state()
 
-            if event.type == pygame.USEREVENT + 30:  # HIT RESTART ZONE (see events.py)
-                self.ball.position = self.last_position.copy()
-                self.ball.velocity = pygame.Vector2(0, 0)
-                self.ball.is_moving = False
-                self.hit_restart_zone = True
-                self.camera.calculate_position(self.ball.position)
-                
 
             # --- Input Handling for Dragging and Shooting ---
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Left-click
@@ -347,21 +335,19 @@ class Game(Scene):
                     if not still_moving:
                         self.ball.is_moving = False  # Ball has stopped
                         self.physics_accumulator = 0  # Clear accumulator
-                        self.last_position = self.ball.position.copy()
-                        print(f"New last position: {self.last_position}")
                         # Check win condition AFTER ball stops and physics is fully resolved
-                        if self.check_flag_collision():
+                        if self.check_flag_collision():  # check_flag_collision should verify ball is NOT moving
                             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
                             if not self.saved:
                                 self.save_level_stats(level_id)
                                 self.saved = True
                                 # self.__init__(self.screen, self.level_dir, self.scene_from) # This reinitializes, be careful
                                 self.switch_scene(SceneType.LEVEL_SELECTOR)  # More common to switch scene
-                        break
+                        break  # Exit sub-step loop
                 else:
                     # Ball stopped during a sub-step sequence (e.g. by anti-stuck)
                     self.physics_accumulator = 0
-                    break
+                    break  # Exit sub-step loop
 
                 self.physics_accumulator -= self.fixed_dt
                 sub_steps_this_frame += 1
@@ -371,6 +357,9 @@ class Game(Scene):
         # This is fine, camera can follow even if ball is stationary but was just placed.
         if self.ball.is_moving or self.dragging:  # Or always update if you want smooth pan to stationary ball
             self.camera.calculate_position(self.ball.position)
+
+        # The win condition check was here in original code, moved to after ball stops in physics loop.
+        # if self.check_flag_collision(): ...
 
         # Update drag line preview if dragging (this part is mostly for drawing, but related to input state)
         if self.dragging and self.drag_start_pos:  # drag_start_pos is world
