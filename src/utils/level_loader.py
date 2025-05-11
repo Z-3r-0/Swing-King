@@ -93,6 +93,8 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                         obstacles_ids[block["id"]] = new_obstacle
 
                         continue
+                    if block["characteristic"] == "coins":
+                        continue
 
                     position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
                     size = block["size"]
