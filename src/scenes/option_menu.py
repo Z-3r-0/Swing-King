@@ -3,7 +3,6 @@ from pygame import Vector2
 
 from src.utils.settings_loader import *
 from src.hud import Button
-from src.hud.dropdown import Dropdown
 from src.hud.slider import Slider
 from src.scene import Scene, SceneType
 
@@ -14,25 +13,18 @@ class OptionMenu(Scene):
         super().__init__(screen, SceneType.OPTIONS_MENU, "Options menu", scene_from)
 
         self.volumes_sliders = {
-            "Master": Slider(screen, Vector2(200, 100), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
-            "Music": Slider(screen, Vector2(200, 160), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
-            "SFX": Slider(screen, Vector2(200, 220), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
-            "Voice": Slider(screen, Vector2(200, 280), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
+            "Master": Slider(screen, Vector2(575, 100), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
+            "Music": Slider(screen, Vector2(575, 160), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
+            "SFX": Slider(screen, Vector2(575, 220), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
+            "Voice": Slider(screen, Vector2(575, 280), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
         }
 
-        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(200, 340), Vector2(270, 80),
+        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(630, 340), Vector2(270, 80),
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png",
                                 "assets/images/buttons/menus/option/fullscreen/Fullscreen_Hovered.png",
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png")
 
-        self.menu_resolution = Dropdown(screen, Vector2(200, 430), Vector2(270, 80), [
-            "assets/images/buttons/menus/option/resolution/800x600.png",
-            "assets/images/buttons/menus/option/resolution/1280x720.png",
-            "assets/images/buttons/menus/option/resolution/1920x1080.png"],
-                                   "assets/images/buttons/menus/option/resolution/800x600.png",
-                                   "assets/images/buttons/menus/option/resolution/800x600_Hovered.png")
-
-        self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(480, 360), Vector2(200, 50),
+        self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(630, 450), Vector2(200, 50),
                       "assets/images/buttons/menus/main/back/back.png",
                       "assets/images/buttons/menus/main/back/back_hovered.png",
                       "assets/images/buttons/menus/main/back/back_clicked.png")
@@ -50,11 +42,9 @@ class OptionMenu(Scene):
             bar.resize()
             
         self.fullscreen_btn.resize()
-        self.menu_resolution.resize()
 
     def lambda_fullscreen(self):
-        self.menu_resolution.is_fullscreen = not self.menu_resolution.is_fullscreen
-        self.screen = pygame.display.set_mode(self.screen.get_size(), pygame.FULLSCREEN if self.menu_resolution.is_fullscreen else pygame.NOFRAME)
+        self.screen = pygame.display.set_mode(self.screen.get_size(), pygame.FULLSCREEN)
         self.resize_elements()
         
     def run(self):
@@ -74,7 +64,6 @@ class OptionMenu(Scene):
                         if self.volumes_sliders[barre].rect.collidepoint(event.pos):
                             self.volumes_sliders[barre].save(event.pos[0], barre)
 
-                    self.menu_resolution.handle_click(event.pos)
                     
                     for button in self.buttons:
                         button.listen(event)
@@ -91,6 +80,5 @@ class OptionMenu(Scene):
                 button.hover()
                 button.draw()
 
-            self.menu_resolution.draw()
         
             pygame.display.flip()
