@@ -66,7 +66,8 @@ while True:
             level_selector.scene_from = from_scene
             level_selector.run()
         case SceneType.CREDITS:
-            # TODO - Implement credits menu
+            credits.scene_from = from_scene
+            credits.run()
             pygame.quit()
             exit()
 

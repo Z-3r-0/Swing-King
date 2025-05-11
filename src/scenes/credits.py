@@ -8,7 +8,7 @@ class Credits(Scene):
     def __init__(self, screen, scene_from):
         super().__init__(screen, SceneType.CREDITS, "Credits", None)
         
-        self.image = pygame.image.load("assets/images/background.png").convert()
+        self.image = pygame.image.load("assets/images/backgrounds/credits.png").convert()
         
         
     def run(self):
