@@ -16,7 +16,7 @@ PREDICTION_STEPS = 350 # How many steps to predict
 PRECISION_NB_DOTS = 6 # Number of dots to draw
 PREDICTION_DOT_SPACING = PREDICTION_STEPS//PRECISION_NB_DOTS # Draw a dot every N steps
 PREDICTION_DOT_RADIUS = 5
-PREDICTION_DOT_COLOR = (255, 0, 0, 150) # Semi-transparent white
+PREDICTION_DOT_COLOR = (255, 255, 255, 150) # Semi-transparent white
 PHYSICS_SUB_STEPS = 8 # Number of physics sub-steps per frame
 
 class Game(Scene):
