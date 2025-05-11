@@ -24,7 +24,13 @@ defeat_effects = []
 for effect in os.listdir("assets/audio/sound_effect/defeat"):
     sound = pygame.mixer.Sound("assets/audio/sound_effect/defeat/" + effect)
     defeat_effects.append(sound)
-    
+
+water_effects = []
+for effect in os.listdir("assets/audio/sound_effect/water"):
+    sound = pygame.mixer.Sound("assets/audio/sound_effect/water/" + effect)
+    water_effects.append(sound)
+
+
 played_sound = False
 
 def get_polygon_collision_normal_depth(poly_points_world, ball_center_world, ball_radius):
@@ -210,12 +216,17 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             ball.velocity = normal_velocity_vector + tangent_velocity_vector
 
             if friction_coeff < 0:
+
                 pygame.event.post(pygame.event.Event(pygame.USEREVENT + 30))
-                
+
                 if not played_sound:
-                    random.choice(defeat_effects).play()
-                    played_sound = True
-                
+                    if getattr(collided_object, 'terrain_type') == "lake":
+                        random.choice(water_effects).play()
+                        played_sound = True
+                    else:
+                        random.choice(defeat_effects).play()
+                        played_sound = True
+
                 break
 
         if not found_collision_this_iteration:
