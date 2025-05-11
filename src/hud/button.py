@@ -46,7 +46,7 @@ class Button(ResizableHUD):
             if self.rect.collidepoint(event.pos):
                 self.rendered_image = self.clicked_image.copy()
                 self.clicked = True
-                self.click_effect.play()
+                pygame.mixer.Channel(0).play(self.click_effect)
                 self.func()
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
