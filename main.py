@@ -23,10 +23,10 @@ from_scene = None
 clock = pygame.time.Clock()
 pygame.mixer.Channel(0)
 
-pygame.mixer.Channel(0).set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["SFX"] / 100))
+pygame.mixer.Channel(0).set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["SFX"] / 100 * (load_json_settings("data/settings/settings.json")["audio"]["Master"] / 100)))
 
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["Music"] / 100))
+pygame.mixer.music.set_volume(float(load_json_settings("data/settings/settings.json")["audio"]["Music"] / 100 * (load_json_settings("data/settings/settings.json")["audio"]["Master"] / 100)))
 
 while True:
     args = None

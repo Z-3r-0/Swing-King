@@ -367,7 +367,7 @@ class Game(Scene):
                         # Check win condition AFTER ball stops and physics is fully resolved
                         if self.check_flag_collision():  # check_flag_collision should verify ball is NOT moving
                             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
-                            self.win_effect.play()
+                            pygame.mixer.Channel(0).play(self.win_effect)
                             if not self.saved:
                                 self.save_level_stats(level_id)
                                 self.saved = True

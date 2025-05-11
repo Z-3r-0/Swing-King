@@ -227,10 +227,10 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
 
                 if not played_sound:
                     if getattr(collided_object, 'terrain_type') == "lake":
-                        random.choice(water_effects).play()
+                        pygame.mixer.Channel(0).play(random.choice(water_effects))
                         played_sound = True
                     else:
-                        random.choice(defeat_effects).play()
+                        pygame.mixer.Channel(0).play(random.choice(defeat_effects))
                         played_sound = True
 
                 break
