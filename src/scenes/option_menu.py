@@ -13,7 +13,7 @@ class OptionMenu(Scene):
         super().__init__(screen, SceneType.OPTIONS_MENU, "Options menu", scene_from)
 
         self.volumes_sliders = {
-            "Master": Slider(screen, Vector2(575, 100), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
+            "Master": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), 100), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
             "Music": Slider(screen, Vector2(575, 160), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
             "SFX": Slider(screen, Vector2(575, 220), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
             "Voice": Slider(screen, Vector2(575, 280), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
