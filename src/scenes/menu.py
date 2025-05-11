@@ -15,9 +15,6 @@ class Menu(Scene):
         self.background = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
         self.play_bg = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
         self.options_bg = pygame.image.load("assets/images/backgrounds/swing_king_1.png").convert()
-        self.credits_bg = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
-
-        self.credits = pygame.image.load("assets/images/backgrounds/swing_king_credits.png").convert()
 
         button_size = Vector2(270, 80)
 

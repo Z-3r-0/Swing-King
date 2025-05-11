@@ -1,4 +1,5 @@
-﻿from src.utils import *
+﻿from src.scenes.credits import Credits
+from src.utils import *
 from src.scene import SceneType
 from src.scenes import *
 from src.events import scene_events
@@ -14,6 +15,7 @@ main_menu = Menu(screen)
 option_menu = OptionMenu(screen, None)
 level_creator = LevelCreator(screen, None)
 level_selector = LevelSelector(screen, None)
+credits = Credits(screen, None)
 
 scene = SceneType.MAIN_MENU
 from_scene = None

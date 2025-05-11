@@ -16,7 +16,6 @@ class OptionMenu(Scene):
             "Master": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), screen.get_height()/4), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
             "Music": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), screen.get_height()/4+screen.get_height()/16), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
             "SFX": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), screen.get_height()/4+screen.get_height()/8), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
-            "Voice": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), screen.get_height()/4+screen.get_height()/5), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
         }
 
         self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(((screen.get_width()/2)-screen.get_width()/16), screen.get_height()/2), Vector2(270, 80),
