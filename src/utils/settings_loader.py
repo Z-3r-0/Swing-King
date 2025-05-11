@@ -11,7 +11,6 @@ def load_json_settings(file_path: str) -> dict:
     with open(file_path) as json_file:
         return json.load(json_file)
 
-
 def save_json_settings(file_path: str, data: dict):
     """²
     Save a dictionary as a json file
