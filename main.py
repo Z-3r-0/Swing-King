@@ -68,7 +68,5 @@ while True:
         case SceneType.CREDITS:
             credits.scene_from = from_scene
             credits.run()
-            pygame.quit()
-            exit()
 
     clock.tick(60)

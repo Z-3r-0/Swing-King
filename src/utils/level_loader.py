@@ -58,8 +58,6 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                         
                         if point.y < min_y:
                             min_y = point.y
-
-                        print(f"min_y : {min_y}")
                         
                     terrain_type = block.get("type", "fairway")
                     if len(vertices) >= 3:
