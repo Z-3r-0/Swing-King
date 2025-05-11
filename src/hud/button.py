@@ -1,4 +1,7 @@
-﻿import pygame
+﻿import os
+import random
+
+import pygame
 
 from src.hud.resizable_hud import ResizableHUD
 
@@ -25,7 +28,11 @@ class Button(ResizableHUD):
         self.rendered_image = self.image.copy()
         self.rect = pygame.Rect(self.position, self.size)
 
-        self.clicked = False  # Prevents multiple clicks
+        self.clicked = False  # Prevents multiple click
+
+        pygame.mixer.init()
+        
+        self.click_effect = pygame.mixer.Sound("assets/audio/sound_effect/click/button_click.mp3")
 
     def hover(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -39,6 +46,7 @@ class Button(ResizableHUD):
             if self.rect.collidepoint(event.pos):
                 self.rendered_image = self.clicked_image.copy()
                 self.clicked = True
+                self.click_effect.play()
                 self.func()
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:

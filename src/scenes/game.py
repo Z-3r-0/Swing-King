@@ -1,3 +1,6 @@
+import random
+
+import pygame.mixer
 from pygame import Vector2
 
 from src.entities import Ball, Camera, Flag, Obstacle
@@ -47,7 +50,6 @@ class Game(Scene):
 
         # Load level data
         self.terrain_data, self.obstacles_data = level_loader.load_json_level(self.level_path)
-
 
         self.ball = Ball(pygame.Vector2(BALL_START_X, BALL_START_Y), 4.2, 0.047, pygame.Color("white"),
                          "assets/images/balls/golf_ball.png")
@@ -107,6 +109,17 @@ class Game(Scene):
         self.dot_spacing = 10
         self.dot_radius = 2
         self.dot_color = (255, 0, 0)
+
+        # Load sound effects
+        pygame.mixer.init()
+        
+        self.swing_effects = []
+        for effect in os.listdir("assets/audio/sound_effect/swing"):
+            sound = pygame.mixer.Sound("assets/audio/sound_effect/swing/" + effect)
+            self.swing_effects.append(sound)
+            
+        self.win_effect = pygame.mixer.Sound("assets/audio/sound_effect/victory/victory.mp3")
+        self.defeat_effect = pygame.mixer.Sound("assets/audio/sound_effect/defeat/defeat.mp3")
 
         self.flag = None
         for obstacle in self.obstacles:
@@ -264,7 +277,7 @@ class Game(Scene):
                     self.reset_level_state()
 
             if event.type == pygame.USEREVENT + 30:  # HIT RESTART ZONE (see events.py)
-                print("Hit restart zone")
+                self.defeat_effect.play()
                 self.ball.position = self.last_position.copy()  # Use copy to avoid reference issues
                 self.ball.velocity = pygame.Vector2(0, 0)
                 self.ball.is_moving = False  # Stop the ball so it can be shot again
@@ -304,6 +317,7 @@ class Game(Scene):
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # Left-click release
                 if self.dragging:
                     self.dragging = False
+                    random.choice(self.swing_effects).play()
                     mouse_screen_pos = pygame.mouse.get_pos()
                     # Convert release position to world coordinates for angle/force calc
                     # drag_and_release expects world positions
@@ -342,7 +356,7 @@ class Game(Scene):
             while self.physics_accumulator >= self.fixed_dt and sub_steps_this_frame < max_sub_steps_per_frame:
                 if self.ball.is_moving:  # Recheck if ball is moving after each sub-step
                     still_moving = physics.update_ball_physics(self.ball,self.terrain_polys,self.collidable_obstacles_list,self.fixed_dt,self)
-
+                    
                     if not still_moving:
                         self.ball.is_moving = False  # Ball has stopped
                         self.physics_accumulator = 0  # Clear accumulator
@@ -350,6 +364,7 @@ class Game(Scene):
                         # Check win condition AFTER ball stops and physics is fully resolved
                         if self.check_flag_collision():  # check_flag_collision should verify ball is NOT moving
                             level_id = int(self.level_path.split("/")[-1].split(".json")[0].split("level")[-1])
+                            self.win_effect.play()
                             if not self.saved:
                                 self.save_level_stats(level_id)
                                 self.saved = True
