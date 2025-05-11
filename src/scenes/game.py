@@ -251,9 +251,8 @@ class Game(Scene):
         """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                # self.running = False # Assuming Scene's run loop handles this
-                pygame.quit()  # Or post a quit event: pygame.event.post(pygame.event.Event(pygame.QUIT))
-                exit()  # Or sys.exit()
+                pygame.quit()
+                exit()
 
             # --- Key Presses ---
             if event.type == pygame.KEYDOWN:
@@ -300,9 +299,6 @@ class Game(Scene):
 
             if event.type == pygame.MOUSEMOTION:
                 if self.dragging:
-                    # self.current_mouse_pos = pygame.Vector2(event.pos) # For trajectory preview
-                    # Calculate force/angle for trajectory preview if you implement it
-                    # For now, just update based on release
                     pass
 
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:  # Left-click release
@@ -310,24 +306,18 @@ class Game(Scene):
                     self.dragging = False
                     mouse_screen_pos = pygame.mouse.get_pos()
                     # Convert release position to world coordinates for angle/force calc
-                    # drag_and_release expects world positions or consistent coordinate space
-                    # Assuming drag_and_release uses the delta between drag_start_pos (world)
-                    # and current mouse_world_pos.
+                    # drag_and_release expects world positions
                     current_mouse_world_pos = pygame.Vector2(mouse_screen_pos) + self.camera.position
 
-                    # Your drag_and_release function calculates force and angle
-                    # Ensure it handles the coordinate systems correctly.
-                    # The original code used self.drag_start_pos (world) and mouse_world_pos
                     self.force, self.angle = drag_and_release(self.drag_start_pos, current_mouse_world_pos)
 
                     # Limit force if necessary
                     self.force = min(self.force, self.max_force)
 
-                    # Apply shot if force is significant (optional min_force check)
+                    # Apply shot if force is significant
                     MIN_SHOT_FORCE = 50
                     if self.force >= MIN_SHOT_FORCE:
                         # Apply velocity based on force and angle
-                        # This matches your original code's velocity assignment
                         vel_x = -self.force * math.cos(math.radians(self.angle))
                         vel_y = self.force * math.sin(math.radians(self.angle))
                         self.ball.velocity = pygame.Vector2(vel_x, vel_y)
@@ -363,31 +353,25 @@ class Game(Scene):
                             if not self.saved:
                                 self.save_level_stats(level_id)
                                 self.saved = True
-                                # self.__init__(self.screen, self.level_dir, self.scene_from) # This reinitializes, be careful
-                                self.switch_scene(SceneType.LEVEL_SELECTOR)  # More common to switch scene
-                        break  # Exit sub-step loop
+                                self.switch_scene(SceneType.LEVEL_SELECTOR)
+                        break
                 else:
-                    # Ball stopped during a sub-step sequence (e.g. by anti-stuck)
+                    # Ball stopped during a sub-step sequence
                     self.physics_accumulator = 0
-                    break  # Exit sub-step loop
+                    break
 
                 self.physics_accumulator -= self.fixed_dt
                 sub_steps_this_frame += 1
 
         # Update camera position based on ball (if ball moved or dragging for preview)
-        # The original code had camera update outside the ball_in_motion check.
-        # This is fine, camera can follow even if ball is stationary but was just placed.
-        if self.ball.is_moving or self.dragging:  # Or always update if you want smooth pan to stationary ball
+        if self.ball.is_moving or self.dragging:
             self.camera.calculate_position(self.ball.position)
 
-        # The win condition check was here in original code, moved to after ball stops in physics loop.
-        # if self.check_flag_collision(): ...
-
-        # Update drag line preview if dragging (this part is mostly for drawing, but related to input state)
+        # Update drag line preview if dragging
         if self.dragging and self.drag_start_pos:  # drag_start_pos is world
             current_mouse_screen_pos = pygame.mouse.get_pos()
             current_mouse_world_pos = pygame.Vector2(current_mouse_screen_pos) + self.camera.position
-            # Recalculate force/angle for preview if needed by draw_predicted_trajectory
+            # Recalculate force/angle for preview
             self.force, self.angle = drag_and_release(self.drag_start_pos, current_mouse_world_pos)
             self.force = min(self.force, self.max_force)
 
@@ -457,7 +441,7 @@ class Game(Scene):
 
         self.prev_collision_terrain = None
 
-        # Camera and background (ensure these are after width/height and level boundaries)
+        # Camera and background
         # Calculation of level limitations:
         WORLD_MIN_X_BOUNDARY = self.terrain_polys[0].points[0][0]
         WORLD_MAX_X_BOUNDARY = self.terrain_polys[0].points[0][0]
