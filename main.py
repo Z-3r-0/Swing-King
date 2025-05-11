@@ -40,6 +40,7 @@ while True:
     match scene:
         case SceneType.GAME:
             game.scene_from = from_scene
+            game.reset_level_state()
             game.run()
         case SceneType.MAIN_MENU:
             main_menu.scene_from = from_scene

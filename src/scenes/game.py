@@ -6,7 +6,6 @@ import math
 import json
 import os
 from datetime import datetime
-from src.animation import Animation
 from src.scene import Scene, SceneType
 from src import physics
 
