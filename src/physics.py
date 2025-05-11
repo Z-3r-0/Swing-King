@@ -20,6 +20,13 @@ rock_sound_2 = pygame.mixer.Sound("assets/audio/sound_effect/rebounds/rebond_pie
 
 rock_sounds = [rock_sound_1, rock_sound_2]
 
+defeat_effects = []
+for effect in os.listdir("assets/audio/sound_effect/defeat"):
+    sound = pygame.mixer.Sound("assets/audio/sound_effect/defeat/" + effect)
+    defeat_effects.append(sound)
+    
+played_sound = False
+
 def get_polygon_collision_normal_depth(poly_points_world, ball_center_world, ball_radius):
     """
     Calculates collision normal and depth for a circle and a convex polygon.
@@ -97,6 +104,8 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
     """
     if not ball.is_moving:
         return False
+    
+    global played_sound
 
     # apply gravity to the ball's velocity
     ball.velocity.y += GRAVITY_ACCELERATION * dt
@@ -182,9 +191,6 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
                 grass_sound.play()
             elif terrain_type == "rocks" or terrain_type == "darkrocks":
                 random.choice(rock_sounds).play()
-            
-            if friction_coeff < 0:
-                pygame.event.post(pygame.event.Event(pygame.USEREVENT + 30))
 
             velocity_normal_component_scalar = ball.velocity.dot(normal_vec)
             normal_velocity_vector = velocity_normal_component_scalar * normal_vec
@@ -203,8 +209,18 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             tangent_velocity_vector *= (1.0 - friction_coeff)
             ball.velocity = normal_velocity_vector + tangent_velocity_vector
 
+            if friction_coeff < 0:
+                pygame.event.post(pygame.event.Event(pygame.USEREVENT + 30))
+                
+                if not played_sound:
+                    random.choice(defeat_effects).play()
+                    played_sound = True
+                
+                break
+
         if not found_collision_this_iteration:
             # If no collisions were found in this iteration, the ball is clear
+            played_sound = False
             break
 
     # Ball is still moving, but check if it is on a flat surface
@@ -229,6 +245,5 @@ def update_ball_physics(ball, terrain_polys, obstacles, dt, game_instance):
             game_instance.physics_last_collided_object_id = None
             game_instance.physics_collision_toggle_count = 0
             return False  # Ball has stopped
-    
-
+        
     return True

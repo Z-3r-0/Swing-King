@@ -20,7 +20,7 @@ from_scene = None
 
 clock = pygame.time.Clock()
 
-pygame.mixer.music.play(-1)
+# pygame.mixer.music.play(-1)
 
 while True:
     args = None
