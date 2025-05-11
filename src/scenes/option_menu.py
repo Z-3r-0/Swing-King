@@ -14,17 +14,17 @@ class OptionMenu(Scene):
 
         self.volumes_sliders = {
             "Master": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), 100), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Master"]),
-            "Music": Slider(screen, Vector2(575, 160), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
-            "SFX": Slider(screen, Vector2(575, 220), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
-            "Voice": Slider(screen, Vector2(575, 280), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
+            "Music": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), 160), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Music"]),
+            "SFX": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), 220), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["SFX"]),
+            "Voice": Slider(screen, Vector2(((screen.get_width()/2)-screen.get_width()/8), 280), Vector2(400, 20),load_json_settings('data/settings/settings.json')["audio"]["Voice"]),
         }
 
-        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(630, 340), Vector2(270, 80),
+        self.fullscreen_btn = Button(screen, lambda: self.lambda_fullscreen(), Vector2(((screen.get_width()/2)-screen.get_width()/8), 340), Vector2(270, 80),
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png",
                                 "assets/images/buttons/menus/option/fullscreen/Fullscreen_Hovered.png",
                                 "assets/images/buttons/menus/option/fullscreen/fullscreen.png")
 
-        self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(630, 450), Vector2(200, 50),
+        self.back_btn = Button(screen, lambda: self.switch_scene(self.scene_from), Vector2(((screen.get_width()/2)-screen.get_width()/8), 440), Vector2(270, 80),
                       "assets/images/buttons/menus/main/back/back.png",
                       "assets/images/buttons/menus/main/back/back_hovered.png",
                       "assets/images/buttons/menus/main/back/back_clicked.png")
