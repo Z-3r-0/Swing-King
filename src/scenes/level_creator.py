@@ -106,7 +106,7 @@ class LevelCreator(Scene):
             self.action_buttons[5]: (lambda: self.action_buttons[5].toggle()),
             self.action_buttons[7]: (lambda: export(self.list_polygons, self.generated_obstacles)),
             self.action_buttons[8]: (lambda: self.quit_level_creator()),
-            self.action_buttons[9]: (lambda: setattr(self, "HUD_load_level", not self.HUD_load_level)),
+            self.action_buttons[9]: (lambda: self.load_list_levels()),
 
             self.camera_buttons[0]: (lambda: self.move_camera_left()),
             self.camera_buttons[1]: (lambda: self.move_camera_right()),
@@ -351,9 +351,14 @@ class LevelCreator(Scene):
             pygame.draw.line(screen, color, (0, screen_y), (width, screen_y))
             y += grid_size
 
+    def load_list_levels(self):
+        """Load the list of levels from the levels directory."""
+        self.loadable_levels = [f for f in os.listdir("data/levels/") if f.endswith(".json")]
+        self.loadable_levels = sort_levels(self.loadable_levels)
+        setattr(self, "HUD_load_level", not self.HUD_load_level)
+
     def load_level_from_name(self, level_name: str):
         """Handles the action of clicking a level in the load HUD."""
-        print(f"User clicked on level: {level_name}")
         self.restart_level()
         poly_data, obs_data = load_json_level(f"data/levels/{level_name}")
         self.list_polygons, self.generated_obstacles = json_to_list(poly_data, self.screen, 0, True), json_to_list(obs_data, self.screen, 1, True)
