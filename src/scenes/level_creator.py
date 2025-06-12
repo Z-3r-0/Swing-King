@@ -33,6 +33,10 @@ class LevelCreator(Scene):
         self.loadable_levels = sort_levels(self.loadable_levels)
         self.load_level_scroll_offset = 0
 
+        self.has_been_interacted = False
+        self.export_feedback_timer = 0
+        self.export_font = pygame.font.SysFont("Impact", 110)
+
         self.action_buttons = action_buttons(self.width, self.height, action_bar_pos)
         self.camera_buttons = camera_movement_buttons(self.width, self.height, action_bar_pos)
         self.terrain_selection_buttons = terrain_selection_buttons(self.width, self.height, action_bar_pos)
@@ -268,6 +272,20 @@ class LevelCreator(Scene):
             # Reset the clipping region to the full screen
             self.screen.set_clip(None)
 
+        if self.export_feedback_timer > 0:
+            # 1. Create the text surface
+            text_to_render = "EXPORTED WITH SUCCES AND LOTS OF FUN"
+            text_surface = self.export_font.render(text_to_render, True, (255,255,255))  # Bright green color
+
+            # 2. Rotate the text surface
+            rotated_surface = pygame.transform.rotate(text_surface, -10)  # Rotate 30 degrees counter-clockwise
+
+            # 3. Get the new rectangle and center it on the screen
+            rotated_rect = rotated_surface.get_rect(center=(self.screen.get_rect().centerx, self.screen.get_rect().centery - 100))
+
+            # 4. Draw (blit) the rotated text onto the screen
+            self.screen.blit(rotated_surface, rotated_rect)
+
     def clear_list_polygons(self):
         self.list_polygons, self.current_terrain_type= clear(self.list_polygons, self.current_terrain_type)
 
@@ -480,17 +498,13 @@ class LevelCreator(Scene):
                             continue
 
                     for button in self.button_to_action.keys():
-                        # Check if HUD is open and if the button is a close button
-                        if self.HUD_load_level and button.text == "X" and button.rect.collidepoint(self.last_point):
-                            self.HUD_load_level = False
-                            self.interacted = True
-                            continue
 
                         if button.rect.collidepoint(self.last_point) and self.cooldown <= 0:
                             # To avoid triggering the terrain selection buttons when the terrain button is not toggled
                             if button in self.terrain_selection_buttons and not self.action_buttons[0].toggled:
                                 continue
-    
+                            if button == self.action_buttons[7]:
+                                self.export_feedback_timer = 180
                             self.button_to_action[button]()
                             self.cooldown = 60
                             self.interacted = True
@@ -608,6 +622,9 @@ class LevelCreator(Scene):
 
             if self.cooldown > 0:
                 self.cooldown -= 1
+
+            if self.export_feedback_timer > 0:
+                self.export_feedback_timer -= 1
             
             pygame.display.flip()
             self.clock.tick(self.fps)
