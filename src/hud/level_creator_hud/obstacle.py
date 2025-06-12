@@ -3,7 +3,7 @@ import pygame
 
 class Obstacle:
     def __init__(self, position: pygame.Vector2, image_path: str, size: int = 100, is_colliding: bool = True,
-                 nb_points: int = 100, characteristic: str = None):
+                 nb_points: int = 100, characteristic: str = None, angle: int = 0):
         self.points = []
         self.size = size  # in percentage
         self.position = position.copy()  # Use .copy() to avoid references
@@ -35,6 +35,9 @@ class Obstacle:
         self.rotated_image = self.image.copy()  # Store the rotated image
         self.rotated_mask = self.mask.copy()  # Store the rotated mask
         self.rotated_points = self.points.copy()  # Store rotated points
+
+        # Rotate the image a first time to ensure it is in the correct position
+        self.rotate(angle)
 
     def resize(self, size: int):
         """Resize the obstacle

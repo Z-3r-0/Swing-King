@@ -274,3 +274,14 @@ def switch_obstacles_right(obstacles_type, obstacles_types):
     index = obstacles_types.index(obstacles_type)
     index = (index + 1) % len(obstacles_types)
     return index
+
+def sort_levels(levels):
+    """
+    Trie une liste de niveaux en séparant le préfixe 'level' des numéros et en triant les numéros.
+
+    :param levels: Liste des noms de fichiers de niveaux.
+    :type levels: list
+    :return: Liste triée des noms de fichiers de niveaux.
+    :rtype: list
+    """
+    return sorted(levels, key=lambda x: int(x.replace("level", "").replace(".json", "")))

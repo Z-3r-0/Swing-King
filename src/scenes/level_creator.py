@@ -3,6 +3,8 @@
 import src.utils.level_export as export
 from src.hud.level_creator_hud import *
 from src.hud.level_creator_hud import obstacle_selection_buttons
+from src.utils import load_json_level, json_to_list
+
 
 class LevelCreator(Scene):
 
@@ -24,6 +26,12 @@ class LevelCreator(Scene):
         self.action_bar_background = pygame.Rect(action_bar_pos.x, action_bar_pos.y, self.width, action_bar_height)
 
         self.interacted = False
+
+        # HUD to load and modify existing levels
+        self.HUD_load_level = False
+        self.loadable_levels = [f for f in os.listdir("data/levels/") if f.endswith(".json")]
+        self.loadable_levels = sort_levels(self.loadable_levels)
+        self.load_level_scroll_offset = 0
 
         self.action_buttons = action_buttons(self.width, self.height, action_bar_pos)
         self.camera_buttons = camera_movement_buttons(self.width, self.height, action_bar_pos)
@@ -98,6 +106,7 @@ class LevelCreator(Scene):
             self.action_buttons[5]: (lambda: self.action_buttons[5].toggle()),
             self.action_buttons[7]: (lambda: export(self.list_polygons, self.generated_obstacles)),
             self.action_buttons[8]: (lambda: self.quit_level_creator()),
+            self.action_buttons[9]: (lambda: setattr(self, "HUD_load_level", not self.HUD_load_level)),
 
             self.camera_buttons[0]: (lambda: self.move_camera_left()),
             self.camera_buttons[1]: (lambda: self.move_camera_right()),
@@ -186,6 +195,78 @@ class LevelCreator(Scene):
         # Draw the camera movement
         self.camera_movement = pygame.Vector2(0, 0)
 
+        #Hud for loading levels
+        if self.HUD_load_level:
+            # Define HUD properties
+            hud_width = self.width * 0.3
+            hud_height = self.height * 0.6
+            hud_x = (self.width - hud_width) / 2
+            hud_y = (self.height - hud_height) / 2
+            hud_rect = pygame.Rect(hud_x, hud_y, hud_width, hud_height)
+
+            # Draw a semi-transparent background for the HUD
+            hud_surface = pygame.Surface((hud_width, hud_height), pygame.SRCALPHA)
+            hud_surface.fill((50, 50, 50, 220))
+            self.screen.blit(hud_surface, (hud_x, hud_y))
+            pygame.draw.rect(self.screen, (200, 200, 200), hud_rect, 2)
+
+            # Draw the title
+            title_font = pygame.font.SysFont("Arial", 26)
+            title_surface = title_font.render("Select a Level", True, (255, 255, 255))
+            title_rect = title_surface.get_rect(center=(self.width / 2, hud_y + 25))
+            self.screen.blit(title_surface, title_rect)
+
+            # Define the area where the list items will be drawn
+            list_area_rect = pygame.Rect(hud_x + 10, hud_y + 50, hud_width - 20, hud_height - 60)
+
+            # --- SCROLLBAR LOGIC ---
+            button_height_with_padding = 40
+            content_height = len(self.loadable_levels) * button_height_with_padding
+            visible_area_height = list_area_rect.height
+
+            if content_height > visible_area_height:
+                # Draw scrollbar track
+                scrollbar_track_rect = pygame.Rect(list_area_rect.right - 12, list_area_rect.top, 10,
+                                                   list_area_rect.height)
+                pygame.draw.rect(self.screen, (30, 30, 30), scrollbar_track_rect)
+
+                # Draw scrollbar thumb
+                thumb_height = max(20, (visible_area_height / content_height) * visible_area_height)
+                scroll_percentage = self.load_level_scroll_offset / (content_height - visible_area_height)
+                thumb_y = list_area_rect.top + scroll_percentage * (visible_area_height - thumb_height)
+                scrollbar_thumb_rect = pygame.Rect(scrollbar_track_rect.left, thumb_y, 10, thumb_height)
+                pygame.draw.rect(self.screen, (150, 150, 150), scrollbar_thumb_rect)
+
+            # --- LIST DRAWING LOGIC ---
+            # Set a clipping region to prevent drawing outside the list area
+            self.screen.set_clip(list_area_rect)
+
+            button_width = list_area_rect.width - 15  # Make space for scrollbar
+            button_height = 35
+            start_y = list_area_rect.top
+
+            for i, level_name in enumerate(self.loadable_levels):
+                button_x = list_area_rect.left
+                # Calculate button position with scroll offset
+                button_y = start_y + i * button_height_with_padding - self.load_level_scroll_offset
+
+                display_name = level_name.replace(".json", "").replace("_", " ").title()
+                level_button = Button(
+                    position=pygame.Vector2(button_x, button_y),
+                    dimensions=pygame.Vector2(button_width, button_height),
+                    text=display_name,
+                    color=(80, 80, 120),
+                    font_size=20
+                )
+
+                # Only draw the button if it's visible within the clipped area
+                if level_button.rect.colliderect(list_area_rect):
+                    if level_button.rect.collidepoint(mouse_pos):
+                        level_button.color = (110, 110, 150)
+                    level_button.draw(self.screen)
+
+            # Reset the clipping region to the full screen
+            self.screen.set_clip(None)
 
     def clear_list_polygons(self):
         self.list_polygons, self.current_terrain_type= clear(self.list_polygons, self.current_terrain_type)
@@ -220,8 +301,7 @@ class LevelCreator(Scene):
     
     def switch_obstacles_right_(self):
         self.switch_index = switch_obstacles_right(self.obstacle_type_buttons[self.switch_index], self.obstacle_type_buttons)
-    
-    
+
     def generate_obstacle(self, path, colliding:bool, characteristics:str = None):
         mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
         if colliding:
@@ -270,7 +350,15 @@ class LevelCreator(Scene):
             screen_y = int(y - cam_y)
             pygame.draw.line(screen, color, (0, screen_y), (width, screen_y))
             y += grid_size
-            
+
+    def load_level_from_name(self, level_name: str):
+        """Handles the action of clicking a level in the load HUD."""
+        print(f"User clicked on level: {level_name}")
+        self.restart_level()
+        poly_data, obs_data = load_json_level(f"data/levels/{level_name}")
+        self.list_polygons, self.generated_obstacles = json_to_list(poly_data, self.screen, 0, True), json_to_list(obs_data, self.screen, 1, True)
+        self.HUD_load_level = False  # Close the HUD after selection
+
     def run(self):
         
         super().run()
@@ -284,11 +372,10 @@ class LevelCreator(Scene):
                     self.running = False
                     pygame.quit()
                     exit()
-        
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     self.moving_obstacle = None
         
-                elif event.type == pygame.KEYDOWN and event.key in self.action_keys.keys():
+                elif event.type == pygame.KEYDOWN and event.key in self.action_keys.keys() and not self.HUD_load_level:
                     match event.key:
                         case pygame.K_SPACE:
                             last_poly = self.list_polygons[-1]
@@ -325,14 +412,75 @@ class LevelCreator(Scene):
         
         
         
-                elif event.type == pygame.KEYDOWN and event.key in self.selection_keys.keys() and self.selection_keys[event.key] != self.current_terrain_type:
+                elif event.type == pygame.KEYDOWN and event.key in self.selection_keys.keys() and self.selection_keys[event.key] != self.current_terrain_type and not self.HUD_load_level:
                     self.list_polygons, self.current_terrain_type = add_polygon_of_type(self.list_polygons, self.current_terrain_type, self.selection_keys[event.key])
-        
+
+                elif event.type == pygame.MOUSEWHEEL and self.HUD_load_level:
+                    scroll_speed = 20  # Pixels to scroll per wheel turn
+                    self.load_level_scroll_offset -= event.y * scroll_speed
+
+                    # Define the scrollable area height
+                    hud_height = self.height * 0.6
+                    content_height = len(self.loadable_levels) * 40  # 35px button + 5px padding
+                    visible_area_height = hud_height - 60  # Subtract padding for title etc.
+
+                    # Clamp the scroll offset to prevent scrolling past the content
+                    max_scroll = max(0, content_height - visible_area_height)
+                    self.load_level_scroll_offset = max(0, min(self.load_level_scroll_offset, max_scroll))
+                    self.interacted = True  # Prevent other actions while scrolling
+
                 # Detect a mouse button press
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.cooldown <= 0:
                     self.last_point = pygame.Vector2(event.pos[0], event.pos[1])
-            
+
+                    # If the load level HUD is open, handle its clicks exclusively.
+                    if self.HUD_load_level:
+                        hud_width = self.width * 0.3
+                        hud_height = self.height * 0.6
+                        hud_x = (self.width - hud_width) / 2
+                        hud_y = (self.height - hud_height) / 2
+
+                        # Check for a click on the close button (which isn't in the main button list)
+                        close_button_rect = pygame.Rect(hud_x + hud_width - 35, hud_y + 5, 30, 30)
+                        if close_button_rect.collidepoint(self.last_point):
+                            self.HUD_load_level = False
+                            self.interacted = True
+                            self.cooldown = 14
+                            continue  # Skip all other click logic
+
+                        # Check for clicks on the dynamic level buttons
+                        list_area_rect = pygame.Rect(hud_x + 10, hud_y + 50, hud_width - 20, hud_height - 60)
+                        if list_area_rect.collidepoint(self.last_point):
+                            button_width = list_area_rect.width - 15
+                            button_height = 35
+                            button_height_with_padding = 40
+                            start_y = list_area_rect.top
+
+                            for i, level_name in enumerate(self.loadable_levels):
+                                button_y = start_y + i * button_height_with_padding - self.load_level_scroll_offset
+                                level_button_rect = pygame.Rect(list_area_rect.left, button_y, button_width,
+                                                                button_height)
+
+                                # Check if this specific button was clicked
+                                if level_button_rect.collidepoint(self.last_point):
+                                    self.load_level_from_name(level_name)
+                                    self.interacted = True
+                                    self.cooldown = 14
+                                    break  # Exit the loop once a button is clicked
+                            continue  # Skip all other click logic
+
+                        # If the click was on the HUD but not on a button, still consume the click
+                        if pygame.Rect(hud_x, hud_y, hud_width, hud_height).collidepoint(self.last_point):
+                            self.interacted = True
+                            continue
+
                     for button in self.button_to_action.keys():
+                        # Check if HUD is open and if the button is a close button
+                        if self.HUD_load_level and button.text == "X" and button.rect.collidepoint(self.last_point):
+                            self.HUD_load_level = False
+                            self.interacted = True
+                            continue
+
                         if button.rect.collidepoint(self.last_point) and self.cooldown <= 0:
                             # To avoid triggering the terrain selection buttons when the terrain button is not toggled
                             if button in self.terrain_selection_buttons and not self.action_buttons[0].toggled:
@@ -341,7 +489,8 @@ class LevelCreator(Scene):
                             self.button_to_action[button]()
                             self.cooldown = 60
                             self.interacted = True
-            
+                    if self.HUD_load_level:
+                        continue
                     # region obstacles Interactions
             
                     # Check if clicking on a button that generate obstacles:

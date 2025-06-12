@@ -23,8 +23,10 @@ def action_buttons(width, height, action_bar_pos):
                         pygame.Vector2(width * 0.15, height * 0.05), "Export", color=(255, 162, 0))
     but_quit = Button(pygame.Vector2(width * 0.02, height * 0.02), pygame.Vector2(width * 0.05, height * 0.05), "Quit",
                       color=(255, 0, 0))
+    but_load = Button(pygame.Vector2(width * 0.88, height * 0.02), pygame.Vector2(width * 0.10, height * 0.05), "Load a level",
+                      color=(0, 80, 145))
 
-    return [but_terrain, but_clear, but_restart, but_rewind, but_restore, but_grid, but_environment, but_export, but_quit]
+    return [but_terrain, but_clear, but_restart, but_rewind, but_restore, but_grid, but_environment, but_export, but_quit, but_load]
 
 def camera_movement_buttons(width, height, action_bar_pos):
     but_left = Button(pygame.Vector2(width * 0.40, action_bar_pos.y + height * 0.06),

@@ -3,6 +3,7 @@ import pygame
 from pygame import Vector2
 
 from src.entities import Terrain, Obstacle, Flag
+from src.hud.level_creator_hud import polygons, obstacle, Polygon
 
 
 def load_json_level(file_path):
@@ -30,7 +31,7 @@ def load_json_level(file_path):
         return [], []
 
 
-def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
+def json_to_list(data: list, screen: pygame.Surface, layer: int, is_level_creator:bool = False) -> list:
     """
     Converts the provided data to a Terrain or Obstacle list if it respects level json structure.
     :param screen: The screen surface (used for height calculation).
@@ -61,13 +62,24 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                         
                     terrain_type = block.get("type", "fairway")
                     if len(vertices) >= 3:
-                        try:
-                            new_terrain = Terrain(terrain_type, vertices)
-                            terrain_ids[block.get("id", -1)] = new_terrain
-                        except ValueError as ve:
-                             print(f"Warning: Could not create terrain ID {block.get('id', 'N/A')}: {ve}")
-                        except Exception as e:
-                             print(f"Error creating terrain ID {block.get('id', 'N/A')}: {e}")
+                        if(not is_level_creator):
+                            try:
+                                new_terrain = Terrain(terrain_type, vertices)
+                                terrain_ids[block.get("id", -1)] = new_terrain
+                            except ValueError as ve:
+                                 print(f"Warning: Could not create terrain ID {block.get('id', 'N/A')}: {ve}")
+                            except Exception as e:
+                                 print(f"Error creating terrain ID {block.get('id', 'N/A')}: {e}")
+                        else:
+                            try:
+                                new_terrain = Polygon(terrain_type, vertices)
+                                terrain_ids[block.get("id", -1)] = new_terrain
+                            except ValueError as ve:
+                                 print(f"Warning: Could not create terrain ID {block.get('id', 'N/A')}: {ve}")
+                            except Exception as e:
+                                 print(f"Error creating terrain ID {block.get('id', 'N/A')}: {e}")
+
+
                     else:
                         print(f"Warning: Terrain block ID {block.get('id', 'N/A')} has < 3 vertices. Skipping.")
                 sorted_terrain_dict = dict(sorted(terrain_ids.items()))
@@ -76,16 +88,15 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                     
                 # Create a terrain of type void at 0 x position and minimum y position, as long as the level size
                 vertices = [(0, screen_height - min_y), (10000, screen_height - min_y), (100000, screen_height - min_y - 30), (0, screen_height - min_y - 30)]  # 10000 is the max size of a level, +30 is arbitrary
-                void = Terrain("void", vertices)
-                
-                terrain_list.append(void)
+                if not is_level_creator:
+                    void = Terrain("void", vertices)
+                    terrain_list.append(void)
                     
                 return terrain_list
 
             case 1: # Case for obstacles
                 for block in data:
-
-                    if block["characteristic"] == "end":
+                    if not is_level_creator and block["characteristic"] == "end":
                         position = Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"] - (108-block["size"]))  # 108 is the size of the flag sprite
                         angle = block["angle"]
 
@@ -93,16 +104,16 @@ def json_to_list(data: list, screen: pygame.Surface, layer: int) -> list:
                         obstacles_ids[block["id"]] = new_obstacle
 
                         continue
-                    if block["characteristic"] == "coins":
-                        continue
 
                     position = pygame.Vector2(block["position"]["x"], screen.get_height() - block["position"]["y"])
                     size = block["size"]
                     angle = block["angle"]
                     is_colliding = block["is_colliding"]
                     characteristic = block["characteristic"]
-                    new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
-
+                    if(not is_level_creator):
+                        new_obstacle = Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
+                    else:
+                        new_obstacle = obstacle.Obstacle(position=position, image_path=f"{block['type']}.png", size=size, is_colliding=is_colliding, angle=angle, nb_points=150, characteristic=characteristic)
                     obstacles_ids[block["id"]] = new_obstacle
 
             case _:
